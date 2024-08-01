@@ -1,13 +1,28 @@
 package gr.technico.technikon.ui;
 
+import gr.technico.technikon.services.OwnerService;
+import gr.technico.technikon.services.OwnerServiceImpl;
+import gr.technico.technikon.repositories.OwnerRepository;
+import gr.technico.technikon.jpa.JpaUtil;
+
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class UserInterface implements UserSelection {
 
     private static final Scanner scanner = new Scanner(System.in);
-    private final OwnerInterface ownerInterface = new OwnerInterface();
-    private final AdminInterface adminInterface = new AdminInterface();
+    private final OwnerInterface ownerInterface;
+    private final AdminInterface adminInterface;
+
+    public UserInterface() {
+        // Set up the necessary service and repository
+        OwnerRepository ownerRepository = new OwnerRepository(JpaUtil.getEntityManager());
+        OwnerService ownerService = new OwnerServiceImpl(ownerRepository);
+
+        // Initialize OwnerInterface with required service
+        this.ownerInterface = new OwnerInterface(ownerService);
+        this.adminInterface = new AdminInterface();
+    }
 
     public void run() {
         while (true) {

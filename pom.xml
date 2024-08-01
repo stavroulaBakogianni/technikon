@@ -11,7 +11,6 @@
         <maven.compiler.target>21</maven.compiler.target>
         <exec.mainClass>gr.technico.technikon.Technikon</exec.mainClass>
     </properties>
-    <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
     <dependencies>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -40,7 +39,11 @@
             <artifactId>validation-api</artifactId>
             <version>2.0.1.Final</version>
         </dependency>
-
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.4.5</version>
+        </dependency>
     </dependencies>
     
 </project>
