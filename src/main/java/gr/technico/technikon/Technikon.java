@@ -4,9 +4,7 @@ import gr.technico.technikon.model.Owner;
 import gr.technico.technikon.model.Property;
 import gr.technico.technikon.model.PropertyType;
 import gr.technico.technikon.model.Repair;
-import gr.technico.technikon.model.RepairStatus;
 import gr.technico.technikon.model.RepairType;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -19,16 +17,37 @@ public class Technikon {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
 
         entityManager.getTransaction().begin();
-
-//        Owner owner = new Owner("123457", "Apostolis", "Tourlidas", "Agrinio", "6999999999", "a@example.com", "apostolis", "apostolis");
-        Owner owner1 = new Owner("123456788", "Apostolis", "Tourlidas", "Agrinio", "6999999999", "asss@example.com", "apostolissss", "apostolis");
-//        entityManager.persist(owner1);
         
-        Property property = new Property("1233", "Athens", 2000, PropertyType.DETACHEDHOUSE, owner1);
-//        entityManager.persist(property);
-
-        Repair repair = new Repair(owner1, property, RepairType.ELECTRICALWORK, "aaa", LocalDateTime.now(), "aaaa", LocalDateTime.now(), LocalDateTime.now(), BigDecimal.valueOf(150.0), true, RepairStatus.PENDING, LocalDateTime.now(), LocalDateTime.now());
-//        entityManager.persist(repair);
+        // Initialize a new owner object to get the unique id
+        Owner owner1 = new Owner();
+        owner1.setVat("123456789");
+        owner1.setAddress("Kavala");
+        owner1.setName("Stavroula");
+        owner1.setSurname("Bakogianni");
+        owner1.setPhoneNumber("6999999876");
+        owner1.setUsername("bakostav");
+        owner1.setPassword("123123123");
+        owner1.setEmail("asss@example.com");
+        
+        entityManager.persist(owner1);
+        
+        Property property1 = new Property();
+        property1.setOwnerId(owner1);
+        property1.setE9("GR345678901234567890");
+        property1.setPropertyAddress("Kavala");
+        property1.setConstructionYear(1980);
+        property1.setPropertyType(PropertyType.MAISONETTE);
+        
+        entityManager.persist(property1);
+        
+        Repair repair1 = new Repair();
+        repair1.setOwnerId(owner1);
+        repair1.setPropertyId(property1);
+        repair1.setRepairType(RepairType.ELECTRICALWORK);
+        repair1.setShortDescription("elctric work");
+        repair1.setSubmissionDate(LocalDateTime.now());
+        
+        entityManager.persist(repair1);
         
         entityManager.getTransaction().commit();
 
