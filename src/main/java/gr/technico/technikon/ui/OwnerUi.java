@@ -1,6 +1,6 @@
 package gr.technico.technikon.ui;
 
-import gr.technico.technikon.exceptions.OwnerException;
+import gr.technico.technikon.exceptions.CustomException;
 import gr.technico.technikon.services.OwnerService;
 import lombok.extern.slf4j.Slf4j;
 
@@ -8,13 +8,13 @@ import java.util.InputMismatchException;
 import java.util.Scanner;
 
 @Slf4j
-public class OwnerInterface implements OwnerSelection {
+public class OwnerUi implements OwnerSelection {
 
     private static final Scanner scanner = new Scanner(System.in);
     private final OwnerService ownerService;
     
     // Initialize ownerService
-    public OwnerInterface(OwnerService ownerService) {
+    public OwnerUi(OwnerService ownerService) {
         this.ownerService = ownerService;
     }
 
@@ -88,7 +88,7 @@ public class OwnerInterface implements OwnerSelection {
 
             ownerService.createOwner(vat, name, surname, address, phoneNumber, email, username, password);
             log.info("Owner created successfully.");
-        } catch (OwnerException e) {
+        } catch (CustomException e) {
             log.error("Error creating owner:", e.getMessage());
         } catch (Exception e) {
             log.error("Unexpected error while creating owner: ", e);

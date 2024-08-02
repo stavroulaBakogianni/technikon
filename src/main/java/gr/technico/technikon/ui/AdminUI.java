@@ -3,7 +3,7 @@ package gr.technico.technikon.ui;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
-public class AdminInterface implements AdminSelection {
+public class AdminUI implements AdminSelection {
 
     private static final Scanner scanner = new Scanner(System.in);
 

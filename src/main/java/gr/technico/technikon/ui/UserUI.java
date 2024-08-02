@@ -8,20 +8,20 @@ import gr.technico.technikon.jpa.JpaUtil;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
-public class UserInterface implements UserSelection {
+public class UserUI implements UserSelection {
 
     private static final Scanner scanner = new Scanner(System.in);
-    private final OwnerInterface ownerInterface;
-    private final AdminInterface adminInterface;
+    private final OwnerUi ownerInterface;
+    private final AdminUI adminInterface;
 
-    public UserInterface() {
+    public UserUI() {
         // Set up the necessary service and repository
         OwnerRepository ownerRepository = new OwnerRepository(JpaUtil.getEntityManager());
         OwnerService ownerService = new OwnerServiceImpl(ownerRepository);
 
         // Initialize OwnerInterface with required service
-        this.ownerInterface = new OwnerInterface(ownerService);
-        this.adminInterface = new AdminInterface();
+        this.ownerInterface = new OwnerUi(ownerService);
+        this.adminInterface = new AdminUI();
     }
 
     public void run() {
