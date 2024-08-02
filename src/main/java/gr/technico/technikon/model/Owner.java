@@ -1,49 +1,56 @@
 package gr.technico.technikon.model;
 
 import java.io.Serializable;
-import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
+import javax.persistence.OneToMany;
+import javax.validation.constraints.*;
+import javax.validation.constraints.NegativeOrZero.List;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.Setter;
 
 @Entity
-@Table(name = "owner")
-@Data
-@ToString
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Owner implements Serializable {
-    
+
     @Id
-    @Column(name = "VAT")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     @Size(min = 9, max = 9, message = "Vat must contain 9 characters.")
+    @NotNull
     private String vat;
-    
-    @Column(name = "name", length = 50, nullable = false)
+
+    @Size(min = 1, max = 50)
+    @NotNull
     private String name;
-    
-    @Column(name = "surname", length = 50, nullable = false)
+
+    @Size(min = 1, max = 50)
+    @NotNull
     private String surname;
-    
-    @Column(name = "address",length = 50, nullable = false)
+
+    @Size(min = 1, max = 50)
     private String address;
-    
-    @Column(name = "phoneNumber", length = 20, nullable = false)    
+
+    @Size(max = 14)
     private String phoneNumber;
-    
-    @Column(name = "email", length = 100, nullable = false, unique = true)
-    @Pattern(regexp = "^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)*@[^-][A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$")
+
+    @Email
+    @NotNull
     private String email;
-    
-    @Column(name = "username", length = 50, nullable = false, unique = true)
+
+    @Size(min = 1, max = 50)
+    @NotNull
     private String username;
-    
-    @Column(name = "password", length = 50, nullable = false)
-    private String password;    
+
+    @Size(min = 1, max = 50)
+    @NotNull
+    private String password;
 }

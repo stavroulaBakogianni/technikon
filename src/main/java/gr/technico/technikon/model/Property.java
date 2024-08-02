@@ -3,39 +3,40 @@ package gr.technico.technikon.model;
 import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.Setter;
 
 @Entity
-@Table(name = "property")
-@Data
-@ToString
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Property implements Serializable {
-    
+
     @Id
-    @Column(name = "property_id")
-    @Size(min = 20, max = 20, message = "Property id must contain 20 characters.")
-    private String propertyId;
-    
-    @Column(name = "property_address", length = 50, nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Size(min = 20, max = 20, message = "E9 must contain 20 characters.")
+    @NotNull
+    private String e9;
+
+    @Size(max = 50)
     private String propertyAddress;
-    
-    @Column(name = "construction_year", length = 4, nullable = false)
+
+    @Digits(integer = 4, fraction = 0)
     private int constructionYear;
-    
+
     @Column(name = "property_type", nullable = false)
     private PropertyType propertyType;
-    
+
     @ManyToOne
-    @JoinColumn(name = "owner_vat", referencedColumnName = "vat" ,nullable = false)
-    private Owner ownerVat;
+    private Owner ownerId;
 }
