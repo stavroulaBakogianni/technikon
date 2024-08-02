@@ -1,12 +1,17 @@
 package gr.technico.technikon.model;
 
 import java.io.Serializable;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -34,9 +39,14 @@ public class Property implements Serializable {
     @Digits(integer = 4, fraction = 0)
     private int constructionYear;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "property_type", nullable = false)
     private PropertyType propertyType;
 
     @ManyToOne
-    private Owner ownerId;
+    @JoinColumn(name = "owner_vat", referencedColumnName = "vat")
+    private Owner owner;
+
+    @OneToMany(mappedBy = "property")
+    private List<Repair> repairs;
 }

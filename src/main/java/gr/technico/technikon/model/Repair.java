@@ -5,9 +5,12 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -26,12 +29,7 @@ public class Repair implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    private Owner ownerId;
-
-    @ManyToOne
-    private Property propertyId;
-
+    @Enumerated(EnumType.STRING)
     @Column(name = "repair_type", nullable = false)
     private RepairType repairType;
 
@@ -56,11 +54,19 @@ public class Repair implements Serializable {
 
     private Boolean acceptanceStatus;
 
-    private RepairStatus repairStatus;
+    @Enumerated(EnumType.STRING)
+    @NotNull
+    private RepairStatus repairStatus = RepairStatus.PENDING;
 
     @FutureOrPresent
     private LocalDateTime actualStartDate;
 
     @FutureOrPresent
     private LocalDateTime actualEndDate;
+
+    @ManyToOne
+    private Owner owner;
+
+    @ManyToOne
+    private Property property;
 }
