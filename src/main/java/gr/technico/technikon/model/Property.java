@@ -46,7 +46,7 @@ public class Property implements Serializable {
     private PropertyType propertyType;
 
     @ManyToOne
-    @JoinColumn(name = "owner_vat", referencedColumnName = "vat")
+    @JoinColumn(name = "owner_vat", referencedColumnName = "vat", nullable = false)
     private Owner owner;
 
     @OneToMany(mappedBy = "property")
