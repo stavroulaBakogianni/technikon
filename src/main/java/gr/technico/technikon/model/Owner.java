@@ -55,4 +55,13 @@ public class Owner implements Serializable {
     @NotNull
     private String password;
 
+
+    //To do: decide what to do about cascade
+    @OneToMany(mappedBy = "owner")
+    private List<Property> propertyList;
+
+    //To do: decide what to do about cascade
+    @OneToMany(mappedBy = "owner")
+    private List<Repair> repairList;
+
 }
