@@ -31,12 +31,14 @@ public class Property implements Serializable {
 
     @Size(min = 20, max = 20, message = "E9 must contain 20 characters.")
     @NotNull
+    @Column(unique = true)
     private String e9;
 
-    @Size(max = 50)
+    @Column(name = "property_address", length = 50)
     private String propertyAddress;
 
     @Digits(integer = 4, fraction = 0)
+    @Column(name = "construction_year")
     private int constructionYear;
 
     @Enumerated(EnumType.STRING)

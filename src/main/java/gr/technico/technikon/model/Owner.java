@@ -40,7 +40,7 @@ public class Owner implements Serializable {
     @Size(min = 1, max = 50)
     private String address;
 
-    @Size(max = 14)
+    @Column(name = "phone_number", length = 14)
     private String phoneNumber;
 
     @Email
@@ -58,5 +58,9 @@ public class Owner implements Serializable {
     //To do: decide what to do about cascade
     @OneToMany(mappedBy = "owner")
     private List<Property> propertyList;
+
+    //To do: decide what to do about cascade
+    @OneToMany(mappedBy = "owner")
+    private List<Repair> repairList;
 
 }
