@@ -19,15 +19,16 @@ public class RepairServiceImpl implements RepairService {
     }
     @Override
     public Repair createRepair(RepairType repairType, String shortDescription,
-            LocalDateTime submissionDate, String description, Boolean acceptanceStatus,
-            RepairStatus repairStatus,
+//            LocalDateTime submissionDate, 
+            String description,
+//            RepairStatus repairStatus,
             Owner owner, Property property) {
         Repair repair = new Repair();
         repair.setRepairType(repairType);
         repair.setShortDescription(shortDescription);
-        repair.setSubmissionDate(submissionDate);
-        repair.setAcceptanceStatus(acceptanceStatus);
-        repair.setRepairStatus(repairStatus);
+        repair.setDescription(description);
+        repair.setSubmissionDate(LocalDateTime.now());
+        repair.setRepairStatus(RepairStatus.PENDING);
         repair.setOwner(owner);
         repair.setProperty(property);
         repairRepository.save(repair);

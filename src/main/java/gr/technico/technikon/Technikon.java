@@ -55,9 +55,15 @@ public class Technikon {
         em.persist(property1);
         em.persist(property2);
         
-        Repair repair1 = repairService.createRepair(RepairType.PAINTING, "dsfkj", 
-                LocalDateTime.now(), "sdafasdkuHDIUQW", Boolean.TRUE, RepairStatus.INPROGRESS, owner2, property2);
+        Repair repair1 = repairService.createRepair(RepairType.PAINTING, "painting", 
+                 "sdafasdkuHDIUQW", owner2, property2);
         em.persist(repair1);
+        Repair repair2 = repairService.createRepair(RepairType.ELECTRICALWORK, "electricals", 
+                 "sdafsdaedeasdkuHDIUQW", owner1, property1);
+        em.persist(repair2);
+        Repair repair3 = repairService.createRepair(RepairType.FRAMES, "frames", 
+                 "sdafsdaedeasdkuHDIUQW", owner1, property1);
+        em.persist(repair3);
         
         em.close();
     }

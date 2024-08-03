@@ -8,10 +8,7 @@ import gr.technico.technikon.exceptions.CustomException;
 import gr.technico.technikon.model.Owner;
 import gr.technico.technikon.model.Property;
 import gr.technico.technikon.model.Repair;
-import gr.technico.technikon.model.RepairStatus;
 import gr.technico.technikon.model.RepairType;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -21,8 +18,9 @@ import java.util.List;
 public interface RepairService {
 
     Repair createRepair(RepairType repairType, String shortDescription,
-            LocalDateTime submissionDate, String description,
-            Boolean acceptanceStatus, RepairStatus repairStatus,
+//            LocalDateTime submissionDate, 
+            String description,
+//            RepairStatus repairStatus,
             Owner owner,
             Property property);
 
