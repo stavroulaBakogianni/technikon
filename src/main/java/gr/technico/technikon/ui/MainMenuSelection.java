@@ -1,6 +1,6 @@
 package gr.technico.technikon.ui;
 
-public interface UserSelection {
+public interface MainMenuSelection {
     void displayMainMenu();
     int getUserChoice();
 }

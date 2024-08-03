@@ -1,13 +1,12 @@
 package gr.technico.technikon.repositories;
 
+import gr.technico.technikon.jpa.JpaUtil;
 import gr.technico.technikon.model.Owner;
 import java.util.List;
 import java.util.Optional;
 import javax.persistence.EntityManager;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
-public class OwnerRepository implements Repository<Owner, String> {
+public class OwnerRepository implements Repository<Owner, Long> {
 
     private final EntityManager entityManager;
 
@@ -18,20 +17,14 @@ public class OwnerRepository implements Repository<Owner, String> {
     @Override
     public Optional<Owner> save(Owner owner) {
         try {
-            entityManager.getTransaction().begin();
+            JpaUtil.beginTransaction();
             entityManager.persist(owner);
-            entityManager.getTransaction().commit();
+            JpaUtil.commitTransaction(); 
             return Optional.of(owner);
         } catch (Exception e) {
-            log.debug("An exception occurred while saving owner", e);
-            entityManager.getTransaction().rollback();
+            JpaUtil.rollbackTransaction(); 
+            return Optional.empty();
         }
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<Owner> findById(String id) {
-        return Optional.empty();
     }
 
     @Override
@@ -39,8 +32,14 @@ public class OwnerRepository implements Repository<Owner, String> {
         return List.of();
     }
 
+
     @Override
-    public boolean deleteById(String id) {
-        return false;
+    public Optional<Owner> findById(Long id) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public boolean deleteById(Long id) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

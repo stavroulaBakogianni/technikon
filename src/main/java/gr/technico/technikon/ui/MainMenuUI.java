@@ -1,26 +1,19 @@
 package gr.technico.technikon.ui;
 
-import gr.technico.technikon.services.OwnerService;
-import gr.technico.technikon.services.OwnerServiceImpl;
-import gr.technico.technikon.repositories.OwnerRepository;
-import gr.technico.technikon.jpa.JpaUtil;
+import gr.technico.technikon.services.OwnerServiceInterface;
 
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
-public class UserUI implements UserSelection {
+public class MainMenuUI implements MainMenuSelection {
 
     private static final Scanner scanner = new Scanner(System.in);
-    private final OwnerUi ownerInterface;
+    private final OwnerUI ownerInterface;
     private final AdminUI adminInterface;
 
-    public UserUI() {
-        // Set up the necessary service and repository
-        OwnerRepository ownerRepository = new OwnerRepository(JpaUtil.getEntityManager());
-        OwnerService ownerService = new OwnerServiceImpl(ownerRepository);
-
-        // Initialize OwnerInterface with required service
-        this.ownerInterface = new OwnerUi(ownerService);
+    // Constructor accepting parameters
+    public MainMenuUI(OwnerServiceInterface ownerService) {
+        this.ownerInterface = new OwnerUI(ownerService);
         this.adminInterface = new AdminUI();
     }
 
@@ -50,7 +43,7 @@ public class UserUI implements UserSelection {
         System.out.println("1. Property Owner");
         System.out.println("2. Admin");
         System.out.println("3. Exit");
-        System.out.print("Select role: ");
+        System.out.print("Please type a number for your role and press enter: ");
     }
 
     @Override
