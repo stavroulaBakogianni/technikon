@@ -1,10 +1,18 @@
 package gr.technico.technikon.model;
 
-import java.io.Serializable;
 import java.util.List;
-import javax.persistence.*;
+import java.io.Serializable;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.validation.constraints.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
@@ -12,11 +20,12 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Owner implements Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Size(min = 9, max = 9, message = "Vat must contain 9 characters.")
+    @Size(min = 9, max = 9)
     @Column(nullable = false, unique = true)
     private String vat;
 
@@ -31,13 +40,12 @@ public class Owner implements Serializable {
     @Size(min = 1, max = 50)
     private String address;
 
-    @Size(max = 14)
+    @Column(name = "phone_number", length = 14)
     private String phoneNumber;
 
     @Email
     @NotNull
     @Column(unique = true)
-//    @Pattern(regexp = "^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)*@[^-][A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$")
     private String email;
 
     @Column(length = 50, nullable = false, unique = true)
@@ -47,6 +55,12 @@ public class Owner implements Serializable {
     @NotNull
     private String password;
 
+    //To do: decide what to do about cascade
     @OneToMany(mappedBy = "owner")
     private List<Property> propertyList;
+
+    //To do: decide what to do about cascade
+    @OneToMany(mappedBy = "owner")
+    private List<Repair> repairList;
+
 }

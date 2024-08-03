@@ -1,6 +1,7 @@
 package gr.technico.technikon.model;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
