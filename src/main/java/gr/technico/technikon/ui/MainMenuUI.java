@@ -1,7 +1,6 @@
 package gr.technico.technikon.ui;
 
-import gr.technico.technikon.services.OwnerServiceInterface;
-
+import gr.technico.technikon.services.OwnerService;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
@@ -12,7 +11,7 @@ public class MainMenuUI implements MainMenuSelection {
     private final AdminUI adminInterface;
 
     // Constructor accepting parameters
-    public MainMenuUI(OwnerServiceInterface ownerService) {
+    public MainMenuUI(OwnerService ownerService) {
         this.ownerInterface = new OwnerUI(ownerService);
         this.adminInterface = new AdminUI();
     }
