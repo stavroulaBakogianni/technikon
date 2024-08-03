@@ -53,10 +53,8 @@ public class Repair implements Serializable {
     private LocalDateTime actualEndDate;
 
     @ManyToOne
-//     private Owner ownerId;
     private Owner owner;
 
     @ManyToOne
-//    private Property propertyId;
     private Property property;
 }

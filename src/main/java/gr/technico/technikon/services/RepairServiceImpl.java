@@ -32,20 +32,17 @@ public class RepairServiceImpl implements RepairService {
         repair.setProperty(property);
         repairRepository.save(repair);
         return repair;
-        //throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
     @Override
     public Long saveRepair(Repair repair) throws CustomException {
         repairRepository.save(repair);
         return repair.getId();
-        //throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
     @Override
     public List<Repair> getRepairs() {
         return repairRepository.findAll();
-        //throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
     @Override

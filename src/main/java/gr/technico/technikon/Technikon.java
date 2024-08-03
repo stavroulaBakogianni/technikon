@@ -55,8 +55,6 @@ public class Technikon {
         em.persist(property1);
         em.persist(property2);
         
-
-        
         Repair repair1 = repairService.createRepair(RepairType.PAINTING, "dsfkj", 
                 LocalDateTime.now(), "sdafasdkuHDIUQW", Boolean.TRUE, RepairStatus.INPROGRESS, owner2, property2);
         em.persist(repair1);
