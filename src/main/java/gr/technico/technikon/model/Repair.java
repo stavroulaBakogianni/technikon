@@ -3,6 +3,8 @@ package gr.technico.technikon.model;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -24,6 +26,13 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Repair implements Serializable {
+    public static List<Repair> repairListByOwnerId = new ArrayList<>();
+    
+    public static List<Repair> allRepairs = new ArrayList<>();
+    @Override
+    public String toString() {
+        return "Repair{" + "id=" + id + ", repairType=" + repairType + ", shortDescription=" + shortDescription + ", submissionDate=" + submissionDate + ", description=" + description + ", proposedStartDate=" + proposedStartDate + ", proposedEndDate=" + proposedEndDate + ", proposedCost=" + proposedCost + ", acceptanceStatus=" + acceptanceStatus + ", repairStatus=" + repairStatus + ", actualStartDate=" + actualStartDate + ", actualEndDate=" + actualEndDate + ", owner=" + owner + ", property=" + property + '}'+ "\n";
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -67,6 +76,8 @@ public class Repair implements Serializable {
     @FutureOrPresent
     @Column(name = "actual_start_date")
     private LocalDateTime actualStartDate;
+    
+    private Boolean isDeleted = false;
 
     @FutureOrPresent
     @Column(name = "actual_end_date")

@@ -28,9 +28,11 @@ public interface RepairService {
 
     List<Repair> getRepairs();
 
-    Repair findRepairByUserId();
+    List<Repair> findRepairByUserId();
 
     //By Date(submissionDate) or Range of dates (proposedStart..propposedEnd//actualStart..actualEnd
     Repair findRepairByDate();
+    
+    Repair deleteUserSafely(Long id);
 
 }

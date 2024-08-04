@@ -9,6 +9,7 @@ import gr.technico.technikon.model.RepairType;
 import gr.technico.technikon.repositories.RepairRepository;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public class RepairServiceImpl implements RepairService {
 
@@ -47,13 +48,24 @@ public class RepairServiceImpl implements RepairService {
     }
 
     @Override
-    public Repair findRepairByUserId() {
+    public List<Repair> findRepairByUserId() {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
     @Override
     public Repair findRepairByDate() {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+    
+    @Override
+    public Repair deleteUserSafely(Long id) {
+        //Repair repair2 = null ;
+        Optional<Repair> repair1 = repairRepository.findById(id);
+        Repair repair2 = repair1.get();
+        System.out.println(repair2.getId());
+        repair2.setIsDeleted(true);
+        repairRepository.save(repair2);
+        return repair2;
     }
 
 
