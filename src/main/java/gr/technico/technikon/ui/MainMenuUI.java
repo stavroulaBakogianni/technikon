@@ -13,7 +13,7 @@ public class MainMenuUI implements MainMenuSelection {
     // Constructor accepting parameters
     public MainMenuUI(OwnerService ownerService) {
         this.ownerInterface = new OwnerUI(ownerService);
-        this.adminInterface = new AdminUI();
+        this.adminInterface = new AdminUI(ownerService);
     }
 
     public void run() {
