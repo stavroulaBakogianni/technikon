@@ -388,7 +388,7 @@ public class PropertyServiceImpl implements PropertyService {
     }
 
     /**
-     * Permanently deletes a property by its ID.
+     * Permanently deletes a property by its E9.
      *
      * If the property could not be deleted, a CustomException is thrown.
      *

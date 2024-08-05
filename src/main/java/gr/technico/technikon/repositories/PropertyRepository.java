@@ -119,7 +119,7 @@ public class PropertyRepository implements Repository<Property, Long> {
         }
         return false;
     }
-
+   
     /**
      * Finds a Property entity by its E9 identifier.
      *
