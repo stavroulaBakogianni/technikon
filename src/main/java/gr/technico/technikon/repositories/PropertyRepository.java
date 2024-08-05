@@ -1,6 +1,5 @@
 package gr.technico.technikon.repositories;
 
-import gr.technico.technikon.exceptions.CustomException;
 import gr.technico.technikon.jpa.JpaUtil;
 import gr.technico.technikon.model.Property;
 import java.util.List;
@@ -96,7 +95,7 @@ public class PropertyRepository implements Repository<Property, Long> {
      * This method finds the Property entity with the specified ID. If the
      * entity is found, it starts a transaction, removes the entity from the
      * database, and commits the transaction. If an exception occurs during this
-     * process, the transaction is rolled back.
+     * process, the transaction is rolled back and method returns false.
      *
      * @param id the ID of the Property entity to be deleted
      * @return true if the Property entity was found and successfully deleted;

@@ -132,7 +132,6 @@ public class PropertyServiceImpl implements PropertyService {
             log.error("Failed to update property with ID " + id);
             throw new CustomException("Failed to update property with ID " + id);
         }
-
     }
 
     /**
@@ -167,7 +166,6 @@ public class PropertyServiceImpl implements PropertyService {
      */
     @Override
     public List<Property> findByVAT(String vat) throws CustomException {
-
         List<Property> properties = propertyRepository.findPropertyByVAT(vat);
         if (properties.isEmpty()) {
             log.info("Properties not found based on vat " + vat);
@@ -220,10 +218,10 @@ public class PropertyServiceImpl implements PropertyService {
             log.info("Failed to safely delete property with ID: " + id);
             throw new CustomException("Failed to safely delete property with ID : " + id);
         }
-    }
+    }    
 
     /**
-     * Permanently deletes a property by its E9.
+     * Permanently deletes a property by its ID.
      *
      * If the property could not be deleted, a CustomException is thrown.
      *
