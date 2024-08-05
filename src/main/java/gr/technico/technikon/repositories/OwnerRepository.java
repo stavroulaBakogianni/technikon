@@ -46,6 +46,16 @@ public class OwnerRepository implements Repository<Owner, Long> {
         return query.getResultStream().findFirst();
     }
 
+    public Optional<Owner> findByUsernameAndPassword(String username, String password) {
+        TypedQuery<Owner> query = entityManager.createQuery(
+                "FROM Owner WHERE username = :username AND password = :password AND isDeleted = false",
+                Owner.class
+        );
+        query.setParameter("username", username);
+        query.setParameter("password", password);
+        return query.getResultStream().findFirst();
+    }
+
     public boolean deletePermanentlyByVat(String vat) {
         try {
             JpaUtil.beginTransaction();
@@ -88,7 +98,7 @@ public class OwnerRepository implements Repository<Owner, Long> {
             return false;
         }
     }
-   
+
     @Override
     public Optional<Owner> findById(Long id) {
         throw new UnsupportedOperationException("Not supported yet.");

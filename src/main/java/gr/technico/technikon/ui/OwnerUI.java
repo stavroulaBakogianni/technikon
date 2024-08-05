@@ -25,9 +25,9 @@ public class OwnerUI implements OwnerSelection {
             if (loggedInOwnerVat == null) {
                 // Owner is not logged in
                 showOwnerSelectionMenu();
-                
+
                 int action = getOwnerAction();
-                
+
                 switch (action) {
                     case 1:
                         authenticateOwner();
@@ -71,7 +71,6 @@ public class OwnerUI implements OwnerSelection {
         System.out.print("Select an action by typing the corresponding number and pressing enter: ");
     }
 
-    @Override
     public void showOwnerMenu() {
         System.out.println("\nOwner Menu:");
         System.out.println("1. Update Profile");
@@ -115,6 +114,7 @@ public class OwnerUI implements OwnerSelection {
         }
     }
 
+    @Override
     public void createOwner() {
         boolean validInput = false;
 
@@ -212,7 +212,6 @@ public class OwnerUI implements OwnerSelection {
                     }
                 }
 
-                // Create Owner
                 ownerService.createOwner(vat, name, surname, address, phoneNumber, email, username, password);
                 System.out.println("Owner created successfully.");
                 validInput = true;
@@ -227,85 +226,83 @@ public class OwnerUI implements OwnerSelection {
 
     @Override
     public void updateOwner() {
-        try {
-            if (loggedInOwnerVat == null) {
-                System.out.println("You must be logged in to update your profile.");
-                return;
-            }
+        if (loggedInOwnerVat == null) {
+            System.out.println("You must be logged in to update your profile.");
+            return;
+        }
 
-            // Find the logged-in owner by VAT
-            Owner owner = ownerService.searchOwnerByVat(loggedInOwnerVat)
-                    .orElseThrow(() -> new CustomException("Owner with the given VAT number not found."));
+        int choice;
+        do {
+            System.out.println("\nWhich field would you like to update?");
+            System.out.println("1. Address");
+            System.out.println("2. Email");
+            System.out.println("3. Password");
+            System.out.println("4. Go back");
+            System.out.print("Enter the number of the field you want to update: ");
 
-            System.out.println("\nPress Enter to skip updating a field.");
+            choice = getOwnerAction();
 
-            System.out.print("Enter new Address (current: " + owner.getAddress() + "): ");
-            String newAddress = scanner.nextLine().trim();
-            if (newAddress.isEmpty()) {
-                newAddress = owner.getAddress();
-            }
-
-            String newEmail;
-            while (true) {
-                System.out.print("Enter new Email (current: " + owner.getEmail() + "): ");
-                newEmail = scanner.nextLine().trim();
-                if (newEmail.isEmpty()) {
-                    newEmail = owner.getEmail();
-                    break;
+            try {
+                switch (choice) {
+                    case 1:
+                        updateAddress();
+                        break;
+                    case 2:
+                        updateEmail();
+                        break;
+                    case 3:
+                        updatePassword();
+                        break;
+                    case 4:
+                        return; 
+                    default:
+                        System.out.println("Invalid option. Please try again.");
                 }
-                try {
-                    ownerService.validateEmail(newEmail);
-                    ownerService.checkEmail(newEmail);
-                    break;
-                } catch (CustomException e) {
-                    System.out.println(e.getMessage());
-                }
+            } catch (CustomException e) {
+                System.out.println("Error updating owner: " + e.getMessage());
+            } catch (Exception e) {
+                System.out.println("Unexpected error: " + e);
             }
+        } while (choice != 4);
+    }
 
-            String newPassword;
-            while (true) {
-                System.out.print("Enter new Password (at least 8 characters): ");
-                newPassword = scanner.nextLine().trim();
-                if (newPassword.isEmpty()) {
-                    newPassword = null;
-                    break;
-                }
-                try {
-                    ownerService.validatePassword(newPassword);
-                    break;
-                } catch (CustomException e) {
-                    System.out.println(e.getMessage());
-                }
+    private void updateAddress() throws CustomException {
+        System.out.print("Enter new Address: ");
+        String newAddress = scanner.nextLine().trim();
+        ownerService.updateOwnerAddress(loggedInOwnerVat, newAddress);
+        System.out.println("\nAddress updated successfully.");
+    }
+
+    private void updateEmail() throws CustomException {
+        String newEmail;
+        while (true) {
+            System.out.print("Enter new Email: ");
+            newEmail = scanner.nextLine().trim();
+            try {
+                ownerService.validateEmail(newEmail);
+                ownerService.updateOwnerEmail(loggedInOwnerVat, newEmail);
+                System.out.println("\nEmail updated successfully.");
+                break;
+            } catch (CustomException e) {
+                System.out.println(e.getMessage());
             }
-
-            // Update owner details
-            ownerService.updateOwner(loggedInOwnerVat,
-                    newAddress.isEmpty() ? null : newAddress,
-                    newEmail.isEmpty() ? null : newEmail,
-                    newPassword);
-
-            System.out.println("\nOwner details updated successfully.");
-            Owner updatedOwner = ownerService.searchOwnerByVat(loggedInOwnerVat)
-                    .orElseThrow(() -> new CustomException("Owner with the given VAT number not found."));
-
-            System.out.println("\nUpdated Details:");
-            showFoundOwner(updatedOwner);
-
-        } catch (CustomException e) {
-            System.out.println("Error updating owner: " + e.getMessage());
-        } catch (Exception e) {
-            System.out.println("Unexpected error: " + e);
         }
     }
-    
-    private void showFoundOwner(Owner owner) {
-        System.out.println("VAT: " + owner.getVat());
-        System.out.println("Name: " + owner.getName());
-        System.out.println("Surname: " + owner.getSurname());
-        System.out.println("Address: " + owner.getAddress());
-        System.out.println("Phone Number: " + owner.getPhoneNumber());
-        System.out.println("Email: " + owner.getEmail());
-        System.out.println("Username: " + owner.getUsername());
+
+    private void updatePassword() throws CustomException {
+        String newPassword;
+        while (true) {
+            System.out.print("Enter new Password (at least 8 characters): ");
+            newPassword = scanner.nextLine().trim();
+            try {
+                ownerService.validatePassword(newPassword);
+                ownerService.updateOwnerPassword(loggedInOwnerVat, newPassword);
+                System.out.println("\nPassword updated successfully.");
+                break;
+            } catch (CustomException e) {
+                System.out.println(e.getMessage());
+            }
+        }
     }
 
     @Override
@@ -321,7 +318,7 @@ public class OwnerUI implements OwnerSelection {
             if (ownerOpt.isPresent()) {
                 Owner ownerToDelete = ownerOpt.get();
                 System.out.println("\nYou are about to delete the following owner!");
-                showFoundOwner(ownerToDelete);
+                System.out.println(ownerToDelete.toString());
                 System.out.print("\nEnter 1 to confirm deletion or 2 to cancel: ");
 
                 String userChoice = scanner.nextLine().trim();

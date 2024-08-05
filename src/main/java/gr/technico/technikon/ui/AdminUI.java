@@ -26,7 +26,7 @@ public class AdminUI implements AdminSelection {
                     searchOwner();
                     break;
                 case 2:
-                   deleteOwner();
+                    deleteOwner();
                     break;
                 case 3:
                     return;
@@ -36,7 +36,6 @@ public class AdminUI implements AdminSelection {
         }
     }
 
-    @Override
     public void showAdminMenu() {
         System.out.println("\nAdmin Menu:");
         System.out.println("1. Search Owner");
@@ -63,6 +62,7 @@ public class AdminUI implements AdminSelection {
         System.out.println("\nSearch Owner by:");
         System.out.println("1. VAT Number");
         System.out.println("2. Email");
+        System.out.println("3. Go Back");
         System.out.print("Select an option by typing the corresponding number and pressing enter: ");
 
         int searchOption = getAdminAction();
@@ -74,6 +74,8 @@ public class AdminUI implements AdminSelection {
             case 2:
                 searchOwnerByEmail();
                 break;
+             case 3:
+                return;
             default:
                 System.out.println("Invalid option. Please try again.");
         }
@@ -85,11 +87,12 @@ public class AdminUI implements AdminSelection {
 
         Optional<Owner> owner = ownerService.searchOwnerByVat(vat);
         if (owner.isPresent()) {
-            if(owner.get().isDeleted()){
+            if (owner.get().isDeleted()) {
                 System.out.println("\nThis owner is marked as deleted");
             }
             System.out.println("\nOwner found:");
-            showFoundOwner(owner.get());
+            System.out.println(owner.get().toString());
+                    
         } else {
             System.out.println("\nNo owner found with the given VAT number.");
         }
@@ -101,24 +104,15 @@ public class AdminUI implements AdminSelection {
 
         Optional<Owner> owner = ownerService.searchOwnerByEmail(email);
         if (owner.isPresent()) {
-             if(owner.get().isDeleted()){
+            if (owner.get().isDeleted()) {
                 System.out.println("\nThis owner is marked as deleted");
             }
             System.out.println("\nOwner found:");
-            showFoundOwner(owner.get());
+            System.out.println(owner.get().toString());
+
         } else {
             System.out.println("\nNo owner found with the given email.");
         }
-    }
-
-    private void showFoundOwner(Owner owner) {
-        System.out.println("VAT: " + owner.getVat());
-        System.out.println("Name: " + owner.getName());
-        System.out.println("Surname: " + owner.getSurname());
-        System.out.println("Address: " + owner.getAddress());
-        System.out.println("Phone Number: " + owner.getPhoneNumber());
-        System.out.println("Email: " + owner.getEmail());
-        System.out.println("Username: " + owner.getUsername());
     }
 
     @Override
@@ -131,11 +125,11 @@ public class AdminUI implements AdminSelection {
 
             if (optionalOwner.isPresent()) {
                 Owner ownerToDelete = optionalOwner.get();
-                if(ownerToDelete.isDeleted()){
-                System.out.println("\nThis owner is marked as deleted");
+                if (ownerToDelete.isDeleted()) {
+                    System.out.println("\nThis owner is marked as deleted");
                 }
                 System.out.println("\nYou are about to delete the following owner and all associated properties and repairs:");
-                showFoundOwner(ownerToDelete);
+                System.out.println(ownerToDelete.toString());
                 System.out.println("\nEnter 1 to confirm deletion or 2 to cancel: ");
 
                 int userChoice = getAdminAction();

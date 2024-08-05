@@ -7,13 +7,13 @@ import java.util.Scanner;
 public class MainMenuUI implements MainMenuSelection {
 
     private static final Scanner scanner = new Scanner(System.in);
-    private final OwnerUI ownerInterface;
-    private final AdminUI adminInterface;
+    private final OwnerUI OwnerUI;
+    private final AdminUI adminUI;
 
     // Constructor accepting parameters
     public MainMenuUI(OwnerService ownerService) {
-        this.ownerInterface = new OwnerUI(ownerService);
-        this.adminInterface = new AdminUI(ownerService);
+        this.OwnerUI = new OwnerUI(ownerService);
+        this.adminUI = new AdminUI(ownerService);
     }
 
     public void run() {
@@ -23,10 +23,10 @@ public class MainMenuUI implements MainMenuSelection {
 
             switch (role) {
                 case 1:
-                    ownerInterface.manageOwner();
+                    OwnerUI.manageOwner();
                     break;
                 case 2:
-                    adminInterface.manageAdmin();
+                    adminUI.manageAdmin();
                     break;
                 case 3:
                     return;
