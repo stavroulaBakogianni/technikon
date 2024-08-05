@@ -19,19 +19,6 @@ public class OwnerService implements OwnerServiceInterface {
     @Override
     public void createOwner(String vat, String name, String surname, String address, String phoneNumber, String email, String username, String password)
             throws CustomException {
-
-        validateVat(vat);
-        validateName(name);
-        validateSurname(surname);
-        validateAddress(address);
-        validatePhone(phoneNumber);
-        validateEmail(email);
-        validatePassword(password);
-
-        checkVat(vat);
-        checkEmail(email);
-        checkUsername(username);
-
         Owner owner = new Owner();
         owner.setVat(vat);
         owner.setAddress(address);
@@ -61,10 +48,10 @@ public class OwnerService implements OwnerServiceInterface {
     public void updateOwner(String vat, String address, String email, String password)
             throws CustomException {
 
-        Owner owner = getOwner(vat);
+        Owner owner = ownerRepository.findByVat(vat)
+                .orElseThrow(() -> new CustomException("Owner with the given VAT number not found."));
 
         if (address != null && !address.isBlank()) {
-            validateAddress(address);
             owner.setAddress(address);
         }
 
@@ -97,6 +84,30 @@ public class OwnerService implements OwnerServiceInterface {
         return ownerRepository.deleteSafelyByVat(vat);
     }
 
+    // Authenticate Owner
+    public Optional<String> authenticateOwner(String username, String password) throws CustomException {
+        if (username == null || username.isBlank()) {
+            throw new CustomException("Username cannot be null or blank.");
+        }
+        if (password == null || password.isBlank()) {
+            throw new CustomException("Password cannot be null or blank.");
+        }
+
+        // Find owner by username
+        Owner owner = ownerRepository.findByUsername(username)
+                .orElseThrow(() -> new CustomException("Owner not found."));
+
+        if (owner.isDeleted()) {
+            throw new CustomException("Owner not found.");
+        }
+
+        if (!owner.getPassword().equals(password)) {
+            throw new CustomException("Invalid password.");
+        }
+
+        return Optional.of(owner.getVat());
+    }
+
     // Validations
     public void validateVat(String vat) throws CustomException {
         if (vat == null || vat.length() != 9) {
@@ -116,12 +127,6 @@ public class OwnerService implements OwnerServiceInterface {
         }
     }
 
-    public void validateAddress(String address) throws CustomException {
-        if (address == null || address.isBlank()) {
-            throw new CustomException("Address cannot be null or blank.");
-        }
-    }
-
     public void validatePassword(String password) throws CustomException {
         if (password.length() < 8) {
             throw new CustomException("Password must be at least 8 characters.");
@@ -131,6 +136,9 @@ public class OwnerService implements OwnerServiceInterface {
     public void validatePhone(String phone) throws CustomException {
         if (phone.length() > 14) {
             throw new CustomException("Phone number must be at most 14 characters.");
+        }
+        if (!phone.matches("\\d+")) {
+            throw new CustomException("Phone number must contain only numeric characters.");
         }
     }
 
@@ -144,7 +152,7 @@ public class OwnerService implements OwnerServiceInterface {
 
     public void checkVat(String vat) throws CustomException {
         if (ownerRepository.findByVat(vat).isPresent()) {
-            throw new CustomException("VAT already exists.");
+            throw new CustomException("VAT already exists. If you have deleted your account contant the admin! ");
         }
     }
 
@@ -160,13 +168,7 @@ public class OwnerService implements OwnerServiceInterface {
         }
     }
 
-    //Functionalities
-    private Owner getOwner(String vat) throws CustomException {
-        return ownerRepository.findByVat(vat).orElseThrow(()
-                -> new CustomException("Owner with the given VAT number not found.")
-        );
-    }
-
+    // Functionalities
     private void save(Owner owner) throws CustomException {
         try {
             ownerRepository.save(owner);

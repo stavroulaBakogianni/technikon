@@ -28,7 +28,6 @@ public class OwnerRepository implements Repository<Owner, Long> {
         }
     }
 
-    @Override
     public Optional<Owner> findByVat(String vat) {
         TypedQuery<Owner> query = entityManager.createQuery("FROM Owner WHERE vat = :vat", Owner.class);
         query.setParameter("vat", vat);
@@ -50,11 +49,10 @@ public class OwnerRepository implements Repository<Owner, Long> {
     public boolean deletePermanentlyByVat(String vat) {
         try {
             JpaUtil.beginTransaction();
-            TypedQuery<Owner> query = entityManager.createQuery("FROM Owner WHERE vat = :vat", Owner.class);
-            query.setParameter("vat", vat);
-            Owner owner = query.getResultStream().findFirst().orElse(null);
+            Optional<Owner> optionalOwner = findByVat(vat);
 
-            if (owner != null) {
+            if (optionalOwner.isPresent()) {
+                Owner owner = optionalOwner.get();
                 // Remove Owner and its Properties and Repairs.
                 entityManager.remove(owner);
                 JpaUtil.commitTransaction();
@@ -67,17 +65,15 @@ public class OwnerRepository implements Repository<Owner, Long> {
             JpaUtil.rollbackTransaction();
             return false;
         }
-
     }
 
     public boolean deleteSafelyByVat(String vat) {
         try {
             JpaUtil.beginTransaction();
-            TypedQuery<Owner> query = entityManager.createQuery("FROM Owner WHERE vat = :vat", Owner.class);
-            query.setParameter("vat", vat);
-            Owner owner = query.getResultStream().findFirst().orElse(null);
+            Optional<Owner> optionalOwner = findByVat(vat);
 
-            if (owner != null) {
+            if (optionalOwner.isPresent()) {
+                Owner owner = optionalOwner.get();
                 // Update isDeleted flag instead of removing.
                 owner.setDeleted(true);
                 entityManager.merge(owner);
@@ -92,7 +88,7 @@ public class OwnerRepository implements Repository<Owner, Long> {
             return false;
         }
     }
-
+   
     @Override
     public Optional<Owner> findById(Long id) {
         throw new UnsupportedOperationException("Not supported yet.");

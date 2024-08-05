@@ -13,41 +13,70 @@ public class OwnerUI implements OwnerSelection {
     private static final Scanner scanner = new Scanner(System.in);
     private final OwnerService ownerService;
 
-    // Initialize ownerService
     public OwnerUI(OwnerService ownerService) {
         this.ownerService = ownerService;
     }
 
+    // Keep track of the logged in owner
+    private String loggedInOwnerVat;
+
     public void manageOwner() {
         while (true) {
-            showOwnerMenu();
-            int action = getOwnerAction();
+            if (loggedInOwnerVat == null) {
+                // Owner is not logged in
+                showOwnerSelectionMenu();
+                
+                int action = getOwnerAction();
+                
+                switch (action) {
+                    case 1:
+                        authenticateOwner();
+                        break;
+                    case 2:
+                        createOwner();
+                        break;
+                    case 3:
+                        return;
+                    default:
+                        System.out.println("Invalid option. Please try again.");
+                }
+            } else {
+                // Owner is logged in
+                showOwnerMenu();
+                int action = getOwnerAction();
 
-            switch (action) {
-                case 1:
-                    createOwner();
-                    break;
-                case 2:
-                    updateOwner();
-                    break;
-                case 3:
-                    deleteOwner();
-                    break;
-                case 4:
-                    return;
-                default:
-                    System.out.println("Invalid option. Please try again.");
+                switch (action) {
+                    case 1:
+                        updateOwner();
+                        break;
+                    case 2:
+                        deleteOwner();
+                        break;
+                    case 3:
+                        loggedInOwnerVat = null;
+                        System.out.println("You have been logged out.");
+                        break;
+                    default:
+                        System.out.println("Invalid option. Please try again.");
+                }
             }
         }
+    }
+
+    public void showOwnerSelectionMenu() {
+        System.out.println("\nProperty Owner Menu:");
+        System.out.println("1. Existing Owner");
+        System.out.println("2. Create Owner");
+        System.out.println("3. Back to Main Menu");
+        System.out.print("Select an action by typing the corresponding number and pressing enter: ");
     }
 
     @Override
     public void showOwnerMenu() {
         System.out.println("\nOwner Menu:");
-        System.out.println("1. Create Owner");
-        System.out.println("2. Update Profile");
-        System.out.println("3. Delete Account");
-        System.out.println("4. Back to Main Menu");
+        System.out.println("1. Update Profile");
+        System.out.println("2. Delete Account");
+        System.out.println("3. Logout");
         System.out.print("Select an action by typing the corresponding number and pressing enter: ");
     }
 
@@ -64,13 +93,35 @@ public class OwnerUI implements OwnerSelection {
         }
     }
 
+    private void authenticateOwner() {
+        System.out.println("\nPlease enter your login details.");
+
+        System.out.print("Username: ");
+        String username = scanner.nextLine().trim();
+
+        System.out.print("Password: ");
+        String password = scanner.nextLine().trim();
+
+        try {
+            Optional<String> vat = ownerService.authenticateOwner(username, password);
+            if (vat.isPresent()) {
+                loggedInOwnerVat = vat.get();
+                System.out.println("Login successful.");
+            } else {
+                System.out.println("Invalid username or password.");
+            }
+        } catch (CustomException e) {
+            System.out.println("Authentication failed: " + e.getMessage());
+        }
+    }
+
     public void createOwner() {
         boolean validInput = false;
 
         while (!validInput) {
             try {
-                System.out.println("\nStarting the creation of a new owner");
-                
+                System.out.println("\nLet's begin the registration process!");
+
                 String vat;
                 while (true) {
                     System.out.print("Enter VAT (9 characters): ");
@@ -109,20 +160,12 @@ public class OwnerUI implements OwnerSelection {
                 }
 
                 String address;
-                while (true) {
-                    System.out.print("Enter Address: ");
-                    address = scanner.nextLine().trim();
-                    try {
-                        ownerService.validateAddress(address);
-                        break;
-                    } catch (CustomException e) {
-                        System.out.println(e.getMessage());
-                    }
-                }
+                System.out.print("Enter Address: ");
+                address = scanner.nextLine().trim();
 
                 String phoneNumber;
                 while (true) {
-                    System.out.print("Enter Phone Number (max 14 characters): ");
+                    System.out.print("Enter Phone Number (max 14 digits): ");
                     phoneNumber = scanner.nextLine().trim();
                     try {
                         ownerService.validatePhone(phoneNumber);
@@ -185,17 +228,22 @@ public class OwnerUI implements OwnerSelection {
     @Override
     public void updateOwner() {
         try {
-            System.out.print("\nEnter the VAT number of the owner to update: ");
-            String vat = scanner.nextLine().trim();
+            if (loggedInOwnerVat == null) {
+                System.out.println("You must be logged in to update your profile.");
+                return;
+            }
 
-            // Find the owner by VAT
-            Owner owner = ownerService.searchOwnerByVat(vat)
+            // Find the logged-in owner by VAT
+            Owner owner = ownerService.searchOwnerByVat(loggedInOwnerVat)
                     .orElseThrow(() -> new CustomException("Owner with the given VAT number not found."));
 
             System.out.println("\nPress Enter to skip updating a field.");
 
             System.out.print("Enter new Address (current: " + owner.getAddress() + "): ");
             String newAddress = scanner.nextLine().trim();
+            if (newAddress.isEmpty()) {
+                newAddress = owner.getAddress();
+            }
 
             String newEmail;
             while (true) {
@@ -207,8 +255,8 @@ public class OwnerUI implements OwnerSelection {
                 }
                 try {
                     ownerService.validateEmail(newEmail);
-                    ownerService.checkEmail(newEmail); 
-                    break; 
+                    ownerService.checkEmail(newEmail);
+                    break;
                 } catch (CustomException e) {
                     System.out.println(e.getMessage());
                 }
@@ -219,7 +267,7 @@ public class OwnerUI implements OwnerSelection {
                 System.out.print("Enter new Password (at least 8 characters): ");
                 newPassword = scanner.nextLine().trim();
                 if (newPassword.isEmpty()) {
-                    newPassword = null; 
+                    newPassword = null;
                     break;
                 }
                 try {
@@ -231,13 +279,13 @@ public class OwnerUI implements OwnerSelection {
             }
 
             // Update owner details
-            ownerService.updateOwner(vat,
+            ownerService.updateOwner(loggedInOwnerVat,
                     newAddress.isEmpty() ? null : newAddress,
                     newEmail.isEmpty() ? null : newEmail,
                     newPassword);
 
             System.out.println("\nOwner details updated successfully.");
-            Owner updatedOwner = ownerService.searchOwnerByVat(vat)
+            Owner updatedOwner = ownerService.searchOwnerByVat(loggedInOwnerVat)
                     .orElseThrow(() -> new CustomException("Owner with the given VAT number not found."));
 
             System.out.println("\nUpdated Details:");
@@ -249,7 +297,7 @@ public class OwnerUI implements OwnerSelection {
             System.out.println("Unexpected error: " + e);
         }
     }
-
+    
     private void showFoundOwner(Owner owner) {
         System.out.println("VAT: " + owner.getVat());
         System.out.println("Name: " + owner.getName());
@@ -262,14 +310,16 @@ public class OwnerUI implements OwnerSelection {
 
     @Override
     public void deleteOwner() {
-        System.out.print("Enter the VAT number of the owner you want to delete: ");
-        String vatNumber = scanner.nextLine().trim();
-
         try {
-            Optional<Owner> optionalOwner = ownerService.searchOwnerByVat(vatNumber);
+            if (loggedInOwnerVat == null) {
+                System.out.println("You must be logged in to delete your account.");
+                return;
+            }
 
-            if (optionalOwner.isPresent()) {
-                Owner ownerToDelete = optionalOwner.get();
+            Optional<Owner> ownerOpt = ownerService.searchOwnerByVat(loggedInOwnerVat);
+
+            if (ownerOpt.isPresent()) {
+                Owner ownerToDelete = ownerOpt.get();
                 System.out.println("\nYou are about to delete the following owner!");
                 showFoundOwner(ownerToDelete);
                 System.out.print("\nEnter 1 to confirm deletion or 2 to cancel: ");
@@ -278,9 +328,11 @@ public class OwnerUI implements OwnerSelection {
 
                 switch (userChoice) {
                     case "1":
-                        boolean deletionSuccessful = ownerService.deleteOwnerSafely(vatNumber);
+                        boolean deletionSuccessful = ownerService.deleteOwnerSafely(loggedInOwnerVat);
                         if (deletionSuccessful) {
                             System.out.println("\nOwner has been successfully marked as deleted.");
+                            // Logout
+                            loggedInOwnerVat = null;
                         } else {
                             System.out.println("\nFailed to mark the owner as deleted. Please try again.");
                         }

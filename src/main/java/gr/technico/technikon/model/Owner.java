@@ -32,7 +32,7 @@ public class Owner implements Serializable {
     @NotNull
     private String surname;
 
-    @Size(min = 1, max = 50)
+    @Size(max = 50)
     private String address;
 
     @Column(name = "phone_number", length = 14)

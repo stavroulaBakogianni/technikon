@@ -1,6 +1,5 @@
 package gr.technico.technikon.ui;
 
-import gr.technico.technikon.exceptions.CustomException;
 import gr.technico.technikon.model.Owner;
 import gr.technico.technikon.services.OwnerService;
 
@@ -27,12 +26,9 @@ public class AdminUI implements AdminSelection {
                     searchOwner();
                     break;
                 case 2:
-                    updateOwner();
+                   deleteOwner();
                     break;
                 case 3:
-                    deleteOwner();
-                    break;
-                case 4:
                     return;
                 default:
                     System.out.println("Invalid option. Please try again.");
@@ -44,9 +40,8 @@ public class AdminUI implements AdminSelection {
     public void showAdminMenu() {
         System.out.println("\nAdmin Menu:");
         System.out.println("1. Search Owner");
-        System.out.println("2. Update Owner");
-        System.out.println("3. Delete Owner");
-        System.out.println("4. Back to Main Menu");
+        System.out.println("2. Delete Owner");
+        System.out.println("3. Back to Main Menu");
         System.out.print("Select an action by typing the corresponding number and pressing enter: ");
     }
 
@@ -90,6 +85,9 @@ public class AdminUI implements AdminSelection {
 
         Optional<Owner> owner = ownerService.searchOwnerByVat(vat);
         if (owner.isPresent()) {
+            if(owner.get().isDeleted()){
+                System.out.println("\nThis owner is marked as deleted");
+            }
             System.out.println("\nOwner found:");
             showFoundOwner(owner.get());
         } else {
@@ -103,78 +101,13 @@ public class AdminUI implements AdminSelection {
 
         Optional<Owner> owner = ownerService.searchOwnerByEmail(email);
         if (owner.isPresent()) {
+             if(owner.get().isDeleted()){
+                System.out.println("\nThis owner is marked as deleted");
+            }
             System.out.println("\nOwner found:");
             showFoundOwner(owner.get());
         } else {
             System.out.println("\nNo owner found with the given email.");
-        }
-    }
-
-    @Override
-    public void updateOwner() {
-        try {
-            System.out.print("\nEnter the VAT number of the owner to update: ");
-            String vat = scanner.nextLine().trim();
-
-            // Find the owner by VAT
-            Owner owner = ownerService.searchOwnerByVat(vat)
-                    .orElseThrow(() -> new CustomException("Owner with the given VAT number not found."));
-
-            System.out.println("\nPress Enter to skip updating a field.");
-
-            System.out.print("Enter new Address (current: " + owner.getAddress() + "): ");
-            String newAddress = scanner.nextLine().trim();
-
-            String newEmail;
-            while (true) {
-                System.out.print("Enter new Email (current: " + owner.getEmail() + "): ");
-                newEmail = scanner.nextLine().trim();
-                if (newEmail.isEmpty()) {
-                    newEmail = owner.getEmail();
-                    break;
-                }
-                try {
-                    ownerService.validateEmail(newEmail);
-                    ownerService.checkEmail(newEmail);
-                    break;
-                } catch (CustomException e) {
-                    System.out.println(e.getMessage());
-                }
-            }
-
-            String newPassword;
-            while (true) {
-                System.out.print("Enter new Password (at least 8 characters): ");
-                newPassword = scanner.nextLine().trim();
-                if (newPassword.isEmpty()) {
-                    newPassword = null;
-                    break;
-                }
-                try {
-                    ownerService.validatePassword(newPassword);
-                    break;
-                } catch (CustomException e) {
-                    System.out.println(e.getMessage());
-                }
-            }
-
-            // Update owner details
-            ownerService.updateOwner(vat,
-                    newAddress.isEmpty() ? null : newAddress,
-                    newEmail.isEmpty() ? null : newEmail,
-                    newPassword);
-
-            System.out.println("\nOwner details updated successfully.");
-            Owner updatedOwner = ownerService.searchOwnerByVat(vat)
-                    .orElseThrow(() -> new CustomException("Owner with the given VAT number not found."));
-
-            System.out.println("\nUpdated Details:");
-            showFoundOwner(updatedOwner);
-
-        } catch (CustomException e) {
-            System.out.println("Error updating owner: " + e.getMessage());
-        } catch (Exception e) {
-            System.out.println("Unexpected error: " + e);
         }
     }
 
@@ -198,14 +131,17 @@ public class AdminUI implements AdminSelection {
 
             if (optionalOwner.isPresent()) {
                 Owner ownerToDelete = optionalOwner.get();
+                if(ownerToDelete.isDeleted()){
+                System.out.println("\nThis owner is marked as deleted");
+                }
                 System.out.println("\nYou are about to delete the following owner and all associated properties and repairs:");
                 showFoundOwner(ownerToDelete);
-                System.out.print("\nEnter 1 to confirm deletion or 2 to cancel: ");
+                System.out.println("\nEnter 1 to confirm deletion or 2 to cancel: ");
 
-                String userChoice = scanner.nextLine().trim();
+                int userChoice = getAdminAction();
 
                 switch (userChoice) {
-                    case "1":
+                    case 1:
                         boolean deletionSuccessful = ownerService.deleteOwnerPermanently(vatNumber);
                         if (deletionSuccessful) {
                             System.out.println("\nOwner and all associated properties and repairs have been successfully deleted.");
@@ -213,7 +149,7 @@ public class AdminUI implements AdminSelection {
                             System.out.println("\nFailed to delete the owner. Please try again.");
                         }
                         break;
-                    case "2":
+                    case 2:
                         System.out.println("\nDeletion operation has been cancelled.");
                         break;
                     default:
