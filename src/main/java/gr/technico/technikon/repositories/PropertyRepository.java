@@ -31,11 +31,11 @@ public class PropertyRepository implements Repository<Property, Long> {
      *
      * This method starts a transaction, persists the Property entity, and
      * commits the transaction. If an exception occurs during the process, the
-     * transaction is rolled back and a custom exception is thrown.
+     * transaction is rolled back and an empty Optional is returned.
      *
-     * @param property the Property entity to be saved.
-     * @return an Optional containing the saved Property entity.
-     * @throws CustomException if an error occurs during the save operation. .
+     * @param property the Property entity to be saved
+     * @return an Optional containing the saved Property entity if the operation
+     * is successful; otherwise, an empty Optional
      */
     @Override
     public Optional<Property> save(Property property) {
@@ -47,23 +47,19 @@ public class PropertyRepository implements Repository<Property, Long> {
         } catch (Exception e) {
             JpaUtil.rollbackTransaction();
             log.error("Exception: ", e);
-            throw new CustomException("Saving property entity failed");
+            return Optional.empty();
         }
     }
 
     /**
      * Finds the Property entity with the specified ID.
      *
-     * This method starts a transaction and attempts to find the Property entity
-     * with the given ID. If an exception occurs during the process, a
-     * CustomException is thrown. If the Property entity is not found, a
-     * CustomException is thrown.
+     * This method attempts to find the Property entity with the given ID. If
+     * the entity is not found, an empty Optional is returned.
      *
      * @param id the ID of the Property entity to be found
      * @return an Optional containing the found Property entity if the operation
-     * is successful.
-     * @throws CustomException if an error occurs during the search operation or
-     * if the Property entity is not found.
+     * is successful; otherwise, an empty Optional
      */
     @Override
     public Optional<Property> findById(Long id) {
@@ -73,8 +69,8 @@ public class PropertyRepository implements Repository<Property, Long> {
             return Optional.of(property);
         } catch (Exception e) {
             log.error("Exception: ", e);
-            throw new CustomException("Searching property entity failed");
-        }       
+            return Optional.empty();
+        }
     }
 
     /**
@@ -83,7 +79,7 @@ public class PropertyRepository implements Repository<Property, Long> {
      * This method creates and executes a TypedQuery to retrieve all Property
      * entities.
      *
-     * @return a List containing all Property entities found in the database.
+     * @return a List containing all Property entities found in the database
      */
     @Override
     public List<Property> findAll() {
@@ -98,12 +94,11 @@ public class PropertyRepository implements Repository<Property, Long> {
      * This method finds the Property entity with the specified ID and deletes
      * it from the database if it exists. If the entity is found and
      * successfully deleted, the method returns true. If the entity is not found
-     * or deletion fails, a CustomException is thrown.
+     * or deletion fails, the method returns false.
      *
-     * @param id the ID of the Property entity to be deleted.
-     * @return true if the Property entity was found and successfully deleted.
-     * @throws CustomException if the Property entity is not found or if
-     * deletion fails.
+     * @param id the ID of the Property entity to be deleted
+     * @return true if the Property entity was found and successfully deleted;
+     * false otherwise
      */
     @Override
     public boolean deleteById(Long id) {
@@ -113,27 +108,26 @@ public class PropertyRepository implements Repository<Property, Long> {
             try {
                 JpaUtil.beginTransaction();
                 entityManager.remove(property);
-                JpaUtil.closeEntityManager();
+                JpaUtil.commitTransaction();
             } catch (Exception e) {
                 log.error("Exception: ", e);
-                throw new CustomException("Property delete failed");
+                return false;
             }
             return true;
         }
-        log.info("Property not found");
-        throw new CustomException("Property not found");
+        return false;
     }
 
     /**
      * Finds a Property entity by its E9 identifier.
      *
-     * This method creates a typed query to search for a Property entity with
-     * the specified E9 identifier. If the entity is found, it is returned
-     * wrapped in an Optional.
+     * This method creates a TypedQuery to search for a Property entity with the
+     * specified E9 identifier. If the entity is found, it is returned wrapped
+     * in an Optional. If not found, an empty Optional is returned.
      *
-     * @param e9 the E9 identifier of the Property entity to be found.
-     * @return an Optional containing the found Property entity, or an empty
-     * Optional if not found.
+     * @param e9 the E9 identifier of the Property entity to be found
+     * @return an Optional containing the found Property entity if the operation
+     * is successful; otherwise, an empty Optional
      */
     public Optional<Property> findPropertyByE9(String e9) {
         TypedQuery<Property> query
@@ -147,13 +141,13 @@ public class PropertyRepository implements Repository<Property, Long> {
     /**
      * Finds a list of Property entities by the owner's VAT identifier.
      *
-     * This method creates a typed query to search for Property entities
+     * This method creates a TypedQuery to search for Property} entities
      * associated with the specified owner's VAT identifier. The query returns a
      * list of properties that belong to the owner with the given VAT.
      *
      * @param vat the VAT identifier of the owner whose properties are to be
-     * found.
-     * @return a list of Property entities associated with the specified owner's
+     * found
+     * @return a List of Property entities associated with the specified owner's
      * VAT
      */
     public List<Property> findPropertyByVAT(String vat) {
