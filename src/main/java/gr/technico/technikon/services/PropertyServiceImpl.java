@@ -166,6 +166,7 @@ public class PropertyServiceImpl implements PropertyService {
      */
     @Override
     public List<Property> findByVAT(String vat) throws CustomException {
+
         List<Property> properties = propertyRepository.findPropertyByVAT(vat);
         if (properties.isEmpty()) {
             log.info("Properties not found based on vat " + vat);
