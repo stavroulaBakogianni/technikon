@@ -47,7 +47,7 @@ public class PropertyRepository implements Repository<Property, Long> {
         } catch (Exception e) {
             JpaUtil.rollbackTransaction();
             log.error("Exception: ", e);
-            return Optional.empty();
+            throw e;
         }
     }
 
@@ -69,7 +69,7 @@ public class PropertyRepository implements Repository<Property, Long> {
             return Optional.of(property);
         } catch (Exception e) {
             log.error("Exception: ", e);
-            return Optional.empty();
+            throw e;
         }
     }
 
@@ -110,6 +110,7 @@ public class PropertyRepository implements Repository<Property, Long> {
                 entityManager.remove(property);
                 JpaUtil.commitTransaction();
             } catch (Exception e) {
+                JpaUtil.rollbackTransaction();
                 log.error("Exception: ", e);
                 return false;
             }
@@ -117,7 +118,7 @@ public class PropertyRepository implements Repository<Property, Long> {
         }
         return false;
     }
-
+   
     /**
      * Finds a Property entity by its E9 identifier.
      *
