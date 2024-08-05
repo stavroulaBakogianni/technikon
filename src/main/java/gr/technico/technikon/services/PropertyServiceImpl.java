@@ -325,6 +325,7 @@ public class PropertyServiceImpl implements PropertyService {
      */
     @Override
     public List<Property> findByVAT(String vat) throws CustomException {
+
         List<Property> properties = propertyRepository.findPropertyByVAT(vat);
         List<Property> foundProperties = properties.stream()
                 .filter(Property::isDeleted)
