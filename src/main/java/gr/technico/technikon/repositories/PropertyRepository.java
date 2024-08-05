@@ -31,11 +31,12 @@ public class PropertyRepository implements Repository<Property, Long> {
      *
      * This method starts a transaction, persists the Property entity, and
      * commits the transaction. If an exception occurs during the process, the
-     * transaction is rolled back and an empty Optional is returned.
+     * transaction is rolled back and an exception is thrown.
      *
      * @param property the Property entity to be saved
      * @return an Optional containing the saved Property entity if the operation
-     * is successful; otherwise, an empty Optional
+     * is successful
+     * @throws Exception if an exception occurs during the save operation
      */
     @Override
     public Optional<Property> save(Property property) {
@@ -55,11 +56,12 @@ public class PropertyRepository implements Repository<Property, Long> {
      * Finds the Property entity with the specified ID.
      *
      * This method attempts to find the Property entity with the given ID. If
-     * the entity is not found, an empty Optional is returned.
+     * the entity is not found, an exception is thrown.
      *
      * @param id the ID of the Property entity to be found
      * @return an Optional containing the found Property entity if the operation
-     * is successful; otherwise, an empty Optional
+     * is successful
+     * @throws Exception if an exception occurs during the search operation
      */
     @Override
     public Optional<Property> findById(Long id) {
@@ -91,10 +93,10 @@ public class PropertyRepository implements Repository<Property, Long> {
     /**
      * Deletes a Property entity by its ID.
      *
-     * This method finds the Property entity with the specified ID and deletes
-     * it from the database if it exists. If the entity is found and
-     * successfully deleted, the method returns true. If the entity is not found
-     * or deletion fails, the method returns false.
+     * This method finds the Property entity with the specified ID. If the
+     * entity is found, it starts a transaction, removes the entity from the
+     * database, and commits the transaction. If an exception occurs during this
+     * process, the transaction is rolled back.
      *
      * @param id the ID of the Property entity to be deleted
      * @return true if the Property entity was found and successfully deleted;
@@ -118,7 +120,7 @@ public class PropertyRepository implements Repository<Property, Long> {
         }
         return false;
     }
-   
+
     /**
      * Finds a Property entity by its E9 identifier.
      *

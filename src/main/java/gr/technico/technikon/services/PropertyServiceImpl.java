@@ -23,13 +23,17 @@ public class PropertyServiceImpl implements PropertyService {
     }
 
     /**
-     * Creates a new property and saves it to the database.
+     * Creates a new Property entity based on user input.
      *
-     * If the property could not be saved, a CustomException is thrown.
+     * This method prompts the user to input various details required to create
+     * a Property entity. It validates the input, retrieves the owner by VAT,
+     * and then creates and saves a new Property entity. If any validation fails
+     * or an error occurs during creation, a CustomException is thrown.
      *
-     * @param property the property to be created
-     * @return the created property
-     * @throws CustomException if the property could not be created
+     * @return the created Property entity, if the creation is successful
+     * @throws CustomException if any of the following occur: The property type
+     * is invalid. The provided VAT does not correspond to any existing owner.
+     * Failed to save the Property entity to the database.
      */
     @Override
     public Property createProperty() throws CustomException {
@@ -71,16 +75,20 @@ public class PropertyServiceImpl implements PropertyService {
     }
 
     /**
-     * Updates an existing property identified by its ID.
+     * Updates an existing Property entity based on user input.
      *
-     * If the property with the given ID is not found, or if the update fails, a
-     * CustomException is thrown.
+     * This method retrieves a Property entity by its ID, prompts the user to
+     * input updated details for the property. It validates the input, retrieves
+     * the owner by VAT, and then updates and saves the Property entity. If any
+     * validation fails or an error occurs during the update, a CustomException
+     * is thrown.
      *
-     * @param property the property with updated values
-     * @param id the ID of the property to be updated
-     * @return the updated property
-     * @throws CustomException if the property with the given ID is not found or
-     * if the update fails
+     * @param id the ID of the Property entity to be updated
+     * @return the updated Property entity, if the update is successful
+     * @throws CustomException if any of the following occur: The property with
+     * the specified ID is not found. The property type provided is invalid. The
+     * provided VAT does not correspond to any existing owner. Failed to save
+     * the updated Property entity to the database.
      */
     @Override
     public Property updateProperty(Long id) throws CustomException {
@@ -159,6 +167,7 @@ public class PropertyServiceImpl implements PropertyService {
      */
     @Override
     public List<Property> findByVAT(String vat) throws CustomException {
+
         List<Property> properties = propertyRepository.findPropertyByVAT(vat);
         if (properties.isEmpty()) {
             log.info("Properties not found based on vat " + vat);
@@ -187,16 +196,18 @@ public class PropertyServiceImpl implements PropertyService {
     }
 
     /**
-     * Safely deletes a property by marking it as deleted.
+     * Safely deletes a Property entity by marking it as deleted.
      *
-     * The property is first found by its E9, and then its deleted status is
-     * updated. If the property could not be updated, a CustomException is
-     * thrown.
+     * This method retrieves a Property entity by its ID and sets its deleted
+     * flag to true. It then attempts to save the updated entity. If the save
+     * operation is successful, the method returns true. If any error occurs
+     * during the process, a CustomException is thrown.
      *
-     * @param e9 the E9 of the property to be safely deleted
-     * @return the updated property with its deleted status set to true
-     * @throws CustomException if the property with the given E9 could not be
-     * updated
+     * @param id the ID of the Property entity to be safely deleted
+     * @return true if the Property entity was successfully marked as deleted
+     * and saved
+     * @throws CustomException if the Property entity could not be safely
+     * deleted or saved
      */
     @Override
     public boolean safelyDeleteByID(Long id) throws CustomException {
@@ -209,7 +220,6 @@ public class PropertyServiceImpl implements PropertyService {
             log.info("Failed to safely delete property with ID: " + id);
             throw new CustomException("Failed to safely delete property with ID : " + id);
         }
-
     }
 
     /**
@@ -217,8 +227,8 @@ public class PropertyServiceImpl implements PropertyService {
      *
      * If the property could not be deleted, a CustomException is thrown.
      *
-     * @param e9 the E9 of the property to be permanently deleted
-     * @return true if the property was successfully deleted; false otherwise
+     * @param id the ID of the property to be permanently deleted
+     * @return true if the property was successfully deleted
      * @throws CustomException if the property could not be deleted
      */
     @Override
