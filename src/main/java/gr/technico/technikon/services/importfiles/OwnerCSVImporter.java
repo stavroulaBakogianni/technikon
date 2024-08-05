@@ -22,8 +22,10 @@ public class OwnerCSVImporter implements FilesImporter {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] fields = line.split(",");
+                
                 if (fields.length != 8) {
-                    throw new IOException("Invalid CSV format: incorrect number of fields");
+                    //The line is malformed, skip it
+                    continue;
                 }
 
                 String vat = fields[0];
