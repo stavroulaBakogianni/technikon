@@ -325,7 +325,6 @@ public class PropertyServiceImpl implements PropertyService {
      */
     @Override
     public List<Property> findByVAT(String vat) throws CustomException {
-
         List<Property> properties = propertyRepository.findPropertyByVAT(vat);
         List<Property> foundProperties = properties.stream()
                 .filter(Property::isDeleted)
@@ -385,10 +384,10 @@ public class PropertyServiceImpl implements PropertyService {
             System.out.println("Failed to safely delete property with ID: " + id);
             throw new CustomException("Failed to safely delete property with ID : " + id);
         }
-    }
+    }    
 
     /**
-     * Permanently deletes a property by its E9.
+     * Permanently deletes a property by its ID.
      *
      * If the property could not be deleted, a CustomException is thrown.
      *
