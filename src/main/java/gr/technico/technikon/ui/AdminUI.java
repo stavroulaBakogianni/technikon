@@ -37,7 +37,7 @@ public class AdminUI implements AdminSelection {
         System.out.println("2. Update Owner");
         System.out.println("3. Delete Owner");
         System.out.println("4. Back to Main Menu");
-        System.out.print("Select action: ");
+        System.out.print("Select an action by typing the corresponding number and pressing enter: ");
     }
 
     private int getAdminAction() {

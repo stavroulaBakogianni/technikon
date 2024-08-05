@@ -1,0 +1,7 @@
+gr\technico\technikon\model\Owner.class
+gr\technico\technikon\model\Property.class
+gr\technico\technikon\model\RepairStatus.class
+gr\technico\technikon\Technikon.class
+gr\technico\technikon\model\PropertyType.class
+gr\technico\technikon\model\RepairType.class
+gr\technico\technikon\model\Repair.class
