@@ -218,7 +218,7 @@ public class PropertyServiceImpl implements PropertyService {
             log.info("Failed to safely delete property with ID: " + id);
             throw new CustomException("Failed to safely delete property with ID : " + id);
         }
-    }    
+    }
 
     /**
      * Permanently deletes a property by its ID.
