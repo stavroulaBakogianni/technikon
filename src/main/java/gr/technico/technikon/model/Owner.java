@@ -2,23 +2,20 @@ package gr.technico.technikon.model;
 
 import java.util.List;
 import java.io.Serializable;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import javax.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class Owner implements Serializable {
 
     @Id
@@ -51,17 +48,30 @@ public class Owner implements Serializable {
     @Column(length = 50, nullable = false, unique = true)
     private String username;
 
-    @Size(min = 1, max = 50)
+    @Size(min = 8, max = 50)
     @NotNull
     private String password;
 
+    @NotNull
+    private boolean isDeleted = false;
 
-    //To do: decide what to do about cascade
-    @OneToMany(mappedBy = "owner")
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Property> propertyList;
 
-    //To do: decide what to do about cascade
-    @OneToMany(mappedBy = "owner")
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Repair> repairList;
 
+    @Override
+    public String toString() {
+        return "Owner {"
+                + "\n    ID = " + id
+                + "\n    VAT = " + vat
+                + "\n    Name = " + name
+                + "\n    Surname = " + surname
+                + "\n    Address = " + address
+                + "\n    Phone Number = " + phoneNumber
+                + "\n    Email = " + email
+                + "\n    Username = " + username
+                + "\n}";
+    }
 }
