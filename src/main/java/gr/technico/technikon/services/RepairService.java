@@ -36,21 +36,31 @@ public class RepairService implements RepairServiceInterface {
     }
 
     @Override
-    public void updGeneral(Long id, RepairType repairType, String shortDescription,
-            String description) {
+    public void updType(Long id, RepairType repairType) {
         Optional<Repair> repair = repairRepository.findById(id);
         Repair repairFound = repair.get();
         if (repairType != null) {
             repairFound.setRepairType(repairType);
         }
+        repairRepository.save(repairFound);
+    }
+    
+    @Override
+    public void updshortDesc(Long id,String shortDescription) {
+        Optional<Repair> repair = repairRepository.findById(id);
+        Repair repairFound = repair.get();
         if (shortDescription != null) {
             repairFound.setShortDescription(shortDescription);
         }
+        repairRepository.save(repairFound);
+    }
+    @Override
+    public void updDesc(Long id,String description) {
+        Optional<Repair> repair = repairRepository.findById(id);
+        Repair repairFound = repair.get();
         if (description != null) {
             repairFound.setDescription(description);
         }
-        repairFound.setSubmissionDate(LocalDateTime.now());
-        repairFound.setRepairStatus(RepairStatus.PENDING);
         repairRepository.save(repairFound);
     }
 

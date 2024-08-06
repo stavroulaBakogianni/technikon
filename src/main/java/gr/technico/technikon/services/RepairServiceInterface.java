@@ -14,8 +14,11 @@ public interface RepairServiceInterface {
     Repair createRepair(RepairType repairType, String shortDescription,
             String description, Owner owner, Property property);
     
-    void updGeneral(Long id, RepairType repairType, String shortDescription,
-            String description); 
+    public void updType(Long id, RepairType repairType); 
+    
+    public void updshortDesc(Long id,String shortDescription);
+    
+    public void updDesc(Long id, String description); 
     
     public void updCostDates(Long id, BigDecimal proposedCost, LocalDateTime proposedStartDate, LocalDateTime proposedEndDateTime);
 
