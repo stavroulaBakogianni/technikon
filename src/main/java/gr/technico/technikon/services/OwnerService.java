@@ -19,6 +19,17 @@ public class OwnerService implements OwnerServiceInterface {
     @Override
     public void createOwner(String vat, String name, String surname, String address, String phoneNumber, String email, String username, String password)
             throws CustomException {
+        validateVat(vat);
+        validateName(name);
+        validateSurname(surname);
+        validatePhone(phoneNumber);
+        validateEmail(email);
+        validatePassword(password);
+
+        checkVat(vat);
+        checkEmail(email);
+        checkUsername(username);
+
         Owner owner = new Owner();
         owner.setVat(vat);
         owner.setAddress(address);
