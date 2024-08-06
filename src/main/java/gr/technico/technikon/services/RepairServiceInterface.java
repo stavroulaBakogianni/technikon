@@ -30,11 +30,19 @@ public interface RepairServiceInterface {
 
     List<Repair> getRepairs();
 
-    List<Repair> findRepairByUserId();
+    public List<Repair> getPendingRepairs();
+            
+    List<Repair> findRepairByUserId(Owner owner);
 
     //By Date(submissionDate) or Range of dates (proposedStart..propposedEnd//actualStart..actualEnd
     Repair findRepairByDate();
     
     public void deleteSafely(Long id);
+    
+    public void validateDesc(String description) throws CustomException;
+    
+    public void validateShortDesc(String shortDescription) throws CustomException;
+    
+    public RepairType checkType(int repairType) throws CustomException;
 
 }

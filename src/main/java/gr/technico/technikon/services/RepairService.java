@@ -44,9 +44,9 @@ public class RepairService implements RepairServiceInterface {
         }
         repairRepository.save(repairFound);
     }
-    
+
     @Override
-    public void updshortDesc(Long id,String shortDescription) {
+    public void updshortDesc(Long id, String shortDescription) {
         Optional<Repair> repair = repairRepository.findById(id);
         Repair repairFound = repair.get();
         if (shortDescription != null) {
@@ -54,8 +54,9 @@ public class RepairService implements RepairServiceInterface {
         }
         repairRepository.save(repairFound);
     }
+
     @Override
-    public void updDesc(Long id,String description) {
+    public void updDesc(Long id, String description) {
         Optional<Repair> repair = repairRepository.findById(id);
         Repair repairFound = repair.get();
         if (description != null) {
@@ -110,10 +111,15 @@ public class RepairService implements RepairServiceInterface {
     public List<Repair> getRepairs() {
         return repairRepository.findAll();
     }
-
+    
     @Override
-    public List<Repair> findRepairByUserId() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public List<Repair> getPendingRepairs() {
+        return repairRepository.findPendingRepairs();
+    }
+    
+    @Override
+    public List<Repair> findRepairByUserId(Owner owner) {
+        return repairRepository.findRepairsByUserId(owner);
     }
 
     @Override
@@ -127,6 +133,44 @@ public class RepairService implements RepairServiceInterface {
         Repair repairFound = repair.get();
         repairFound.setDeleted(true);
         repairRepository.save(repairFound);
+    }
+
+    // Validations
+    @Override
+    public void validateDesc(String description) throws CustomException {
+        if (description == null || description.length() > 400 || description.isBlank()) {
+            throw new CustomException("Description cannot be empty nor exceed 400 characters.");
+        }
+    }
+
+    @Override
+    public void validateShortDesc(String shortDescription) throws CustomException {
+        if (shortDescription == null || shortDescription.length() > 100 || shortDescription.isBlank()) {
+            throw new CustomException("Short Description cannot be empty nor exceed 100 characters.");
+        }
+    }
+
+    public void validateType(int repairType) throws CustomException {
+        if (repairType < 1 || repairType > 5) {
+            throw new CustomException("Invalid input. Please enter a number between 1-5.");
+        }
+    }
+
+    public RepairType checkType(int repairType) throws CustomException {
+        switch (repairType) {
+            case 1:
+                return RepairType.PAINTING;
+            case 2:
+                return RepairType.INSULATION;
+            case 3:
+                return RepairType.FRAMES;
+            case 4:
+                return RepairType.PLUMBING;
+            case 5:
+                return RepairType.ELECTRICALWORK;
+            default:
+                throw new CustomException("Invalid input.");        
+        }
     }
 
 }
