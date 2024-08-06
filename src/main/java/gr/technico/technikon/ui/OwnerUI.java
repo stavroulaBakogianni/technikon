@@ -102,7 +102,7 @@ public class OwnerUI implements OwnerSelection {
         String password = scanner.nextLine().trim();
 
         try {
-            Optional<String> vat = ownerService.authenticateOwner(username, password);
+            Optional<String> vat = ownerService.verifyOwner(username, password);
             if (vat.isPresent()) {
                 loggedInOwnerVat = vat.get();
                 System.out.println("Login successful.");
