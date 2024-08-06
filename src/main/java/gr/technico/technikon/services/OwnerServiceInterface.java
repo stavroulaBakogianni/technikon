@@ -28,8 +28,8 @@ public interface OwnerServiceInterface {
 
     boolean deleteOwnerSafely(String vat);
     
-    // Authenticate Owner
-    Optional<String> authenticateOwner(String username, String password) throws CustomException;
+    // Verify Owner
+    Optional<String> verifyOwner(String username, String password) throws CustomException;
 
     // Validations
     void validateVat(String vat) throws CustomException;
