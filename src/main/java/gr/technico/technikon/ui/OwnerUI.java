@@ -3,7 +3,7 @@ package gr.technico.technikon.ui;
 import gr.technico.technikon.exceptions.CustomException;
 import gr.technico.technikon.model.Owner;
 import gr.technico.technikon.services.OwnerService;
-
+import gr.technico.technikon.services.PropertyServiceImpl;
 import java.util.InputMismatchException;
 import java.util.Optional;
 import java.util.Scanner;
@@ -12,9 +12,11 @@ public class OwnerUI implements OwnerSelection {
 
     private static final Scanner scanner = new Scanner(System.in);
     private final OwnerService ownerService;
+    private final PropertyServiceImpl propertyServiceImpl;
 
-    public OwnerUI(OwnerService ownerService) {
+    public OwnerUI(OwnerService ownerService, PropertyServiceImpl propertyServiceImpl) {
         this.ownerService = ownerService;
+        this.propertyServiceImpl = propertyServiceImpl;
     }
 
     // Keep track of the logged in owner
@@ -53,6 +55,15 @@ public class OwnerUI implements OwnerSelection {
                         deleteOwner();
                         break;
                     case 3:
+                        createProperty();
+                        break;
+                    case 4:
+                        updateProperty();
+                        break;
+                    case 5:
+                        deleteProperty();
+                        break;
+                    case 6:
                         loggedInOwnerVat = null;
                         System.out.println("You have been logged out.");
                         break;
@@ -75,7 +86,10 @@ public class OwnerUI implements OwnerSelection {
         System.out.println("\nOwner Menu:");
         System.out.println("1. Update Profile");
         System.out.println("2. Delete Account");
-        System.out.println("3. Logout");
+        System.out.println("3. Create Property");
+        System.out.println("4. Update Property");
+        System.out.println("5. Delete Property");
+        System.out.println("6. Logout");
         System.out.print("Select an action by typing the corresponding number and pressing enter: ");
     }
 
@@ -254,7 +268,7 @@ public class OwnerUI implements OwnerSelection {
                         updatePassword();
                         break;
                     case 4:
-                        return; 
+                        return;
                     default:
                         System.out.println("Invalid option. Please try again.");
                 }
@@ -346,6 +360,101 @@ public class OwnerUI implements OwnerSelection {
             }
         } catch (Exception e) {
             System.out.println("An unexpected error occurred: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void createProperty() {
+        if (loggedInOwnerVat == null) {
+            System.out.println("You must be logged in to update your profile.");
+            return;
+        }
+
+        try {
+            propertyServiceImpl.createProperty();
+        } catch (CustomException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    @Override
+    public void updateProperty() {
+        if (loggedInOwnerVat == null) {
+            System.out.println("You must be logged in to update your profile.");
+            return;
+        }
+
+        int choice;
+        do {
+            System.out.println("\nWhich field would you like to update?");
+            System.out.println("1. E9");
+            System.out.println("2. Address");
+            System.out.println("3. Construction year");
+            System.out.println("4. Property type");
+            System.out.println("5. VAT number");
+            System.out.println("6. Go back");
+            System.out.print("Enter the number of the field you want to update: ");
+
+            choice = getOwnerAction();
+
+            try {
+                switch (choice) {
+                    case 1:
+                        propertyServiceImpl.updatePropertyE9();
+                        break;
+                    case 2:
+                        propertyServiceImpl.updatePropertyAddress();
+                        break;
+                    case 3:
+                        propertyServiceImpl.updatePropertyConstructionYear();
+                        break;
+                    case 4:
+                        propertyServiceImpl.updatePropertyType();
+                        break;
+                    case 5:
+                        propertyServiceImpl.updatePropertyVAT();
+                    case 6:
+                        return;
+                    default:
+                        System.out.println("Invalid option. Please try again.");
+                }
+            } catch (CustomException ex) {
+                ex.printStackTrace();
+            }
+        } while (choice != 6);
+    }
+
+    @Override
+    public void deleteProperty() {
+        System.out.print("Insert E9: ");
+        String e9 = scanner.nextLine().trim();
+        try {
+            propertyServiceImpl.validateE9(e9);
+        } catch (CustomException ex) {
+            ex.printStackTrace();
+        }
+
+        try {
+            System.out.println("You are about to delete the following property and its repairs:" + propertyServiceImpl.findByE9(e9));
+            System.out.println("Insert property id: ");
+            Long id = scanner.nextLong();
+            System.out.println("Enter 1 to confirm deletion or 2 to cancel: ");
+
+            int choice = getOwnerAction();
+
+            switch (choice) {
+                case 1:
+                    propertyServiceImpl.safelyDeleteByID(id);
+                    break;
+                case 2:
+                    System.out.println("Deletion operation has been cancelled.");
+                    break;
+                default:
+                    System.out.println("Invalid input. Deletion operation has been cancelled.");
+                    break;
+            }
+        } catch (CustomException ex) {
+            ex.printStackTrace();
         }
     }
 }

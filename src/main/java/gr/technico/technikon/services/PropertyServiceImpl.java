@@ -9,9 +9,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
-import lombok.extern.slf4j.Slf4j;
+import java.util.stream.Collectors;
 
-@Slf4j
 public class PropertyServiceImpl implements PropertyService {
 
     private final OwnerServiceInterface ownerServiceInterface;
@@ -40,18 +39,24 @@ public class PropertyServiceImpl implements PropertyService {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Please insert e9");
         String e9 = scanner.nextLine();
+        validateE9(e9);
         System.out.println("Please insert address");
         String address = scanner.nextLine();
+        validateAddress(address);
         System.out.println("Please insert year of construction");
-        int year = scanner.nextInt();
+        String yearInput = scanner.nextLine();
+        validateConstructionYear(yearInput);
+        int year = Integer.parseInt(yearInput);
         System.out.println("Please insert the type of property");
         String propertyTypeInput = scanner.nextLine();
+        validatePropertyType(propertyTypeInput);
         PropertyType propertyType = Arrays.stream(PropertyType.values())
                 .filter(type -> type.getCode().equals(propertyTypeInput))
                 .findFirst()
                 .orElseThrow(() -> new CustomException("Invalid property type"));
         System.out.println("Please insert VAT");
         String vat = scanner.nextLine();
+        validateVAT(vat);
         Optional<Owner> owner = ownerServiceInterface.searchOwnerByVat(vat);
         if (owner.isEmpty()) {
             throw new CustomException("Not valid Vat");
@@ -69,68 +74,216 @@ public class PropertyServiceImpl implements PropertyService {
             Optional<Property> savedProperty = propertyRepository.save(property);
             return savedProperty.get();
         } catch (Exception e) {
-            log.error("Failed to create property");
+            System.out.println("Failed to create property");
             throw new CustomException("Failed to create property");
+        }
+    }
+    
+    /**
+     * Updates the E9 of a property identified by its current E9.
+     *
+     * Prompts the user to input the current E9 and the new E9. Validates the
+     * current E9, retrieves the property, and validates the new E9. Updates the
+     * property with the new E9 and saves the changes to the repository.
+     *
+     * @return The updated property with the new E9.
+     * @throws CustomException If the property with the given E9 is not found,
+     * if the new E9 is invalid, or if the update operation fails.
+     */
+    @Override
+    public Property updatePropertyE9() throws CustomException {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Please insert e9: ");
+        String e9 = scanner.nextLine().trim();
+        validateE9(e9);
+        Optional<Property> updateOptionalProperty = propertyRepository.findPropertyByE9(e9);
+
+        if (updateOptionalProperty.isEmpty()) {
+            throw new CustomException("Property with E9 " + e9 + " not found.");
+        }
+
+        Property property = updateOptionalProperty.get();
+
+        System.out.println("Please insert the new E9:");
+        String newE9 = scanner.nextLine().trim();
+        validateE9(newE9);
+
+        property.setE9(newE9);
+        try {
+            Optional<Property> savedProperty = propertyRepository.save(property);
+            return savedProperty.orElseThrow(() -> new CustomException("Failed to save the updated property with E9 " + newE9));
+        } catch (Exception e) {
+            System.out.println("Failed to update property with E9 " + newE9);
+            throw new CustomException("Failed to update property with E9 " + newE9);
         }
     }
 
     /**
-     * Updates an existing Property entity based on user input.
+     * Updates the address of a property identified by its E9.
      *
-     * This method retrieves a Property entity by its ID, prompts the user to
-     * input updated details for the property. It validates the input, retrieves
-     * the owner by VAT, and then updates and saves the Property entity. If any
-     * validation fails or an error occurs during the update, a CustomException
-     * is thrown.
+     * Prompts the user to input the current E9 and the new address. Validates
+     * the current E9, retrieves the property, and validates the new address.
+     * Updates the property with the new address and saves the changes to the
+     * repository.
      *
-     * @param id the ID of the Property entity to be updated
-     * @return the updated Property entity, if the update is successful
-     * @throws CustomException if any of the following occur: The property with
-     * the specified ID is not found. The property type provided is invalid. The
-     * provided VAT does not correspond to any existing owner. Failed to save
-     * the updated Property entity to the database.
+     * @return The updated property with the new address.
+     * @throws CustomException If the property with the given E9 is not found,
+     * if the new address is invalid, or if the update operation fails.
      */
     @Override
-    public Property updateProperty(Long id) throws CustomException {
-        Optional<Property> findPropertyOptional = propertyRepository.findById(id);
-        if (findPropertyOptional.isEmpty()) {
-            log.error("Property with ID " + id + " not found");
-            throw new CustomException("Property not found based on ID " + id);
-        }
-
+    public Property updatePropertyAddress() throws CustomException {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Please insert e9");
-        String e9 = scanner.nextLine();
-        System.out.println("Please insert address");
-        String address = scanner.nextLine();
-        System.out.println("Please insert year of construction");
-        int year = scanner.nextInt();
-        System.out.println("Please insert the type of property");
-        String propertyTypeInput = scanner.nextLine();
-        PropertyType propertyType = Arrays.stream(PropertyType.values())
-                .filter(type -> type.getCode().equals(propertyTypeInput))
-                .findFirst()
-                .orElseThrow(() -> new CustomException("Invalid property type"));
-        System.out.println("Please insert VAT");
-        String vat = scanner.nextLine();
-        Optional<Owner> owner = ownerServiceInterface.searchOwnerByVat(vat);
-        if (owner.isEmpty()) {
-            throw new CustomException("Not valid Vat");
+        System.out.println("Please insert current E9: ");
+        String e9 = scanner.nextLine().trim();
+        validateE9(e9);
+        Optional<Property> updateOptionalProperty = propertyRepository.findPropertyByE9(e9);
+        if (updateOptionalProperty.isEmpty()) {
+            throw new CustomException("Property with E9 " + e9 + " not found.");
         }
 
-        Property property = findPropertyOptional.get();
-        property.setE9(e9);
-        property.setPropertyAddress(address);
-        property.setConstructionYear(year);
-        property.setPropertyType(propertyType);
-        property.setOwner(owner.get());
+        Property property = updateOptionalProperty.get();
 
+        System.out.println("Please insert the new address:");
+        String newAddress = scanner.nextLine().trim();
+        validateAddress(newAddress);
+
+        property.setPropertyAddress(newAddress);
         try {
             Optional<Property> savedProperty = propertyRepository.save(property);
-            return savedProperty.get();
+            return savedProperty.orElseThrow(() -> new CustomException("Failed to save the updated property with address " + newAddress));
         } catch (Exception e) {
-            log.error("Failed to update property with ID " + id);
-            throw new CustomException("Failed to update property with ID " + id);
+            System.out.println("Failed to update property with address " + newAddress);
+            throw new CustomException("Failed to update property with address " + newAddress);
+        }
+    }
+
+    /**
+     * Updates the construction year of a property identified by its E9.
+     *
+     * Prompts the user to input the current E9 and the new construction year.
+     * Validates the current E9, retrieves the property, and validates the new
+     * construction year. Updates the property with the new construction year
+     * and saves the changes to the repository.
+     *
+     * @return The updated property with the new construction year.
+     * @throws CustomException If the property with the given E9 is not found,
+     * if the new construction year is invalid, or if the update operation
+     * fails.
+     */
+    @Override
+    public Property updatePropertyConstructionYear() throws CustomException {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Please insert current E9: ");
+        String e9 = scanner.nextLine().trim();
+        validateE9(e9);
+        Optional<Property> updateOptionalProperty = propertyRepository.findPropertyByE9(e9);
+        if (updateOptionalProperty.isEmpty()) {
+            throw new CustomException("Property with E9 " + e9 + " not found.");
+        }
+
+        Property property = updateOptionalProperty.get();
+
+        System.out.println("Please insert the new construction year:");
+        String yearInput = scanner.nextLine().trim();
+        validateConstructionYear(yearInput);
+
+        int newYear = Integer.parseInt(yearInput);
+        property.setConstructionYear(newYear);
+        try {
+            Optional<Property> savedProperty = propertyRepository.save(property);
+            return savedProperty.orElseThrow(() -> new CustomException("Failed to save the updated property with construction year " + newYear));
+        } catch (Exception e) {
+            System.out.println("Failed to update property with construction year " + newYear);
+            throw new CustomException("Failed to update property with construction year " + newYear);
+        }
+    }
+
+    /**
+     * Updates the property type of a property identified by its E9.
+     *
+     * Prompts the user to input the current E9 and the new property type.
+     * Validates the current E9, retrieves the property, and validates the new
+     * property type. Updates the property with the new type and saves the
+     * changes to the repository.
+     *
+     * @return The updated property with the new property type.
+     * @throws CustomException If the property with the given E9 is not found,
+     * if the new property type is invalid, or if the update operation fails.
+     */
+    @Override
+    public Property updatePropertyType() throws CustomException {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Please insert current E9: ");
+        String e9 = scanner.nextLine().trim();
+        validateE9(e9);
+        Optional<Property> updateOptionalProperty = propertyRepository.findPropertyByE9(e9);
+        if (updateOptionalProperty.isEmpty()) {
+            throw new CustomException("Property with E9 " + e9 + " not found.");
+        }
+
+        Property property = updateOptionalProperty.get();
+
+        System.out.println("Please insert the new property type:");
+        String propertyTypeInput = scanner.nextLine().trim();
+        validatePropertyType(propertyTypeInput);
+        PropertyType newType = Arrays.stream(PropertyType.values())
+                .filter(t -> t.getCode().equals(propertyTypeInput))
+                .findFirst()
+                .orElseThrow(() -> new CustomException("Invalid property type"));
+
+        property.setPropertyType(newType);
+        try {
+            Optional<Property> savedProperty = propertyRepository.save(property);
+            return savedProperty.orElseThrow(() -> new CustomException("Failed to save the updated property with property type " + newType));
+        } catch (Exception e) {
+            System.out.println("Failed to update property with property type " + newType);
+            throw new CustomException("Failed to update property with property type " + newType);
+        }
+    }
+
+    /**
+     * Updates the VAT number associated with a property identified by its E9.
+     *
+     * Prompts the user for the current E9, the new VAT number, and verifies
+     * both. If the new VAT number is valid and associated with an existing
+     * owner, updates the property with the new VAT and saves the changes to the
+     * repository.
+     *
+     *
+     * @return The updated property with the new VAT number.
+     * @throws CustomException If the property with the given E9 is not found,
+     * if the new VAT number is not associated with any existing owner, or if
+     * the update operation fails.
+     */
+    @Override
+    public Property updatePropertyVAT() throws CustomException {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Please insert current E9: ");
+        String e9 = scanner.nextLine().trim();
+        validateE9(e9);
+        Optional<Property> updateOptionalProperty = propertyRepository.findPropertyByE9(e9);
+        if (updateOptionalProperty.isEmpty()) {
+            throw new CustomException("Property with E9 " + e9 + " not found.");
+        }
+
+        Property property = updateOptionalProperty.get();
+
+        System.out.println("Please insert the new VAT:");
+        String newVat = scanner.nextLine().trim();
+        validateVAT(newVat);
+
+        Optional<Owner> owner = ownerServiceInterface.searchOwnerByVat(newVat);
+        if (owner.isEmpty()) {
+            throw new CustomException("Owner with VAT " + newVat + " not found.");
+        }
+
+        property.setOwner(owner.get());
+        try {
+            Optional<Property> savedProperty = propertyRepository.save(property);
+            return savedProperty.orElseThrow(() -> new CustomException("Failed to save the updated property with VAT " + newVat));
+        } catch (Exception e) {
+            System.out.println("Failed to update property with VAT " + newVat);
+            throw new CustomException("Failed to update property with VAT " + newVat);
         }
     }
 
@@ -148,16 +301,22 @@ public class PropertyServiceImpl implements PropertyService {
         Optional<Property> property = propertyRepository.findPropertyByE9(e9);
 
         if (property.isEmpty()) {
-            log.info("Property with Ε9 " + e9 + " not found");
+            System.out.println("Property with Ε9 " + e9 + " not found");
             throw new CustomException("Property with Ε9 " + e9 + " not found");
+        } else {
+            if (property.get().isDeleted()) {
+                System.out.println("This property is marked as deleted");
+            }
+            return property.get();
         }
-        return property.get();
     }
 
     /**
      * Finds properties associated with a specific VAT identifier.
      *
-     * If no properties with the given VAT are found, a CustomException is
+     * It filters these properties to identify those that are marked as deleted.
+     * If no properties are found, either because no properties exist with the
+     * given VAT or all properties are marked as deleted, a CustomException is
      * thrown.
      *
      * @param vat the VAT identifier of the properties to be found
@@ -168,11 +327,18 @@ public class PropertyServiceImpl implements PropertyService {
     public List<Property> findByVAT(String vat) throws CustomException {
 
         List<Property> properties = propertyRepository.findPropertyByVAT(vat);
+        List<Property> foundProperties = properties.stream()
+                .filter(Property::isDeleted)
+                .collect(Collectors.toList());
         if (properties.isEmpty()) {
-            log.info("Properties not found based on vat " + vat);
+            System.out.println("Properties not found based on vat " + vat);
             throw new CustomException("Properties not found based on vat " + vat);
+        } else {
+            if (properties == foundProperties) {
+                System.out.println("This property is marked as deleted");
+            }
+            return properties;
         }
-        return properties;
     }
 
     /**
@@ -188,7 +354,7 @@ public class PropertyServiceImpl implements PropertyService {
     public Property findByID(Long id) throws CustomException {
         Optional<Property> property = propertyRepository.findById(id);
         if (property.isEmpty()) {
-            log.info("Property with ID: " + id + " not found");
+            System.out.println("Property with ID: " + id + " not found");
             throw new CustomException("Property with ID: " + id + " not found");
         }
         return property.get();
@@ -216,7 +382,7 @@ public class PropertyServiceImpl implements PropertyService {
             propertyRepository.save(property);
             return true;
         } catch (Exception e) {
-            log.info("Failed to safely delete property with ID: " + id);
+            System.out.println("Failed to safely delete property with ID: " + id);
             throw new CustomException("Failed to safely delete property with ID : " + id);
         }
     }
@@ -234,10 +400,52 @@ public class PropertyServiceImpl implements PropertyService {
     public boolean permenantlyDeleteByID(Long id) throws CustomException {
         boolean success = propertyRepository.deleteById(id);
         if (!success) {
-            log.info("Failed to permanently delete property with ID: " + id);
+            System.out.println("Failed to permanently delete property with ID: " + id);
             throw new CustomException("Failed to permanently delete property with ID: " + id);
         }
         return true;
     }
 
+    @Override
+    public void validateE9(String e9) throws CustomException {
+        if (e9 == null || e9.length() != 20) {
+            throw new CustomException("E9 must be exactly 20 characters.");
+        }
+    }
+
+    @Override
+    public void validateAddress(String address) throws CustomException {
+        if (address == null || address.isBlank()) {
+            throw new CustomException("Address cannot be null or blank.");
+        }
+    }
+
+    @Override
+    public void validateConstructionYear(String yearInput) throws CustomException {
+        if (yearInput == null || yearInput.isBlank()) {
+            throw new CustomException("Year cannot be null or blank.");
+        }
+        try {
+            int year = Integer.parseInt(yearInput);
+            if (year <= 0) {
+                throw new CustomException("Year cannot be zero or negative.");
+            }
+        } catch (NumberFormatException e) {
+            throw new CustomException("Year must be a valid integer.");
+        }
+    }
+
+    @Override
+    public void validatePropertyType(String type) throws CustomException {
+        if (type == null || type.isBlank()) {
+            throw new CustomException("Property type cannot be null or blank.");
+        }
+    }
+
+    @Override
+    public void validateVAT(String vat) throws CustomException {
+        if (vat == null || vat.isBlank()) {
+            throw new CustomException("VAT cannot be null or blank.");
+        }
+    }
 }
