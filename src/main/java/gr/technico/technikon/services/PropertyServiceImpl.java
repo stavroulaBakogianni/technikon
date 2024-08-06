@@ -78,7 +78,7 @@ public class PropertyServiceImpl implements PropertyService {
             throw new CustomException("Failed to create property");
         }
     }
-    
+
     /**
      * Updates the E9 of a property identified by its current E9.
      *
@@ -406,6 +406,14 @@ public class PropertyServiceImpl implements PropertyService {
         return true;
     }
 
+    /**
+     * Validates the E9 value. Ensures that the E9 is not null and has exactly
+     * 20 characters.
+     *
+     * @param e9 The E9 value to validate.
+     * @throws CustomException If the E9 is null or does not have exactly 20
+     * characters.
+     */
     @Override
     public void validateE9(String e9) throws CustomException {
         if (e9 == null || e9.length() != 20) {
@@ -413,6 +421,13 @@ public class PropertyServiceImpl implements PropertyService {
         }
     }
 
+    /**
+     * Validates the address value. Ensures that the address is not null or
+     * blank.
+     *
+     * @param address The address value to validate.
+     * @throws CustomException If the address is null or blank.
+     */
     @Override
     public void validateAddress(String address) throws CustomException {
         if (address == null || address.isBlank()) {
@@ -420,6 +435,14 @@ public class PropertyServiceImpl implements PropertyService {
         }
     }
 
+    /**
+     * Validates the construction year input. Ensures that the year is not null
+     * or blank, and is a positive integer.
+     *
+     * @param yearInput The construction year input to validate.
+     * @throws CustomException If the year is null, blank, zero, negative, or
+     * not a valid integer.
+     */
     @Override
     public void validateConstructionYear(String yearInput) throws CustomException {
         if (yearInput == null || yearInput.isBlank()) {
@@ -435,6 +458,13 @@ public class PropertyServiceImpl implements PropertyService {
         }
     }
 
+    /**
+     * Validates the property type. Ensures that the property type is not null
+     * or blank.
+     *
+     * @param type The property type to validate.
+     * @throws CustomException If the property type is null or blank.
+     */
     @Override
     public void validatePropertyType(String type) throws CustomException {
         if (type == null || type.isBlank()) {
@@ -442,6 +472,12 @@ public class PropertyServiceImpl implements PropertyService {
         }
     }
 
+    /**
+     * Validates the VAT value. Ensures that the VAT is not null or blank.
+     *
+     * @param vat The VAT value to validate.
+     * @throws CustomException If the VAT is null or blank.
+     */
     @Override
     public void validateVAT(String vat) throws CustomException {
         if (vat == null || vat.isBlank()) {

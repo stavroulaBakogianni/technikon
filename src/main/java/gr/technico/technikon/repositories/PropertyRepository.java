@@ -46,7 +46,7 @@ public class PropertyRepository implements Repository<Property, Long> {
             return Optional.of(property);
         } catch (Exception e) {
             JpaUtil.rollbackTransaction();
-            log.error("Exception: ", e);
+            System.out.println("Exception: " + e);
             throw e;
         }
     }
@@ -69,7 +69,7 @@ public class PropertyRepository implements Repository<Property, Long> {
             property = entityManager.find(getEntityClass(), id);
             return Optional.of(property);
         } catch (Exception e) {
-            log.error("Exception: ", e);
+            System.out.println("Exception: " + e);
             throw e;
         }
     }
@@ -112,7 +112,7 @@ public class PropertyRepository implements Repository<Property, Long> {
                 JpaUtil.commitTransaction();
             } catch (Exception e) {
                 JpaUtil.rollbackTransaction();
-                log.error("Exception: ", e);
+                System.out.println("Exception: " + e);
                 return false;
             }
             return true;
@@ -125,11 +125,11 @@ public class PropertyRepository implements Repository<Property, Long> {
      *
      * This method creates a TypedQuery to search for a Property entity with the
      * specified E9 identifier. If the entity is found, it is returned wrapped
-     * in an Optional. If not found, an empty Optional is returned.
+     * in an Optional.
      *
      * @param e9 the E9 identifier of the Property entity to be found
      * @return an Optional containing the found Property entity if the operation
-     * is successful; otherwise, an empty Optional
+     * is successful
      */
     public Optional<Property> findPropertyByE9(String e9) {
         TypedQuery<Property> query
