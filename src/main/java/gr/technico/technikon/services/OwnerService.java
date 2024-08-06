@@ -19,6 +19,17 @@ public class OwnerService implements OwnerServiceInterface {
     @Override
     public void createOwner(String vat, String name, String surname, String address, String phoneNumber, String email, String username, String password)
             throws CustomException {
+        validateVat(vat);
+        validateName(name);
+        validateSurname(surname);
+        validatePhone(phoneNumber);
+        validateEmail(email);
+        validatePassword(password);
+
+        checkVat(vat);
+        checkEmail(email);
+        checkUsername(username);
+
         Owner owner = new Owner();
         owner.setVat(vat);
         owner.setAddress(address);
@@ -83,12 +94,20 @@ public class OwnerService implements OwnerServiceInterface {
 
     @Override
     public boolean deleteOwnerSafely(String vat) {
-        return ownerRepository.deleteSafelyByVat(vat);
+        try {
+            Owner owner = getOwnerByVat(vat);
+            owner.setDeleted(true);
+            save(owner);
+
+            return true;
+        } catch (CustomException e) {
+            return false;
+        }
     }
 
-    // Authenticate Owner
+    // Verify Owner
     @Override
-    public Optional<String> authenticateOwner(String username, String password) throws CustomException {
+    public Optional<String> verifyOwner(String username, String password) throws CustomException {
         if (username == null || username.isBlank()) {
             throw new CustomException("Username cannot be null or blank.");
         }

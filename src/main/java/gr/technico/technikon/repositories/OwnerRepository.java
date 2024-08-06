@@ -77,28 +77,6 @@ public class OwnerRepository implements Repository<Owner, Long> {
         }
     }
 
-    public boolean deleteSafelyByVat(String vat) {
-        try {
-            JpaUtil.beginTransaction();
-            Optional<Owner> optionalOwner = findByVat(vat);
-
-            if (optionalOwner.isPresent()) {
-                Owner owner = optionalOwner.get();
-                // Update isDeleted flag instead of removing.
-                owner.setDeleted(true);
-                entityManager.merge(owner);
-                JpaUtil.commitTransaction();
-                return true;
-            } else {
-                JpaUtil.rollbackTransaction();
-                return false;
-            }
-        } catch (Exception e) {
-            JpaUtil.rollbackTransaction();
-            return false;
-        }
-    }
-
     @Override
     public Optional<Owner> findById(Long id) {
         throw new UnsupportedOperationException("Not supported yet.");
