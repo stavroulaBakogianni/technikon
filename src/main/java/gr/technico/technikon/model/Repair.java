@@ -63,7 +63,10 @@ public class Repair implements Serializable {
     @FutureOrPresent
     @Column(name = "actual_end_date")
     private LocalDateTime actualEndDate;
-
+    
+    @NotNull
+    private boolean isDeleted = false;
+    
     @ManyToOne
     private Owner owner;
 

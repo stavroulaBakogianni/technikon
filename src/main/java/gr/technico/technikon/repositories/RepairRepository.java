@@ -1,12 +1,10 @@
 package gr.technico.technikon.repositories;
 
 import gr.technico.technikon.jpa.JpaUtil;
-import gr.technico.technikon.model.Owner;
 import gr.technico.technikon.model.Repair;
 import java.util.List;
 import java.util.Optional;
 import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
 
 public class RepairRepository implements Repository<Repair, Long> {
 
