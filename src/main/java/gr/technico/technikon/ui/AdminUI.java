@@ -36,10 +36,10 @@ public class AdminUI implements AdminSelection {
                     break;
                 case 3:
                     searchProperty();
-                    return;
+                    break;
                 case 4:
                     deleteProperty();
-                    return;
+                    break;
                 case 5:
                     return;
                 default:

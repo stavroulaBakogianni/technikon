@@ -50,7 +50,6 @@ public class PropertyServiceImpl implements PropertyService {
             Optional<Property> savedProperty = propertyRepository.save(property);
             return savedProperty.get();
         } catch (Exception e) {
-            System.out.println("Failed to create property");
             throw new CustomException("Failed to create property");
         }
     }
@@ -58,20 +57,13 @@ public class PropertyServiceImpl implements PropertyService {
     /**
      * Updates the E9 identifier of an existing property.
      *
-     * @param propertyId The ID of the property to be updated.
+     * @param property The property object to be updated.
      * @param e9 The new E9 identifier to set for the property.
      * @return The updated Property object.
-     * @throws CustomException If the property with the given ID is not found,
-     * or if the update fails.
+     * @throws CustomException If the if the update fails.
      */
     @Override
-    public Property updatePropertyE9(Long propertyId, String e9) throws CustomException {
-        Optional<Property> updateOptionalProperty = propertyRepository.findById(propertyId);
-        if (updateOptionalProperty.isEmpty()) {
-            throw new CustomException("Property with ID " + propertyId + " not found.");
-        }
-
-        Property property = updateOptionalProperty.get();
+    public Property updatePropertyE9(Property property, String e9) throws CustomException {
         property.setE9(e9);
 
         try {
@@ -85,21 +77,14 @@ public class PropertyServiceImpl implements PropertyService {
     /**
      * Updates the address of an existing property.
      *
-     * @param propertyId The ID of the property to be updated.
+     * @param property The property object to be updated.
      * @param address The new address to set for the property.
      * @return The updated Property object.
-     * @throws CustomException If the property with the given ID is not found,
-     * or if the update fails.
+     * @throws CustomException If if the update fails.
      */
     @Override
-    public Property updatePropertyAddress(Long propertyId, String address) throws CustomException {
-        Optional<Property> updateOptionalProperty = propertyRepository.findById(propertyId);
-        if (updateOptionalProperty.isEmpty()) {
-            throw new CustomException("Property with ID " + propertyId + " not found.");
-        }
-
-        Property property = updateOptionalProperty.get();
-        property.setE9(address);
+    public Property updatePropertyAddress(Property property, String address) throws CustomException {
+        property.setPropertyAddress(address);
 
         try {
             Optional<Property> savedProperty = propertyRepository.save(property);
@@ -112,20 +97,13 @@ public class PropertyServiceImpl implements PropertyService {
     /**
      * Updates the construction year of an existing property.
      *
-     * @param propertyId The ID of the property to be updated.
+     * @param property The property object to be updated.
      * @param year The new construction year to set for the property.
      * @return The updated Property object.
-     * @throws CustomException If the property with the given ID is not found,
-     * or if the update fails.
+     * @throws CustomException If the update fails.
      */
     @Override
-    public Property updatePropertyConstructionYear(Long propertyId, int year) throws CustomException {
-        Optional<Property> updateOptionalProperty = propertyRepository.findById(propertyId);
-        if (updateOptionalProperty.isEmpty()) {
-            throw new CustomException("Property with ID " + propertyId + " not found.");
-        }
-
-        Property property = updateOptionalProperty.get();
+    public Property updatePropertyConstructionYear(Property property, int year) throws CustomException {
         property.setConstructionYear(year);
 
         try {
@@ -139,20 +117,13 @@ public class PropertyServiceImpl implements PropertyService {
     /**
      * Updates the property type of an existing property.
      *
-     * @param propertyId The ID of the property to be updated.
+     * @param property The property object to be updated.
      * @param propertyType The new property type to set for the property.
      * @return The updated Property object.
-     * @throws CustomException If the property with the given ID is not found,
-     * or if the update fails.
+     * @throws CustomException If the update fails.
      */
     @Override
-    public Property updatePropertyType(Long propertyId, PropertyType propertyType) throws CustomException {
-        Optional<Property> updateOptionalProperty = propertyRepository.findById(propertyId);
-        if (updateOptionalProperty.isEmpty()) {
-            throw new CustomException("Property with ID " + propertyId + " not found.");
-        }
-
-        Property property = updateOptionalProperty.get();
+    public Property updatePropertyType(Property property, PropertyType propertyType) throws CustomException {
         property.setPropertyType(propertyType);
 
         try {
@@ -166,8 +137,6 @@ public class PropertyServiceImpl implements PropertyService {
     /**
      * Finds a property by its E9 identifier.
      *
-     * If no property with the given E9 is found, a CustomException is thrown.
-     *
      * @param e9 the E9 identifier of the property to be found
      * @return the property with the given E9
      * @throws CustomException if the property with the given E9 is not found
@@ -177,8 +146,7 @@ public class PropertyServiceImpl implements PropertyService {
         Optional<Property> property = propertyRepository.findPropertyByE9(e9);
 
         if (property.isEmpty()) {
-            System.out.println("Property with Ε9 " + e9 + " not found");
-            throw new CustomException("Property with Ε9 " + e9 + " not found");
+            throw new CustomException("Property with E9 " + e9 + " not found");
         } else {
             if (property.get().isDeleted()) {
                 System.out.println("This property is marked as deleted");
@@ -188,39 +156,66 @@ public class PropertyServiceImpl implements PropertyService {
     }
 
     /**
-     * Finds properties associated with a specific VAT identifier.
+     * Searches for a property by its E9 value.
      *
-     * It filters these properties to identify those that are marked as deleted.
-     * If no properties are found, either because no properties exist with the
-     * given VAT or all properties are marked as deleted, a CustomException is
-     * thrown.
-     *
-     * @param vat the VAT identifier of the properties to be found
-     * @return a list of properties associated with the given VAT
-     * @throws CustomException if no properties with the given VAT are found
+     * @param e9 the E9 value to search for.
+     * @return the property if found, or null if no property with the given E9
+     * exists.
+     * @throws CustomException if an error occurs while searching for the
+     * property.
      */
     @Override
-    public List<Property> findByVAT(String vat) throws CustomException {
+    public Property findByE9ForCreate(String e9) throws CustomException {
+        Optional<Property> property = propertyRepository.findPropertyByE9(e9);
 
-        List<Property> properties = propertyRepository.findPropertyByVAT(vat);
-        List<Property> foundProperties = properties.stream()
-                .filter(Property::isDeleted)
-                .collect(Collectors.toList());
-        if (properties.isEmpty()) {
-            System.out.println("Properties not found based on vat " + vat);
-            throw new CustomException("Properties not found based on vat " + vat);
+        if (property.isPresent()) {
+            return property.get();
         } else {
-            if (properties == foundProperties) {
-                System.out.println("This property is marked as deleted");
-            }
-            return properties;
+            return null;
         }
     }
 
     /**
-     * Finds a property by its ID.
+     * Finds and returns a list of properties associated with the given VAT
+     * number.
      *
-     * If no property with the given ID is found, a CustomException is thrown.
+     * @param vat the VAT number to search for.
+     * @return a list of properties associated with the given VAT number.
+     * @throws CustomException if no properties are found for the given VAT
+     * number.
+     */
+    @Override
+    public List<Property> findByVAT(String vat) throws CustomException {
+        List<Property> properties = propertyRepository.findPropertyByVAT(vat);
+        if (properties.isEmpty()) {
+            throw new CustomException("Properties not found based on vat " + vat);
+        }
+        return properties;
+    }
+
+    /**
+     * Finds and returns a list of properties associated with the given VAT
+     * number, excluding those marked as deleted.
+     *
+     * @param vat the VAT number to search for.
+     * @return a list of properties associated with the given VAT number,
+     * excluding deleted properties.
+     * @throws CustomException if no properties are found for the given VAT
+     * number.
+     */
+    @Override
+    public List<Property> findByVATOwner(String vat) throws CustomException {
+        List<Property> properties = propertyRepository.findPropertyByVAT(vat).stream()
+                .filter(property -> !property.isDeleted())
+                .collect(Collectors.toList());
+        if (properties.isEmpty()) {
+            throw new CustomException("Properties not found based on vat " + vat);
+        }
+        return properties;
+    }
+
+    /**
+     * Finds a property by its ID.
      *
      * @param id the ID of the property to be found
      * @return the property with the given ID
@@ -230,7 +225,6 @@ public class PropertyServiceImpl implements PropertyService {
     public Property findByID(Long id) throws CustomException {
         Optional<Property> property = propertyRepository.findById(id);
         if (property.isEmpty()) {
-            System.out.println("Property with ID: " + id + " not found");
             throw new CustomException("Property with ID: " + id + " not found");
         }
         return property.get();
@@ -268,7 +262,6 @@ public class PropertyServiceImpl implements PropertyService {
             propertyRepository.save(property);
             return true;
         } catch (Exception e) {
-            System.out.println("Failed to safely delete property with ID: " + id);
             throw new CustomException("Failed to safely delete property with ID : " + id);
         }
     }
@@ -286,7 +279,6 @@ public class PropertyServiceImpl implements PropertyService {
     public boolean permenantlyDeleteByID(Long id) throws CustomException {
         boolean success = propertyRepository.deleteById(id);
         if (!success) {
-            System.out.println("Failed to permanently delete property with ID: " + id);
             throw new CustomException("Failed to permanently delete property with ID: " + id);
         }
         return true;

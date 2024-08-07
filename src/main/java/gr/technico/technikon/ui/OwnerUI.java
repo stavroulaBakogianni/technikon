@@ -375,24 +375,28 @@ public class OwnerUI implements OwnerSelection {
                 System.out.println("You must be logged in to update your profile.");
                 return;
             }
-            
-            System.out.println("Please insert e9:");
+
+            System.out.println("Please insert e9(20 characters):");
             String e9 = scanner.nextLine().trim();
             propertyService.validateE9(e9);
+            Property property = propertyService.findByE9ForCreate(e9);
+            if (property != null) {
+                throw new CustomException("Property with e9 " + e9 + " already exists");
+            }
             System.out.println("Please insert address:");
             String address = scanner.nextLine().trim();
             System.out.println("Please insert year of construction");
             String yearInput = scanner.nextLine();
             propertyService.validateConstructionYear(yearInput);
             int year = Integer.parseInt(yearInput);
-            System.out.println("Please insert the type of property");
+            System.out.println("Please insert the type of property:(Detached house, Maisonette, Apartment building)");
             String propertyTypeInput = scanner.nextLine();
             propertyService.validatePropertyType(propertyTypeInput);
             PropertyType propertyType = Arrays.stream(PropertyType.values())
-                    .filter(type -> type.getCode().equals(propertyTypeInput))
+                    .filter(type -> type.getCode().equalsIgnoreCase(propertyTypeInput))
                     .findFirst()
                     .orElseThrow(() -> new CustomException("Invalid property type"));
-            
+
             propertyService.createProperty(e9, address, year, propertyType, loggedInOwnerVat);
             System.out.println("Property created successfully.");
         } catch (CustomException ex) {
@@ -445,7 +449,7 @@ public class OwnerUI implements OwnerSelection {
     }
 
     private void updatePropertyE9() throws CustomException {
-        List<Property> properties = propertyService.findByVAT(loggedInOwnerVat);
+        List<Property> properties = propertyService.findByVATOwner(loggedInOwnerVat);
 
         System.out.println("Properties associated with VAT " + loggedInOwnerVat + ":");
         for (Property property : properties) {
@@ -456,17 +460,22 @@ public class OwnerUI implements OwnerSelection {
         Long propertyId = scanner.nextLong();
         scanner.nextLine();
 
+        Property property = propertyService.findByID(propertyId);
+        if (property == null) {
+            throw new CustomException("Property with ID " + propertyId + " not found.");
+        }
+
         System.out.println("Please insert the new E9:");
         String newE9 = scanner.nextLine().trim();
-        propertyService.validateE9(newE9);        
+        propertyService.validateE9(newE9);
 
-        propertyService.updatePropertyE9(propertyId, newE9);
+        propertyService.updatePropertyE9(property, newE9);
 
         System.out.println("Property updated successfully.");
     }
 
     private void updatePropertyAddress() throws CustomException {
-        List<Property> properties = propertyService.findByVAT(loggedInOwnerVat);
+        List<Property> properties = propertyService.findByVATOwner(loggedInOwnerVat);
 
         System.out.println("Properties associated with VAT " + loggedInOwnerVat + ":");
         for (Property property : properties) {
@@ -476,17 +485,22 @@ public class OwnerUI implements OwnerSelection {
         System.out.println("Please insert the ID of the property you want to update:");
         Long propertyId = scanner.nextLong();
         scanner.nextLine();
+
+        Property property = propertyService.findByID(propertyId);
+        if (property == null) {
+            throw new CustomException("Property with ID " + propertyId + " not found.");
+        }
 
         System.out.println("Please insert the new Address:");
         String newAddress = scanner.nextLine().trim();
 
-        propertyService.updatePropertyAddress(propertyId, newAddress);
+        propertyService.updatePropertyAddress(property, newAddress);
 
         System.out.println("Property updated successfully.");
     }
 
-    public void updatePropertyConstructionYear() throws CustomException {        
-        List<Property> properties = propertyService.findByVAT(loggedInOwnerVat);
+    public void updatePropertyConstructionYear() throws CustomException {
+        List<Property> properties = propertyService.findByVATOwner(loggedInOwnerVat);
 
         System.out.println("Properties associated with VAT " + loggedInOwnerVat + ":");
         for (Property property : properties) {
@@ -496,18 +510,23 @@ public class OwnerUI implements OwnerSelection {
         System.out.println("Please insert the ID of the property you want to update:");
         Long propertyId = scanner.nextLong();
         scanner.nextLine();
+
+        Property property = propertyService.findByID(propertyId);
+        if (property == null) {
+            throw new CustomException("Property with ID " + propertyId + " not found.");
+        }
 
         System.out.println("Please insert the new Construction Year:");
         int newYear = scanner.nextInt();
         propertyService.validateConstructionYear(String.valueOf(newYear));
 
-        propertyService.updatePropertyConstructionYear(propertyId, newYear);
+        propertyService.updatePropertyConstructionYear(property, newYear);
 
         System.out.println("Property updated successfully.");
     }
 
-    public void updatePropertyType() throws CustomException {        
-        List<Property> properties = propertyService.findByVAT(loggedInOwnerVat);
+    public void updatePropertyType() throws CustomException {
+        List<Property> properties = propertyService.findByVATOwner(loggedInOwnerVat);
 
         System.out.println("Properties associated with VAT " + loggedInOwnerVat + ":");
         for (Property property : properties) {
@@ -518,15 +537,20 @@ public class OwnerUI implements OwnerSelection {
         Long propertyId = scanner.nextLong();
         scanner.nextLine();
 
-        System.out.println("Please insert the new Property Type:");
+        Property property = propertyService.findByID(propertyId);
+        if (property == null) {
+            throw new CustomException("Property with ID " + propertyId + " not found.");
+        }
+
+        System.out.println("Please insert the new Property Type:(Detached house, Maisonette, Apartment building)");
         String propertyTypeInput = scanner.nextLine().trim();
         propertyService.validatePropertyType(propertyTypeInput);
         PropertyType newPropertyType = Arrays.stream(PropertyType.values())
-                .filter(type -> type.getCode().equals(propertyTypeInput))
+                .filter(type -> type.getCode().equalsIgnoreCase(propertyTypeInput))
                 .findFirst()
                 .orElseThrow(() -> new CustomException("Invalid property type"));
 
-        propertyService.updatePropertyType(propertyId, newPropertyType);
+        propertyService.updatePropertyType(property, newPropertyType);
 
         System.out.println("Property updated successfully.");
     }
@@ -534,7 +558,7 @@ public class OwnerUI implements OwnerSelection {
     @Override
     public void deleteProperty() {
         try {
-            List<Property> properties = propertyService.findByVAT(loggedInOwnerVat);
+            List<Property> properties = propertyService.findByVATOwner(loggedInOwnerVat);
 
             System.out.println("Properties associated with VAT " + loggedInOwnerVat + ":");
             for (Property property : properties) {
