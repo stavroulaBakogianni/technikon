@@ -355,17 +355,4 @@ public class PropertyServiceImpl implements PropertyService {
             throw new CustomException("Invalid property type: " + type);
         }
     }
-
-    /**
-     * Validates the VAT value. Ensures that the VAT is not null or blank.
-     *
-     * @param vat The VAT value to validate.
-     * @throws CustomException If the VAT is null or blank.
-     */
-    @Override
-    public void validateVAT(String vat) throws CustomException {
-        if (vat == null || vat.isBlank()) {
-            throw new CustomException("VAT cannot be null or blank.");
-        }
-    }
 }

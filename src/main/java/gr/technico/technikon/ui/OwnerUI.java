@@ -392,11 +392,8 @@ public class OwnerUI implements OwnerSelection {
                     .filter(type -> type.getCode().equals(propertyTypeInput))
                     .findFirst()
                     .orElseThrow(() -> new CustomException("Invalid property type"));
-            System.out.println("Please insert VAT");
-            String vat = scanner.nextLine();
-            propertyService.validateVAT(vat);
             
-            propertyService.createProperty(e9, address, year, propertyType, vat);
+            propertyService.createProperty(e9, address, year, propertyType, loggedInOwnerVat);
             System.out.println("Property created successfully.");
         } catch (CustomException ex) {
             System.out.println(ex.getMessage());
@@ -448,11 +445,9 @@ public class OwnerUI implements OwnerSelection {
     }
 
     private void updatePropertyE9() throws CustomException {
-        System.out.println("Please insert VAT to list properties:");
-        String vat = scanner.nextLine().trim();
-        List<Property> properties = propertyService.findByVAT(vat);
+        List<Property> properties = propertyService.findByVAT(loggedInOwnerVat);
 
-        System.out.println("Properties associated with VAT " + vat + ":");
+        System.out.println("Properties associated with VAT " + loggedInOwnerVat + ":");
         for (Property property : properties) {
             System.out.println(property);
         }
@@ -471,11 +466,9 @@ public class OwnerUI implements OwnerSelection {
     }
 
     private void updatePropertyAddress() throws CustomException {
-        System.out.println("Please insert VAT to list properties:");
-        String vat = scanner.nextLine().trim();
-        List<Property> properties = propertyService.findByVAT(vat);
+        List<Property> properties = propertyService.findByVAT(loggedInOwnerVat);
 
-        System.out.println("Properties associated with VAT " + vat + ":");
+        System.out.println("Properties associated with VAT " + loggedInOwnerVat + ":");
         for (Property property : properties) {
             System.out.println(property);
         }
@@ -492,12 +485,10 @@ public class OwnerUI implements OwnerSelection {
         System.out.println("Property updated successfully.");
     }
 
-    public void updatePropertyConstructionYear() throws CustomException {
-        System.out.println("Please insert VAT to list properties:");
-        String vat = scanner.nextLine().trim();
-        List<Property> properties = propertyService.findByVAT(vat);
+    public void updatePropertyConstructionYear() throws CustomException {        
+        List<Property> properties = propertyService.findByVAT(loggedInOwnerVat);
 
-        System.out.println("Properties associated with VAT " + vat + ":");
+        System.out.println("Properties associated with VAT " + loggedInOwnerVat + ":");
         for (Property property : properties) {
             System.out.println(property);
         }
@@ -515,12 +506,10 @@ public class OwnerUI implements OwnerSelection {
         System.out.println("Property updated successfully.");
     }
 
-    public void updatePropertyType() throws CustomException {
-        System.out.println("Please insert VAT to list properties:");
-        String vat = scanner.nextLine().trim();
-        List<Property> properties = propertyService.findByVAT(vat);
+    public void updatePropertyType() throws CustomException {        
+        List<Property> properties = propertyService.findByVAT(loggedInOwnerVat);
 
-        System.out.println("Properties associated with VAT " + vat + ":");
+        System.out.println("Properties associated with VAT " + loggedInOwnerVat + ":");
         for (Property property : properties) {
             System.out.println(property);
         }
@@ -545,11 +534,9 @@ public class OwnerUI implements OwnerSelection {
     @Override
     public void deleteProperty() {
         try {
-            System.out.println("Please insert VAT to list properties:");
-            String vat = scanner.nextLine().trim();
-            List<Property> properties = propertyService.findByVAT(vat);
+            List<Property> properties = propertyService.findByVAT(loggedInOwnerVat);
 
-            System.out.println("Properties associated with VAT " + vat + ":");
+            System.out.println("Properties associated with VAT " + loggedInOwnerVat + ":");
             for (Property property : properties) {
                 System.out.println(property);
             }
