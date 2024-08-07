@@ -41,7 +41,7 @@ public class RepairServiceImpl implements RepairService {
     }
 
     @Override
-    public void updType(Long id, RepairType repairType) {
+    public void updateRepairType(Long id, RepairType repairType) {
         Optional<Repair> repair = repairRepository.findById(id);
         Repair repairFound = repair.get();
         if (repairType != null) {
