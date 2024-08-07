@@ -148,10 +148,10 @@ public class RepairServiceImpl implements RepairService {
     }
 
     @Override
-    public List<Repair> findRepairByUserId(Owner owner) {
+    public List<Repair> findRepairsByOwner(Owner owner) {
         return repairRepository.findRepairsByOwner(owner);
     }
-
+    
     @Override
     public List<Repair> findRepairsByDate(String date) {
         LocalDate localDate;
