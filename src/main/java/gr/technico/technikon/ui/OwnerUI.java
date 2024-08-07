@@ -595,7 +595,6 @@ public class OwnerUI implements OwnerSelection {
     }
 
     public void createRepair() {
-        boolean validInput = false;
 
         if (loggedInOwnerVat == null) {
             System.out.println("You must be logged in to create a repair.");
@@ -690,7 +689,6 @@ public class OwnerUI implements OwnerSelection {
 
             repairServiceImpl.createRepair(type, shortDescription, description, owner, property);
             System.out.println("\nRepair created successfully.");
-            validInput = true;
         } catch (CustomException e) {
             System.out.println("Error creating repair: " + e.getMessage());
         } catch (Exception e) {
