@@ -36,7 +36,7 @@ public class RepairServiceImpl implements RepairService {
     }
 
     @Override
-    public void updateRepairType(Long id, RepairType repairType) {
+    public void updType(Long id, RepairType repairType) {
         Optional<Repair> repair = repairRepository.findById(id);
         Repair repairFound = repair.get();
         if (repairType != null) {
@@ -78,24 +78,29 @@ public class RepairServiceImpl implements RepairService {
     }
 
     @Override
-    public void updAcceptance(Long id, int response) throws Exception {
+    public void updAcceptance(Long id, int response) {
         Optional<Repair> repair = repairRepository.findById(id);
-        if (repair.isEmpty()) {
-            System.out.println("Repair not found");
-            return;
-        }
         Repair repairFound = repair.get();
         if (response == 1) {
             repairFound.setAcceptanceStatus(Boolean.TRUE);
+            //repairFound.setRepairStatus(RepairStatus.INPROGRESS);
+            //repairFound.setActualStartDate(LocalDateTime.now());
         } else {
             repairFound.setAcceptanceStatus(Boolean.FALSE);
             repairFound.setRepairStatus(RepairStatus.DECLINED);
         }
-        try {
-            repairRepository.save(repairFound);
-        } catch (Exception e) {
-            throw new Exception("Failed to update acceptance status");
-        }
+        repairRepository.save(repairFound);
+    }
+
+    @Override
+    public void updateStatus(Long id) {
+        Optional<Repair> repair = repairRepository.findById(id);
+        Repair repairFound = repair.get();
+
+        repairFound.setRepairStatus(RepairStatus.INPROGRESS);
+        repairFound.setActualStartDate(LocalDateTime.now());
+
+        repairRepository.save(repairFound);
     }
 
     @Override
@@ -123,6 +128,19 @@ public class RepairServiceImpl implements RepairService {
         return repairRepository.findPendingRepairs();
     }
 
+    public List<Repair> getPendingRepairsByOwner(Owner owner) {
+        return repairRepository.findPendingRepairsByOwner(owner);
+    }
+
+    @Override
+    public List<Repair> getInProgressRepairs() {
+        return repairRepository.findInProgressRepairs();
+    }
+    @Override
+    public List<Repair> getAcceptedRepairs() {
+        return repairRepository.findAcceptedRepairs();
+    }
+
     @Override
     public List<Repair> findRepairByUserId(Owner owner) {
         return repairRepository.findRepairsByOwner(owner);
@@ -131,6 +149,11 @@ public class RepairServiceImpl implements RepairService {
     @Override
     public Repair findRepairByDate() {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public List<Repair> getRepairByPropertyId(Property property) {
+        return repairRepository.findRepairsByPropertyId(property);
     }
 
     @Override
