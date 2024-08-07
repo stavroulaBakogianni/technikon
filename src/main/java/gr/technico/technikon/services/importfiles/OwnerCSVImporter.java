@@ -1,14 +1,13 @@
 package gr.technico.technikon.services.importfiles;
 
+import gr.technico.technikon.exceptions.CustomException;
 import gr.technico.technikon.jpa.JpaUtil;
-import gr.technico.technikon.model.Owner;
 import gr.technico.technikon.repositories.OwnerRepository;
+import gr.technico.technikon.services.OwnerService;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Optional;
 
 public class OwnerCSVImporter implements FilesImporter {
 
@@ -16,42 +15,34 @@ public class OwnerCSVImporter implements FilesImporter {
     public void importFile(String filePath) throws IOException, OutOfMemoryError, FileNotFoundException {
 
         OwnerRepository ownerRepository = new OwnerRepository(JpaUtil.getEntityManager());
+        OwnerService ownerService = new OwnerService(ownerRepository);
 
         try (BufferedReader br = new BufferedReader(new InputStreamReader(
                 OwnerCSVImporter.class.getClassLoader().getResourceAsStream(filePath)))) {
             String line;
             while ((line = br.readLine()) != null) {
-                String[] fields = line.split(",");
-                
-                if (fields.length != 8) {
-                    //The line is malformed, skip it
-                    continue;
+                try {
+                    String[] fields = line.split(",");
+
+                    if (fields.length != 8) {
+                        //The line is malformed, skip it
+                        continue;
+                    }
+
+                    String vat = fields[0];
+                    String name = fields[1];
+                    String surname = fields[2];
+                    String address = fields[3];
+                    String phoneNumber = fields[4];
+                    String email = fields[5];
+                    String username = fields[6];
+                    String password = fields[7];
+
+                    ownerService.createOwner(vat, name, surname, address, phoneNumber, email, username, password);
+                } catch (CustomException e) {
+                    System.out.println("Owner doesn't pass validations, skip this line" + e.getMessage());
                 }
-
-                String vat = fields[0];
-                String name = fields[1];
-                String surname = fields[2];
-                String address = fields[3];
-                String phoneNumber = fields[4];
-                String email = fields[5];
-                String username = fields[6];
-                String password = fields[7];
-
-                Owner owner = new Owner();
-                
-                owner.setVat(vat);
-                owner.setName(name);
-                owner.setSurname(surname);
-                owner.setAddress(address);
-                owner.setPhoneNumber(phoneNumber);
-                owner.setEmail(email);
-                owner.setUsername(username);
-                owner.setPassword(password);
-
-                
-                Optional<Owner> savedOwner = ownerRepository.save(owner);
             }
-
         } catch (OutOfMemoryError e) {
             System.out.println("Java run out of memory: " + e.getMessage());
         } catch (FileNotFoundException e) {
