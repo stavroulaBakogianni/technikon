@@ -113,7 +113,7 @@ public class RepairRepository implements Repository<Repair, Long> {
         TypedQuery<Repair> query
                 = entityManager.createQuery("from " + getEntityClassName()
                         + " where property  like :property ",
-                         getEntityClass())
+                        getEntityClass())
                         .setParameter("property", property);
         return query.getResultList();
     }
@@ -122,7 +122,7 @@ public class RepairRepository implements Repository<Repair, Long> {
         TypedQuery<Repair> query
                 = entityManager.createQuery("from " + getEntityClassName()
                         + " where repair_status  like :repair_status ",
-                         getEntityClass())
+                        getEntityClass())
                         .setParameter("repair_status", "INPROGRESS");
         return query.getResultList();
     }
@@ -131,7 +131,7 @@ public class RepairRepository implements Repository<Repair, Long> {
         TypedQuery<Repair> query
                 = entityManager.createQuery("from " + getEntityClassName()
                         + " where acceptance_status  like :acceptance_status ",
-                         getEntityClass())
+                        getEntityClass())
                         .setParameter("acceptance_status", Boolean.TRUE);
         return query.getResultList();
     }
@@ -139,15 +139,22 @@ public class RepairRepository implements Repository<Repair, Long> {
     //Method to search by dates
     public List<Repair> findRepairsByDates(LocalDateTime startDate, LocalDateTime endDate, Owner owner) {
         if (owner == null) {
-            TypedQuery<Repair> query = entityManager.createQuery("from " + getEntityClassName() + " where submission_date  between " + startDate + " and " + endDate, getEntityClass());
+            TypedQuery<Repair> query
+                    = entityManager.createQuery("from " + getEntityClassName()
+                            + " where submission_date between :startDate and :endDate",
+                             getEntityClass())
+                            .setParameter("startDate", startDate)
+                            .setParameter("endDate", endDate);
 
             return query.getResultList();
         } else {
             TypedQuery<Repair> query
                     = entityManager.createQuery("from " + getEntityClassName()
-                            + "where submission_date  between " + startDate + " and " + endDate
+                            + " where submission_date between :startDate and :endDate"
                             + " and owner like :owner ",
                             getEntityClass())
+                            .setParameter("startDate", startDate)
+                            .setParameter("endDate", endDate)
                             .setParameter("owner", owner);
             return query.getResultList();
         }
