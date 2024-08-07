@@ -151,9 +151,9 @@ public class RepairServiceImpl implements RepairService {
     public List<Repair> findRepairsByOwner(Owner owner) {
         return repairRepository.findRepairsByOwner(owner);
     }
-    
+
     @Override
-    public List<Repair> findRepairsByDate(String date) {
+    public List<Repair> findRepairsByDate(String date, Owner owner) {
         LocalDate localDate;
         try {
             localDate = LocalDate.parse(date, DateTimeFormatter.ISO_LOCAL_DATE);
@@ -164,11 +164,11 @@ public class RepairServiceImpl implements RepairService {
 
         LocalDateTime localDateTimeStart = localDate.atStartOfDay();
         LocalDateTime localDateTimeEnd = localDate.atTime(LocalTime.MAX);
-        return repairRepository.findRepairsByDates(localDateTimeStart, localDateTimeEnd);
+        return repairRepository.findRepairsByDates(localDateTimeStart, localDateTimeEnd, owner);
     }
 
     @Override
-    public List<Repair> findRepairsByRangeOfDates(String startDate, String endDate) {
+    public List<Repair> findRepairsByRangeOfDates(String startDate, String endDate, Owner owner) {
         LocalDate startLocalDate;
         LocalDate endLocalDate;
 
@@ -182,7 +182,13 @@ public class RepairServiceImpl implements RepairService {
 
         LocalDateTime localDateTimeStart = startLocalDate.atStartOfDay();
         LocalDateTime localDateTimeEnd = endLocalDate.atTime(LocalTime.MAX);
-        return repairRepository.findRepairsByDates(localDateTimeStart, localDateTimeEnd);
+        return repairRepository.findRepairsByDates(localDateTimeStart, localDateTimeEnd, owner);
+    }
+
+    @Override
+    public Optional<Repair> findRepairById(Long id) {
+
+        return repairRepository.findById(id);
     }
 
     @Override
