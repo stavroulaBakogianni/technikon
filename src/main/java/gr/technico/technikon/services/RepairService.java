@@ -8,6 +8,7 @@ import gr.technico.technikon.model.RepairType;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface RepairService {
 
@@ -44,13 +45,15 @@ public interface RepairService {
 
     public List<Repair> getAcceptedRepairs();
 
-    List<Repair> findRepairsByDate(String date);
+    List<Repair> findRepairsByDate(String date, Owner owner);
 
-    List<Repair> findRepairsByRangeOfDates(String startDate, String endDate);
+    List<Repair> findRepairsByRangeOfDates(String startDate, String endDate, Owner owner);
 
     boolean deletePermantlyById(Long id);
 
     boolean deleteSafely(Long id);
+    
+    Optional<Repair> findRepairById(Long id);
 
     void validateType(int repairType) throws CustomException;
 
