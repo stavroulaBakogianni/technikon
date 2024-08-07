@@ -97,8 +97,8 @@ public class RepairRepository implements Repository<Repair, Long> {
                         .setParameter("repair_status", "PENDING");
         return query.getResultList();
     }
-    
-    public List<Repair> findPendingRepairsByOwner(Owner owner){
+
+    public List<Repair> findPendingRepairsByOwner(Owner owner) {
         TypedQuery<Repair> query
                 = entityManager.createQuery("from " + getEntityClassName()
                         + " where repair_status  like :repair_status "
@@ -108,39 +108,50 @@ public class RepairRepository implements Repository<Repair, Long> {
                         .setParameter("repair_status", "PENDING");
         return query.getResultList();
     }
-    
+
     public List<Repair> findRepairsByPropertyId(Property property) {
-       TypedQuery<Repair> query =
-               entityManager.createQuery("from " + getEntityClassName()
-                       + " where property  like :property "
-                       , getEntityClass())
-               .setParameter("property", property);
-        return query.getResultList();    
-    }
-    
-    public List<Repair> findInProgressRepairs() {
-       TypedQuery<Repair> query =
-               entityManager.createQuery("from " + getEntityClassName()
-                       + " where repair_status  like :repair_status "
-                       , getEntityClass())
-               .setParameter("repair_status", "INPROGRESS");
-        return query.getResultList();    
-    }
-    
-    public List<Repair> findAcceptedRepairs() {
-       TypedQuery<Repair> query =
-               entityManager.createQuery("from " + getEntityClassName()
-                       + " where acceptance_status  like :acceptance_status "
-                       , getEntityClass())
-               .setParameter("acceptance_status", Boolean.TRUE);
-        return query.getResultList();    
-    }
-    
-    
-    //Method to search by dates
-    public List<Repair> findRepairsByDates(LocalDateTime startDate, LocalDateTime endDate) {
-        TypedQuery<Repair> query = entityManager.createQuery("from " + getEntityClassName() + " where submission_date  between " + startDate + " and " + endDate, getEntityClass());
+        TypedQuery<Repair> query
+                = entityManager.createQuery("from " + getEntityClassName()
+                        + " where property  like :property ",
+                         getEntityClass())
+                        .setParameter("property", property);
         return query.getResultList();
+    }
+
+    public List<Repair> findInProgressRepairs() {
+        TypedQuery<Repair> query
+                = entityManager.createQuery("from " + getEntityClassName()
+                        + " where repair_status  like :repair_status ",
+                         getEntityClass())
+                        .setParameter("repair_status", "INPROGRESS");
+        return query.getResultList();
+    }
+
+    public List<Repair> findAcceptedRepairs() {
+        TypedQuery<Repair> query
+                = entityManager.createQuery("from " + getEntityClassName()
+                        + " where acceptance_status  like :acceptance_status ",
+                         getEntityClass())
+                        .setParameter("acceptance_status", Boolean.TRUE);
+        return query.getResultList();
+    }
+
+    //Method to search by dates
+    public List<Repair> findRepairsByDates(LocalDateTime startDate, LocalDateTime endDate, Owner owner) {
+        if (owner == null) {
+            TypedQuery<Repair> query = entityManager.createQuery("from " + getEntityClassName() + " where submission_date  between " + startDate + " and " + endDate, getEntityClass());
+
+            return query.getResultList();
+        } else {
+            TypedQuery<Repair> query
+                    = entityManager.createQuery("from " + getEntityClassName()
+                            + "where submission_date  between " + startDate + " and " + endDate
+                            + " and owner like :owner ",
+                            getEntityClass())
+                            .setParameter("owner", owner);
+            return query.getResultList();
+        }
+
     }
 
     private Class<Repair> getEntityClass() {
