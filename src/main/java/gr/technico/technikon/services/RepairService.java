@@ -13,36 +13,39 @@ public interface RepairService {
 
     Repair createRepair(RepairType repairType, String shortDescription,
             String description, Owner owner, Property property);
-    
-    void updateRepairType(Long id, RepairType repairType); 
-    
-    void updshortDesc(Long id,String shortDescription);
-    
-    void updDesc(Long id, String description); 
-    
+
+    void updateRepairType(Long id, RepairType repairType);
+
+    void updshortDesc(Long id, String shortDescription);
+
+    void updDesc(Long id, String description);
+
     void updCostDates(Long id, BigDecimal proposedCost, LocalDateTime proposedStartDate, LocalDateTime proposedEndDateTime);
 
     public void updAcceptance(Long id, int response) throws Exception;
-    
-    public void  updComplete(Long id);
-    
+
+    public void updComplete(Long id);
+
     Long saveRepair(Repair repair) throws CustomException;
 
     List<Repair> getRepairs();
 
     public List<Repair> getPendingRepairs();
-            
+
     List<Repair> findRepairByUserId(Owner owner);
 
-    //By Date(submissionDate) or Range of dates (proposedStart..propposedEnd//actualStart..actualEnd
-    Repair findRepairByDate();
-    
-    public void deleteSafely(Long id);
-    
+    List<Repair> findRepairsByDate(String date);
+
+    List<Repair> findRepairsByRangeOfDates(String startDate, String endDate);
+
+    boolean deletePermantlyById(Long id);
+
+    boolean deleteSafely(Long id);
+
     public void validateDesc(String description) throws CustomException;
-    
+
     public void validateShortDesc(String shortDescription) throws CustomException;
-    
+
     public RepairType checkType(int repairType) throws CustomException;
 
 }
