@@ -8,7 +8,12 @@ import gr.technico.technikon.model.RepairStatus;
 import gr.technico.technikon.model.RepairType;
 import gr.technico.technikon.repositories.RepairRepository;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -129,16 +134,53 @@ public class RepairServiceImpl implements RepairService {
     }
 
     @Override
-    public Repair findRepairByDate() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public List<Repair> findRepairsByDate(String date) {
+        LocalDate localDate;
+        try {
+            localDate = LocalDate.parse(date, DateTimeFormatter.ISO_LOCAL_DATE);
+        } catch (DateTimeParseException e) {
+            System.out.println("Invalid date format: " + date);
+            return Collections.emptyList();
+        }
+
+        LocalDateTime localDateTimeStart = localDate.atStartOfDay();
+        LocalDateTime localDateTimeEnd = localDate.atTime(LocalTime.MAX);
+        return repairRepository.findRepairsByDates(localDateTimeStart, localDateTimeEnd);
     }
 
     @Override
-    public void deleteSafely(Long id) {
-        Optional<Repair> repair = repairRepository.findById(id);
-        Repair repairFound = repair.get();
-        repairFound.setDeleted(true);
-        repairRepository.save(repairFound);
+    public List<Repair> findRepairsByRangeOfDates(String startDate, String endDate) {
+        LocalDate startLocalDate;
+        LocalDate endLocalDate;
+
+        try {
+            startLocalDate = LocalDate.parse(startDate, DateTimeFormatter.ISO_LOCAL_DATE);
+            endLocalDate = LocalDate.parse(endDate, DateTimeFormatter.ISO_LOCAL_DATE);
+        } catch (DateTimeParseException e) {
+            System.out.println("Invalid date format");
+            return Collections.emptyList();
+        }
+
+        LocalDateTime localDateTimeStart = startLocalDate.atStartOfDay();
+        LocalDateTime localDateTimeEnd = endLocalDate.atTime(LocalTime.MAX);
+        return repairRepository.findRepairsByDates(localDateTimeStart, localDateTimeEnd);
+    }
+
+    @Override
+    public boolean deletePermantlyById(Long id) {
+        return repairRepository.deleteById(id);
+    }
+
+    @Override
+    public boolean deleteSafely(Long id) {
+       Optional<Repair> repair = repairRepository.findById(id);
+       if(repair.isEmpty()){
+           System.out.println("Repair no found");
+           return false;
+       }
+       Repair repairFound = repair.get();
+      return repairRepository.safeDelete(repairFound); 
+       
     }
 
     // Validations
