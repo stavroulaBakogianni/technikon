@@ -7,7 +7,6 @@ import gr.technico.technikon.model.PropertyType;
 import gr.technico.technikon.model.Repair;
 import gr.technico.technikon.model.RepairType;
 import gr.technico.technikon.services.OwnerServiceImpl;
-import gr.technico.technikon.services.PropertyService;
 import gr.technico.technikon.services.PropertyServiceImpl;
 import gr.technico.technikon.services.RepairServiceImpl;
 import java.util.Arrays;
@@ -85,7 +84,7 @@ public class OwnerUI implements OwnerSelection {
                     case 9:
                         deleteRepair();
                         break;
-                    case 10:   
+                    case 10:
                         getOwnerPropertiesStatuses();
                         break;
                     case 11:
@@ -400,7 +399,7 @@ public class OwnerUI implements OwnerSelection {
                 System.out.println("You must be logged in to update your profile.");
                 return;
             }
-            
+
             System.out.println("Please insert e9:");
             String e9 = scanner.nextLine().trim();
             propertyService.validateE9(e9);
@@ -417,7 +416,7 @@ public class OwnerUI implements OwnerSelection {
                     .filter(type -> type.getCode().equals(propertyTypeInput))
                     .findFirst()
                     .orElseThrow(() -> new CustomException("Invalid property type"));
-            
+
             propertyService.createProperty(e9, address, year, propertyType, loggedInOwnerVat);
             System.out.println("Property created successfully.");
         } catch (CustomException ex) {
@@ -483,7 +482,7 @@ public class OwnerUI implements OwnerSelection {
 
         System.out.println("Please insert the new E9:");
         String newE9 = scanner.nextLine().trim();
-        propertyService.validateE9(newE9);        
+        propertyService.validateE9(newE9);
 
         propertyService.updatePropertyE9(propertyId, newE9);
 
@@ -510,7 +509,7 @@ public class OwnerUI implements OwnerSelection {
         System.out.println("Property updated successfully.");
     }
 
-    public void updatePropertyConstructionYear() throws CustomException {        
+    public void updatePropertyConstructionYear() throws CustomException {
         List<Property> properties = propertyService.findByVAT(loggedInOwnerVat);
 
         System.out.println("Properties associated with VAT " + loggedInOwnerVat + ":");
@@ -531,7 +530,7 @@ public class OwnerUI implements OwnerSelection {
         System.out.println("Property updated successfully.");
     }
 
-    public void updatePropertyType() throws CustomException {        
+    public void updatePropertyType() throws CustomException {
         List<Property> properties = propertyService.findByVAT(loggedInOwnerVat);
 
         System.out.println("Properties associated with VAT " + loggedInOwnerVat + ":");
@@ -594,18 +593,16 @@ public class OwnerUI implements OwnerSelection {
             System.out.println(ex.getMessage());
         }
     }
-    
+
     public void createRepair() {
         boolean validInput = false;
 
         if (loggedInOwnerVat == null) {
-            System.out.println("You must be logged in to update your profile.");
-            //return;
+            System.out.println("You must be logged in to create a repair.");
         } else {
-
             while (!validInput) {
                 try {
-                    System.out.println("\nLet's begin the registration process!");
+                    System.out.println("\nLet's create a new repair");
                     Owner owner = null;
                     do {
                         try {
@@ -617,26 +614,32 @@ public class OwnerUI implements OwnerSelection {
                         }
                     } while (owner == null);
                     List<Property> properties = propertyService.findByVAT(loggedInOwnerVat);
-                    for (Property p : properties) {
-                        System.out.println(p.getId() + " " + p.getE9() + " " + p.getPropertyAddress() + " " + p.getPropertyType());
-                    }
 
-                    String e9;
+                    System.out.println("List of properties:");
+
+                    int propertiesCounter = 1;
+                    for (Property p : properties) {
+
+                        System.out.println(propertiesCounter + ". " + p.getE9() + " " + p.getPropertyAddress() + " " + p.getPropertyType());
+                        propertiesCounter++;
+                    }
+                    System.out.println("Please type the number of the property you want to create a repair for:");
+
                     Property property = null;
                     do {
-                        System.out.print("Enter E9: ");
-                        e9 = scanner.nextLine().trim();
+                        int action = getOwnerAction();
                         try {
-                            property = propertyService.findByE9(e9);
+                            property = properties.get(action - 1);
                             break;
-                        } catch (CustomException e) {
-                            System.out.println(e.getMessage());
+                        } catch (Exception e) {
+                            System.out.println("Please type an existing number from the list above");
                         }
+
                     } while (property == null);
 
                     String shortDescription;
                     do {
-                        System.out.print("Enter Short Description (up to 100 characters): ");
+                        System.out.print("Enter a short description for the repair (up to 100 characters): ");
                         shortDescription = scanner.nextLine().trim();
                         try {
                             repairServiceImpl.validateShortDesc(shortDescription);
@@ -648,7 +651,7 @@ public class OwnerUI implements OwnerSelection {
 
                     String description;
                     do {
-                        System.out.print("Enter Description (up to 400 characters): ");
+                        System.out.print("Enter a description for your repair (up to 400 characters): ");
                         description = scanner.nextLine().trim();
                         try {
                             repairServiceImpl.validateDesc(description);
@@ -700,7 +703,6 @@ public class OwnerUI implements OwnerSelection {
     public void updateRepair() {
         if (loggedInOwnerVat == null) {
             System.out.println("You must be logged in to update your profile.");
-            return;
         } else {
             int choice;
             do {
@@ -709,29 +711,26 @@ public class OwnerUI implements OwnerSelection {
                 System.out.println("2. Short Description");
                 System.out.println("3. Description");
                 System.out.println("4. Go back");
-                System.out.print("Enter the number of the field you want to update: ");
+                System.out.print("Type the number of the field you want to update and press enter: ");
 
                 choice = getOwnerAction();
 
-                try {
-                    switch (choice) {
-                        case 1:
-                            updateRepairType();
-                            break;
-                        case 2:
-                            updateShortDescription();
-                            break;
-                        case 3:
-                            updateDescription();
-                            break;
-                        case 4:
-                            return;
-                        default:
-                            System.out.println("Invalid option. Please try again.");
-                    }
-                } catch (CustomException ex) {
-                    ex.printStackTrace();
+                switch (choice) {
+                    case 1:
+                        updateRepairType();
+                        break;
+                    case 2:
+                        updateShortDescription();
+                        break;
+                    case 3:
+                        updateDescription();
+                        break;
+                    case 4:
+                        return;
+                    default:
+                        System.out.println("Invalid option. Please try again.");
                 }
+
             } while (choice != 4);
         }
 
@@ -747,14 +746,18 @@ public class OwnerUI implements OwnerSelection {
                 try {
                     ownerServiceImpl.validateVat(loggedInOwnerVat);
                     owner = ownerServiceImpl.getOwnerByVat(loggedInOwnerVat);
-                    List<Repair> repairs = repairServiceImpl.findRepairByUserId(owner);
+                    List<Repair> repairs = repairServiceImpl.findRepairsByOwner(owner);
                     for (Repair r : repairs) {
                         System.out.println(r.getId() + " " + r.getDescription() + " " + r.getShortDescription() + " " + r.getRepairType());
                     }
                     System.out.print("Enter the Repair Id for update ");
                     Long id = scanner.nextLong();
-                    return id;
-
+                    for (Repair r : repairs) {
+                        if (id == r.getId()) {
+                            return id;
+                        }
+                    }
+                    return null;
                 } catch (CustomException e) {
                     System.out.println(e.getMessage());
                     return null;
@@ -763,12 +766,11 @@ public class OwnerUI implements OwnerSelection {
         }
     }
 
-    public void updateShortDescription() throws CustomException {
-
+    public void updateShortDescription() {
         Long id = checkRepairs();
         String shortDescription;
         do {
-            System.out.print("Enter Short Description (up to 100 characters): ");
+            System.out.print("Enter a short description for your repair (up to 100 characters): ");
             shortDescription = scanner.nextLine().trim();
             try {
                 repairServiceImpl.validateShortDesc(shortDescription);
@@ -778,7 +780,7 @@ public class OwnerUI implements OwnerSelection {
             } catch (CustomException e) {
                 System.out.println(e.getMessage());
             }
-        } while (shortDescription == null || shortDescription.isBlank());
+        } while (shortDescription == null);
 
     }
 
@@ -786,7 +788,7 @@ public class OwnerUI implements OwnerSelection {
         Long id = checkRepairs();
         String description;
         do {
-            System.out.print("Enter Description (up to 400 characters): ");
+            System.out.print("Enter a description for your repair (up to 400 characters): ");
             description = scanner.nextLine().trim();
             try {
                 repairServiceImpl.validateDesc(description);
@@ -796,15 +798,13 @@ public class OwnerUI implements OwnerSelection {
             } catch (CustomException e) {
                 System.out.println(e.getMessage());
             }
-        } while (description == null || description.isBlank());
-
+        } while (description == null);
     }
 
     public void updateRepairType() {
         Long id = checkRepairs();
 
         int repairType;
-        RepairType type = null;
         do {
             String SCAN_TYPE = """
                                  Please select 
@@ -822,8 +822,8 @@ public class OwnerUI implements OwnerSelection {
             repairType = scanner.nextInt();
             try {
                 repairServiceImpl.validateType(repairType);
-                type = repairServiceImpl.checkType(repairType);
-                repairServiceImpl.updType(id, type);
+                RepairType type = repairServiceImpl.checkType(repairType);
+                repairServiceImpl.updateRepairType(id, type);
                 System.out.println("\nRepair Type updated successfully.");
                 break;
             } catch (CustomException e) {
@@ -847,14 +847,20 @@ public class OwnerUI implements OwnerSelection {
                     for (Repair r : repairs) {
                         System.out.println(r.getId() + " " + r.getDescription() + " " + r.getShortDescription() + " " + r.getRepairType());
                     }
-                    System.out.print("Enter the Repair Id for update ");
+                    System.out.print("Type the repair Id you want to accept or decline and press enter: ");
                     Long id = scanner.nextLong();
-                    System.out.print("Do you want to accept or decline the repair? (1 for accept / 2 for decline) ");
-                    int response = scanner.nextInt();
-                    repairServiceImpl.updAcceptance(id, response);
-                    System.out.println("\nAcceptance updated successfully.");
+                    for (Repair r : repairs) {
+                        if (id == r.getId()) {
+                            System.out.print("Do you want to accept or decline the repair? (1 for accept / 2 for decline) ");
+                            int response = scanner.nextInt();
+                            if (response == 1 || response == 2) {
+                                repairServiceImpl.updAcceptance(id, response);
+                                System.out.println("\nAcceptance updated successfully.");
+                            }
+                            break;
+                        }
+                    }
 
-                    break;
                 } catch (CustomException e) {
                     System.out.println(e.getMessage());
                 }
@@ -873,7 +879,7 @@ public class OwnerUI implements OwnerSelection {
                 try {
                     ownerServiceImpl.validateVat(loggedInOwnerVat);
                     owner = ownerServiceImpl.getOwnerByVat(loggedInOwnerVat);
-                    List<Repair> repairs = repairServiceImpl.findRepairByUserId(owner);
+                    List<Repair> repairs = repairServiceImpl.findRepairsByOwner(owner);
                     for (Repair r : repairs) {
                         System.out.println(r.getId() + " " + r.getDescription() + " " + r.getShortDescription() + " " + r.getRepairType());
                     }
@@ -905,8 +911,8 @@ public class OwnerUI implements OwnerSelection {
                     owner = ownerServiceImpl.getOwnerByVat(loggedInOwnerVat);
                     List<Property> properties = propertyService.findByVAT(loggedInOwnerVat);
                     for (Property prop : properties) {
-                        System.out.println(prop.getId() + " " + prop.getE9() + " " + prop.getPropertyAddress()+ " ");
-                        List <Repair> repairsbyOwner = repairServiceImpl.getRepairByPropertyId(prop);
+                        System.out.println(prop.getId() + " " + prop.getE9() + " " + prop.getPropertyAddress() + " ");
+                        List<Repair> repairsbyOwner = repairServiceImpl.getRepairByPropertyId(prop);
                         for (Repair r : repairsbyOwner) {
                             System.out.println(r.getRepairStatus() + " " + r.getRepairType());
                         }
@@ -918,4 +924,3 @@ public class OwnerUI implements OwnerSelection {
         }
     }
 }
-
