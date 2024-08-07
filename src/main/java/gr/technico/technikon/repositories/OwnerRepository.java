@@ -8,14 +8,30 @@ import java.util.Optional;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 
+/**
+ * Repository for managing Owners.
+ *
+ */
 public class OwnerRepository implements Repository<Owner, Long> {
 
     private final EntityManager entityManager;
 
+    /**
+     * Constructs a new OwnerRepository with the the EntityManager
+     *
+     * @param entityManager
+     */
     public OwnerRepository(EntityManager entityManager) {
         this.entityManager = entityManager;
     }
 
+    /**
+     * Saves the Owner
+     *
+     * @param owner
+     * @return an Optional containing the saved Owner, or an empty Optional if
+     * the save failed
+     */
     @Override
     public Optional<Owner> save(Owner owner) {
         try {
@@ -29,24 +45,53 @@ public class OwnerRepository implements Repository<Owner, Long> {
         }
     }
 
+    /**
+     * Finds an Owner by VAT
+     *
+     * @param vat
+     * @return an Optional containing the found Owner or an empty Optional if no
+     * Owner was found
+     */
     public Optional<Owner> findByVat(String vat) {
         TypedQuery<Owner> query = entityManager.createQuery("FROM Owner WHERE vat = :vat", Owner.class);
         query.setParameter("vat", vat);
         return query.getResultStream().findFirst();
     }
 
+    /**
+     * Finds an Owner by email.
+     *
+     * @param email
+     * @return an Optional containing the found Owner, or an empty Optional if
+     * no Owner was found
+     */
     public Optional<Owner> findByEmail(String email) {
         TypedQuery<Owner> query = entityManager.createQuery("FROM Owner WHERE email = :email", Owner.class);
         query.setParameter("email", email);
         return query.getResultStream().findFirst();
     }
 
+    /**
+     * Finds an Owner by username.
+     *
+     * @param username
+     * @return an Optional containing the found Owner or an empty Optional if no
+     * Owner was found
+     */
     public Optional<Owner> findByUsername(String username) {
         TypedQuery<Owner> query = entityManager.createQuery("FROM Owner WHERE username = :username", Owner.class);
         query.setParameter("username", username);
         return query.getResultStream().findFirst();
     }
 
+    /**
+     * Finds an Owner by username and password.
+     *
+     * @param username
+     * @param password
+     * @return an Optional containing the found Owner, or an empty Optional if
+     * no Owner was found
+     */
     public Optional<Owner> findByUsernameAndPassword(String username, String password) {
         TypedQuery<Owner> query = entityManager.createQuery(
                 "FROM Owner WHERE username = :username AND password = :password AND isDeleted = false",
@@ -57,6 +102,12 @@ public class OwnerRepository implements Repository<Owner, Long> {
         return query.getResultStream().findFirst();
     }
 
+    /**
+     * Permanently deletes an Owner by VAT.
+     *
+     * @param vat
+     * @return true if the Owner was deleted, false otherwise
+     */
     public boolean deletePermanentlyByVat(String vat) {
         try {
             JpaUtil.beginTransaction();

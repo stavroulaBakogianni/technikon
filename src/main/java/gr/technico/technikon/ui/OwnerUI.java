@@ -2,19 +2,26 @@ package gr.technico.technikon.ui;
 
 import gr.technico.technikon.exceptions.CustomException;
 import gr.technico.technikon.model.Owner;
-import gr.technico.technikon.services.OwnerService;
-
+import gr.technico.technikon.model.Property;
+import gr.technico.technikon.model.PropertyType;
+import gr.technico.technikon.services.OwnerServiceImpl;
+import gr.technico.technikon.services.PropertyService;
+import gr.technico.technikon.services.PropertyServiceImpl;
+import java.util.Arrays;
 import java.util.InputMismatchException;
+import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 
 public class OwnerUI implements OwnerSelection {
 
     private static final Scanner scanner = new Scanner(System.in);
-    private final OwnerService ownerService;
+    private final OwnerServiceImpl ownerServiceImpl;
+    private final PropertyService propertyService;
 
-    public OwnerUI(OwnerService ownerService) {
-        this.ownerService = ownerService;
+    public OwnerUI(OwnerServiceImpl ownerServiceImpl, PropertyServiceImpl propertyServiceImpl) {
+        this.ownerServiceImpl = ownerServiceImpl;
+        this.propertyService = propertyServiceImpl;
     }
 
     // Keep track of the logged in owner
@@ -53,6 +60,15 @@ public class OwnerUI implements OwnerSelection {
                         deleteOwner();
                         break;
                     case 3:
+                        createProperty();
+                        break;
+                    case 4:
+                        updateProperty();
+                        break;
+                    case 5:
+                        deleteProperty();
+                        break;
+                    case 6:
                         loggedInOwnerVat = null;
                         System.out.println("You have been logged out.");
                         break;
@@ -75,7 +91,10 @@ public class OwnerUI implements OwnerSelection {
         System.out.println("\nOwner Menu:");
         System.out.println("1. Update Profile");
         System.out.println("2. Delete Account");
-        System.out.println("3. Logout");
+        System.out.println("3. Create Property");
+        System.out.println("4. Update Property");
+        System.out.println("5. Delete Property");
+        System.out.println("6. Logout");
         System.out.print("Select an action by typing the corresponding number and pressing enter: ");
     }
 
@@ -102,7 +121,7 @@ public class OwnerUI implements OwnerSelection {
         String password = scanner.nextLine().trim();
 
         try {
-            Optional<String> vat = ownerService.verifyOwner(username, password);
+            Optional<String> vat = ownerServiceImpl.verifyOwner(username, password);
             if (vat.isPresent()) {
                 loggedInOwnerVat = vat.get();
                 System.out.println("Login successful.");
@@ -127,8 +146,8 @@ public class OwnerUI implements OwnerSelection {
                     System.out.print("Enter VAT (9 characters): ");
                     vat = scanner.nextLine().trim();
                     try {
-                        ownerService.checkVat(vat);
-                        ownerService.validateVat(vat);
+                        ownerServiceImpl.checkVat(vat);
+                        ownerServiceImpl.validateVat(vat);
                         break;
                     } catch (CustomException e) {
                         System.out.println(e.getMessage());
@@ -140,7 +159,7 @@ public class OwnerUI implements OwnerSelection {
                     System.out.print("Enter Name: ");
                     name = scanner.nextLine().trim();
                     try {
-                        ownerService.validateName(name);
+                        ownerServiceImpl.validateName(name);
                         break;
                     } catch (CustomException e) {
                         System.out.println(e.getMessage());
@@ -152,7 +171,7 @@ public class OwnerUI implements OwnerSelection {
                     System.out.print("Enter Surname: ");
                     surname = scanner.nextLine().trim();
                     try {
-                        ownerService.validateSurname(surname);
+                        ownerServiceImpl.validateSurname(surname);
                         break;
                     } catch (CustomException e) {
                         System.out.println(e.getMessage());
@@ -168,7 +187,7 @@ public class OwnerUI implements OwnerSelection {
                     System.out.print("Enter Phone Number (max 14 digits): ");
                     phoneNumber = scanner.nextLine().trim();
                     try {
-                        ownerService.validatePhone(phoneNumber);
+                        ownerServiceImpl.validatePhone(phoneNumber);
                         break;
                     } catch (CustomException e) {
                         System.out.println(e.getMessage());
@@ -180,8 +199,8 @@ public class OwnerUI implements OwnerSelection {
                     System.out.print("Enter Email: ");
                     email = scanner.nextLine().trim();
                     try {
-                        ownerService.validateEmail(email);
-                        ownerService.checkEmail(email);
+                        ownerServiceImpl.validateEmail(email);
+                        ownerServiceImpl.checkEmail(email);
                         break;
                     } catch (CustomException e) {
                         System.out.println(e.getMessage());
@@ -193,7 +212,7 @@ public class OwnerUI implements OwnerSelection {
                     System.out.print("Enter Username: ");
                     username = scanner.nextLine().trim();
                     try {
-                        ownerService.checkUsername(username);
+                        ownerServiceImpl.checkUsername(username);
                         break;
                     } catch (CustomException e) {
                         System.out.println(e.getMessage());
@@ -205,14 +224,14 @@ public class OwnerUI implements OwnerSelection {
                     System.out.print("Enter Password (at least 8 characters): ");
                     password = scanner.nextLine().trim();
                     try {
-                        ownerService.validatePassword(password);
+                        ownerServiceImpl.validatePassword(password);
                         break;
                     } catch (CustomException e) {
                         System.out.println(e.getMessage());
                     }
                 }
 
-                ownerService.createOwner(vat, name, surname, address, phoneNumber, email, username, password);
+                ownerServiceImpl.createOwner(vat, name, surname, address, phoneNumber, email, username, password);
                 System.out.println("Owner created successfully.");
                 validInput = true;
 
@@ -254,7 +273,7 @@ public class OwnerUI implements OwnerSelection {
                         updatePassword();
                         break;
                     case 4:
-                        return; 
+                        return;
                     default:
                         System.out.println("Invalid option. Please try again.");
                 }
@@ -269,7 +288,7 @@ public class OwnerUI implements OwnerSelection {
     private void updateAddress() throws CustomException {
         System.out.print("Enter new Address: ");
         String newAddress = scanner.nextLine().trim();
-        ownerService.updateOwnerAddress(loggedInOwnerVat, newAddress);
+        ownerServiceImpl.updateOwnerAddress(loggedInOwnerVat, newAddress);
         System.out.println("\nAddress updated successfully.");
     }
 
@@ -279,8 +298,8 @@ public class OwnerUI implements OwnerSelection {
             System.out.print("Enter new Email: ");
             newEmail = scanner.nextLine().trim();
             try {
-                ownerService.validateEmail(newEmail);
-                ownerService.updateOwnerEmail(loggedInOwnerVat, newEmail);
+                ownerServiceImpl.validateEmail(newEmail);
+                ownerServiceImpl.updateOwnerEmail(loggedInOwnerVat, newEmail);
                 System.out.println("\nEmail updated successfully.");
                 break;
             } catch (CustomException e) {
@@ -295,8 +314,8 @@ public class OwnerUI implements OwnerSelection {
             System.out.print("Enter new Password (at least 8 characters): ");
             newPassword = scanner.nextLine().trim();
             try {
-                ownerService.validatePassword(newPassword);
-                ownerService.updateOwnerPassword(loggedInOwnerVat, newPassword);
+                ownerServiceImpl.validatePassword(newPassword);
+                ownerServiceImpl.updateOwnerPassword(loggedInOwnerVat, newPassword);
                 System.out.println("\nPassword updated successfully.");
                 break;
             } catch (CustomException e) {
@@ -313,7 +332,7 @@ public class OwnerUI implements OwnerSelection {
                 return;
             }
 
-            Optional<Owner> ownerOpt = ownerService.searchOwnerByVat(loggedInOwnerVat);
+            Optional<Owner> ownerOpt = ownerServiceImpl.searchOwnerByVat(loggedInOwnerVat);
 
             if (ownerOpt.isPresent()) {
                 Owner ownerToDelete = ownerOpt.get();
@@ -325,7 +344,7 @@ public class OwnerUI implements OwnerSelection {
 
                 switch (userChoice) {
                     case "1":
-                        boolean deletionSuccessful = ownerService.deleteOwnerSafely(loggedInOwnerVat);
+                        boolean deletionSuccessful = ownerServiceImpl.deleteOwnerSafely(loggedInOwnerVat);
                         if (deletionSuccessful) {
                             System.out.println("\nOwner has been successfully marked as deleted.");
                             // Logout
@@ -346,6 +365,208 @@ public class OwnerUI implements OwnerSelection {
             }
         } catch (Exception e) {
             System.out.println("An unexpected error occurred: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void createProperty() {
+        try {
+            if (loggedInOwnerVat == null) {
+                System.out.println("You must be logged in to update your profile.");
+                return;
+            }
+            
+            System.out.println("Please insert e9:");
+            String e9 = scanner.nextLine().trim();
+            propertyService.validateE9(e9);
+            System.out.println("Please insert address:");
+            String address = scanner.nextLine().trim();
+            System.out.println("Please insert year of construction");
+            String yearInput = scanner.nextLine();
+            propertyService.validateConstructionYear(yearInput);
+            int year = Integer.parseInt(yearInput);
+            System.out.println("Please insert the type of property");
+            String propertyTypeInput = scanner.nextLine();
+            propertyService.validatePropertyType(propertyTypeInput);
+            PropertyType propertyType = Arrays.stream(PropertyType.values())
+                    .filter(type -> type.getCode().equals(propertyTypeInput))
+                    .findFirst()
+                    .orElseThrow(() -> new CustomException("Invalid property type"));
+            
+            propertyService.createProperty(e9, address, year, propertyType, loggedInOwnerVat);
+            System.out.println("Property created successfully.");
+        } catch (CustomException ex) {
+            System.out.println(ex.getMessage());
+        }
+    }
+
+    @Override
+    public void updateProperty() {
+        if (loggedInOwnerVat == null) {
+            System.out.println("You must be logged in to update your profile.");
+            return;
+        }
+
+        int choice;
+        do {
+            System.out.println("\nWhich field would you like to update?");
+            System.out.println("1. E9");
+            System.out.println("2. Address");
+            System.out.println("3. Construction year");
+            System.out.println("4. Property type");
+            System.out.println("5. Go back");
+            System.out.print("Enter the number of the field you want to update: ");
+
+            choice = getOwnerAction();
+
+            try {
+                switch (choice) {
+                    case 1:
+                        updatePropertyE9();
+                        break;
+                    case 2:
+                        updatePropertyAddress();
+                        break;
+                    case 3:
+                        updatePropertyConstructionYear();
+                        break;
+                    case 4:
+                        updatePropertyType();
+                        break;
+                    case 5:
+                        return;
+                    default:
+                        System.out.println("Invalid option. Please try again.");
+                }
+            } catch (CustomException ex) {
+                ex.printStackTrace();
+            }
+        } while (choice != 5);
+    }
+
+    private void updatePropertyE9() throws CustomException {
+        List<Property> properties = propertyService.findByVAT(loggedInOwnerVat);
+
+        System.out.println("Properties associated with VAT " + loggedInOwnerVat + ":");
+        for (Property property : properties) {
+            System.out.println(property);
+        }
+
+        System.out.println("Please insert the ID of the property you want to update:");
+        Long propertyId = scanner.nextLong();
+        scanner.nextLine();
+
+        System.out.println("Please insert the new E9:");
+        String newE9 = scanner.nextLine().trim();
+        propertyService.validateE9(newE9);        
+
+        propertyService.updatePropertyE9(propertyId, newE9);
+
+        System.out.println("Property updated successfully.");
+    }
+
+    private void updatePropertyAddress() throws CustomException {
+        List<Property> properties = propertyService.findByVAT(loggedInOwnerVat);
+
+        System.out.println("Properties associated with VAT " + loggedInOwnerVat + ":");
+        for (Property property : properties) {
+            System.out.println(property);
+        }
+
+        System.out.println("Please insert the ID of the property you want to update:");
+        Long propertyId = scanner.nextLong();
+        scanner.nextLine();
+
+        System.out.println("Please insert the new Address:");
+        String newAddress = scanner.nextLine().trim();
+
+        propertyService.updatePropertyAddress(propertyId, newAddress);
+
+        System.out.println("Property updated successfully.");
+    }
+
+    public void updatePropertyConstructionYear() throws CustomException {        
+        List<Property> properties = propertyService.findByVAT(loggedInOwnerVat);
+
+        System.out.println("Properties associated with VAT " + loggedInOwnerVat + ":");
+        for (Property property : properties) {
+            System.out.println(property);
+        }
+
+        System.out.println("Please insert the ID of the property you want to update:");
+        Long propertyId = scanner.nextLong();
+        scanner.nextLine();
+
+        System.out.println("Please insert the new Construction Year:");
+        int newYear = scanner.nextInt();
+        propertyService.validateConstructionYear(String.valueOf(newYear));
+
+        propertyService.updatePropertyConstructionYear(propertyId, newYear);
+
+        System.out.println("Property updated successfully.");
+    }
+
+    public void updatePropertyType() throws CustomException {        
+        List<Property> properties = propertyService.findByVAT(loggedInOwnerVat);
+
+        System.out.println("Properties associated with VAT " + loggedInOwnerVat + ":");
+        for (Property property : properties) {
+            System.out.println(property);
+        }
+
+        System.out.println("Please insert the ID of the property you want to update:");
+        Long propertyId = scanner.nextLong();
+        scanner.nextLine();
+
+        System.out.println("Please insert the new Property Type:");
+        String propertyTypeInput = scanner.nextLine().trim();
+        propertyService.validatePropertyType(propertyTypeInput);
+        PropertyType newPropertyType = Arrays.stream(PropertyType.values())
+                .filter(type -> type.getCode().equals(propertyTypeInput))
+                .findFirst()
+                .orElseThrow(() -> new CustomException("Invalid property type"));
+
+        propertyService.updatePropertyType(propertyId, newPropertyType);
+
+        System.out.println("Property updated successfully.");
+    }
+
+    @Override
+    public void deleteProperty() {
+        try {
+            List<Property> properties = propertyService.findByVAT(loggedInOwnerVat);
+
+            System.out.println("Properties associated with VAT " + loggedInOwnerVat + ":");
+            for (Property property : properties) {
+                System.out.println(property);
+            }
+
+            System.out.println("Please insert the ID of the property you want to update:");
+            Long propertyId = scanner.nextLong();
+            scanner.nextLine();
+
+            try {
+                System.out.println("You are about to delete the following property and its repairs:" + propertyService.findByID(propertyId));
+                System.out.println("Enter 1 to confirm deletion or 2 to cancel: ");
+
+                int choice = getOwnerAction();
+
+                switch (choice) {
+                    case 1:
+                        propertyService.safelyDeleteByID(propertyId);
+                        break;
+                    case 2:
+                        System.out.println("Deletion operation has been cancelled.");
+                        break;
+                    default:
+                        System.out.println("Invalid input. Deletion operation has been cancelled.");
+                        break;
+                }
+            } catch (CustomException ex) {
+                System.out.println(ex.getMessage());
+            }
+        } catch (CustomException ex) {
+            System.out.println(ex.getMessage());
         }
     }
 }
