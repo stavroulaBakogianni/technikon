@@ -3,7 +3,7 @@ package gr.technico.technikon.services.importfiles;
 import gr.technico.technikon.exceptions.CustomException;
 import gr.technico.technikon.jpa.JpaUtil;
 import gr.technico.technikon.repositories.OwnerRepository;
-import gr.technico.technikon.services.OwnerService;
+import gr.technico.technikon.services.OwnerServiceImpl;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -15,7 +15,7 @@ public class OwnerCSVImporter implements FilesImporter {
     public void importFile(String filePath) throws IOException, OutOfMemoryError, FileNotFoundException {
 
         OwnerRepository ownerRepository = new OwnerRepository(JpaUtil.getEntityManager());
-        OwnerService ownerService = new OwnerService(ownerRepository);
+        OwnerServiceImpl ownerService = new OwnerServiceImpl(ownerRepository);
 
         try (BufferedReader br = new BufferedReader(new InputStreamReader(
                 OwnerCSVImporter.class.getClassLoader().getResourceAsStream(filePath)))) {
