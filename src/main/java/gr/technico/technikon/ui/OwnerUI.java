@@ -4,9 +4,12 @@ import gr.technico.technikon.exceptions.CustomException;
 import gr.technico.technikon.model.Owner;
 import gr.technico.technikon.model.Property;
 import gr.technico.technikon.model.PropertyType;
+import gr.technico.technikon.model.Repair;
+import gr.technico.technikon.model.RepairType;
 import gr.technico.technikon.services.OwnerServiceImpl;
 import gr.technico.technikon.services.PropertyService;
 import gr.technico.technikon.services.PropertyServiceImpl;
+import gr.technico.technikon.services.RepairServiceImpl;
 import java.util.Arrays;
 import java.util.InputMismatchException;
 import java.util.List;
@@ -17,11 +20,13 @@ public class OwnerUI implements OwnerSelection {
 
     private static final Scanner scanner = new Scanner(System.in);
     private final OwnerServiceImpl ownerServiceImpl;
-    private final PropertyService propertyService;
+    private final PropertyServiceImpl propertyService;
+    private final RepairServiceImpl repairServiceImpl;
 
-    public OwnerUI(OwnerServiceImpl ownerServiceImpl, PropertyServiceImpl propertyServiceImpl) {
+    public OwnerUI(OwnerServiceImpl ownerServiceImpl, PropertyServiceImpl propertyServiceImpl, RepairServiceImpl repairServiceImpl) {
         this.ownerServiceImpl = ownerServiceImpl;
         this.propertyService = propertyServiceImpl;
+        this.repairServiceImpl = repairServiceImpl;
     }
 
     // Keep track of the logged in owner
@@ -69,6 +74,21 @@ public class OwnerUI implements OwnerSelection {
                         deleteProperty();
                         break;
                     case 6:
+                        createRepair();
+                        break;
+                    case 7:
+                        updateRepair();
+                        break;
+                    case 8:
+                        updateAcceptance();
+                        break;
+                    case 9:
+                        deleteRepair();
+                        break;
+                    case 10:   
+                        getOwnerPropertiesStatuses();
+                        break;
+                    case 11:
                         loggedInOwnerVat = null;
                         System.out.println("You have been logged out.");
                         break;
@@ -94,7 +114,12 @@ public class OwnerUI implements OwnerSelection {
         System.out.println("3. Create Property");
         System.out.println("4. Update Property");
         System.out.println("5. Delete Property");
-        System.out.println("6. Logout");
+        System.out.println("6. Create Repair");
+        System.out.println("7. Update Repair");
+        System.out.println("8. Accept/Decline Repair");
+        System.out.println("9. Delete Repair");
+        System.out.println("10. Full Reports of Properties and Statuses of Repairs");
+        System.out.println("11. Logout");
         System.out.print("Select an action by typing the corresponding number and pressing enter: ");
     }
 
@@ -569,4 +594,328 @@ public class OwnerUI implements OwnerSelection {
             System.out.println(ex.getMessage());
         }
     }
+    
+    public void createRepair() {
+        boolean validInput = false;
+
+        if (loggedInOwnerVat == null) {
+            System.out.println("You must be logged in to update your profile.");
+            //return;
+        } else {
+
+            while (!validInput) {
+                try {
+                    System.out.println("\nLet's begin the registration process!");
+                    Owner owner = null;
+                    do {
+                        try {
+                            ownerServiceImpl.validateVat(loggedInOwnerVat);
+                            owner = ownerServiceImpl.getOwnerByVat(loggedInOwnerVat);
+                            break;
+                        } catch (CustomException e) {
+                            System.out.println(e.getMessage());
+                        }
+                    } while (owner == null);
+                    List<Property> properties = propertyService.findByVAT(loggedInOwnerVat);
+                    for (Property p : properties) {
+                        System.out.println(p.getId() + " " + p.getE9() + " " + p.getPropertyAddress() + " " + p.getPropertyType());
+                    }
+
+                    String e9;
+                    Property property = null;
+                    do {
+                        System.out.print("Enter E9: ");
+                        e9 = scanner.nextLine().trim();
+                        try {
+                            property = propertyService.findByE9(e9);
+                            break;
+                        } catch (CustomException e) {
+                            System.out.println(e.getMessage());
+                        }
+                    } while (property == null);
+
+                    String shortDescription;
+                    do {
+                        System.out.print("Enter Short Description (up to 100 characters): ");
+                        shortDescription = scanner.nextLine().trim();
+                        try {
+                            repairServiceImpl.validateShortDesc(shortDescription);
+                            break;
+                        } catch (CustomException e) {
+                            System.out.println(e.getMessage());
+                        }
+                    } while (shortDescription == null || shortDescription.isBlank());
+
+                    String description;
+                    do {
+                        System.out.print("Enter Description (up to 400 characters): ");
+                        description = scanner.nextLine().trim();
+                        try {
+                            repairServiceImpl.validateDesc(description);
+                            break;
+                        } catch (CustomException e) {
+                            System.out.println(e.getMessage());
+                        }
+                    } while (description == null || description.isBlank());
+
+                    int repairType;
+                    RepairType type = null;
+                    do {
+                        String SCAN_TYPE = """
+                                         Please select 
+                                         Repair Type
+                                         --------------------
+                                            1. Painting
+                                            2. Insulation
+                                            3. Frames
+                                            4. Plumbing
+                                            5. Electrical work
+
+                                        Select an action by typing the corresponding number and pressing enter:                          
+                                        """;
+                        System.out.print(SCAN_TYPE);
+                        repairType = scanner.nextInt();
+                        try {
+                            repairServiceImpl.validateType(repairType);
+                            type = repairServiceImpl.checkType(repairType);
+
+                            break;
+                        } catch (CustomException e) {
+                            System.out.println(e.getMessage());
+                        }
+                    } while (repairType < 1 || repairType > 5);
+
+                    repairServiceImpl.createRepair(type, shortDescription, description, owner, property);
+                    System.out.println("\nRepair created successfully.");
+                    validInput = true;
+                } catch (CustomException e) {
+                    System.out.println("Error creating repair: " + e.getMessage());
+                } catch (Exception e) {
+                    System.out.println("Unexpected error while creating repair: " + e);
+                }
+            }
+        }
+    }
+
+    public void updateRepair() {
+        if (loggedInOwnerVat == null) {
+            System.out.println("You must be logged in to update your profile.");
+            return;
+        } else {
+            int choice;
+            do {
+                System.out.println("\nWhich field would you like to update?");
+                System.out.println("1. Repair Type");
+                System.out.println("2. Short Description");
+                System.out.println("3. Description");
+                System.out.println("4. Go back");
+                System.out.print("Enter the number of the field you want to update: ");
+
+                choice = getOwnerAction();
+
+                try {
+                    switch (choice) {
+                        case 1:
+                            updateRepairType();
+                            break;
+                        case 2:
+                            updateShortDescription();
+                            break;
+                        case 3:
+                            updateDescription();
+                            break;
+                        case 4:
+                            return;
+                        default:
+                            System.out.println("Invalid option. Please try again.");
+                    }
+                } catch (CustomException ex) {
+                    ex.printStackTrace();
+                }
+            } while (choice != 4);
+        }
+
+    }
+
+    public Long checkRepairs() {
+        if (loggedInOwnerVat == null) {
+            System.out.println("You must be logged in to update your profile.");
+            return null;
+        } else {
+            Owner owner = null;
+            do {
+                try {
+                    ownerServiceImpl.validateVat(loggedInOwnerVat);
+                    owner = ownerServiceImpl.getOwnerByVat(loggedInOwnerVat);
+                    List<Repair> repairs = repairServiceImpl.findRepairByUserId(owner);
+                    for (Repair r : repairs) {
+                        System.out.println(r.getId() + " " + r.getDescription() + " " + r.getShortDescription() + " " + r.getRepairType());
+                    }
+                    System.out.print("Enter the Repair Id for update ");
+                    Long id = scanner.nextLong();
+                    return id;
+
+                } catch (CustomException e) {
+                    System.out.println(e.getMessage());
+                    return null;
+                }
+            } while (owner == null);
+        }
+    }
+
+    public void updateShortDescription() throws CustomException {
+
+        Long id = checkRepairs();
+        String shortDescription;
+        do {
+            System.out.print("Enter Short Description (up to 100 characters): ");
+            shortDescription = scanner.nextLine().trim();
+            try {
+                repairServiceImpl.validateShortDesc(shortDescription);
+                repairServiceImpl.updshortDesc(id, shortDescription);
+                System.out.println("\nShort Description updated successfully.");
+                break;
+            } catch (CustomException e) {
+                System.out.println(e.getMessage());
+            }
+        } while (shortDescription == null || shortDescription.isBlank());
+
+    }
+
+    public void updateDescription() {
+        Long id = checkRepairs();
+        String description;
+        do {
+            System.out.print("Enter Description (up to 400 characters): ");
+            description = scanner.nextLine().trim();
+            try {
+                repairServiceImpl.validateDesc(description);
+                repairServiceImpl.updDesc(id, description);
+                System.out.println("\nDescription updated successfully.");
+                break;
+            } catch (CustomException e) {
+                System.out.println(e.getMessage());
+            }
+        } while (description == null || description.isBlank());
+
+    }
+
+    public void updateRepairType() {
+        Long id = checkRepairs();
+
+        int repairType;
+        RepairType type = null;
+        do {
+            String SCAN_TYPE = """
+                                 Please select 
+                                 Repair Type
+                                 --------------------
+                                    1. Painting
+                                    2. Insulation
+                                    3. Frames
+                                    4. Plumbing
+                                    5. Electrical work
+
+                                Select an action by typing the corresponding number and pressing enter:                          
+                                """;
+            System.out.print(SCAN_TYPE);
+            repairType = scanner.nextInt();
+            try {
+                repairServiceImpl.validateType(repairType);
+                type = repairServiceImpl.checkType(repairType);
+                repairServiceImpl.updType(id, type);
+                System.out.println("\nRepair Type updated successfully.");
+                break;
+            } catch (CustomException e) {
+                System.out.println(e.getMessage());
+            }
+        } while (repairType < 1 || repairType > 5);
+
+    }
+
+    public void updateAcceptance() {
+        if (loggedInOwnerVat == null) {
+            System.out.println("You must be logged in to update your profile.");
+
+        } else {
+            Owner owner = null;
+            do {
+                try {
+                    ownerServiceImpl.validateVat(loggedInOwnerVat);
+                    owner = ownerServiceImpl.getOwnerByVat(loggedInOwnerVat);
+                    List<Repair> repairs = repairServiceImpl.getPendingRepairsByOwner(owner);
+                    for (Repair r : repairs) {
+                        System.out.println(r.getId() + " " + r.getDescription() + " " + r.getShortDescription() + " " + r.getRepairType());
+                    }
+                    System.out.print("Enter the Repair Id for update ");
+                    Long id = scanner.nextLong();
+                    System.out.print("Do you want to accept or decline the repair? (1 for accept / 2 for decline) ");
+                    int response = scanner.nextInt();
+                    repairServiceImpl.updAcceptance(id, response);
+                    System.out.println("\nAcceptance updated successfully.");
+
+                    break;
+                } catch (CustomException e) {
+                    System.out.println(e.getMessage());
+                }
+            } while (owner == null);
+
+        }
+    }
+
+    public void deleteRepair() {
+        if (loggedInOwnerVat == null) {
+            System.out.println("You must be logged in to update your profile.");
+
+        } else {
+            Owner owner = null;
+            do {
+                try {
+                    ownerServiceImpl.validateVat(loggedInOwnerVat);
+                    owner = ownerServiceImpl.getOwnerByVat(loggedInOwnerVat);
+                    List<Repair> repairs = repairServiceImpl.findRepairByUserId(owner);
+                    for (Repair r : repairs) {
+                        System.out.println(r.getId() + " " + r.getDescription() + " " + r.getShortDescription() + " " + r.getRepairType());
+                    }
+                    System.out.print("Enter the Repair Id for update ");
+                    Long id = scanner.nextLong();
+
+                    repairServiceImpl.deleteSafely(id);
+                    System.out.println("\nRepair deleted successfully.");
+
+                    break;
+                } catch (CustomException e) {
+                    System.out.println(e.getMessage());
+                }
+            } while (owner == null);
+
+        }
+
+    }
+
+    public void getOwnerPropertiesStatuses() {
+        if (loggedInOwnerVat == null) {
+            System.out.println("You must be logged in to update your profile.");
+
+        } else {
+            Owner owner = null;
+            do {
+                try {
+                    ownerServiceImpl.validateVat(loggedInOwnerVat);
+                    owner = ownerServiceImpl.getOwnerByVat(loggedInOwnerVat);
+                    List<Property> properties = propertyService.findByVAT(loggedInOwnerVat);
+                    for (Property prop : properties) {
+                        System.out.println(prop.getId() + " " + prop.getE9() + " " + prop.getPropertyAddress()+ " ");
+                        List <Repair> repairsbyOwner = repairServiceImpl.getRepairByPropertyId(prop);
+                        for (Repair r : repairsbyOwner) {
+                            System.out.println(r.getRepairStatus() + " " + r.getRepairType());
+                        }
+                    }
+                } catch (CustomException e) {
+                    System.out.println(e.getMessage());
+                }
+            } while (owner == null);
+        }
+    }
 }
+
