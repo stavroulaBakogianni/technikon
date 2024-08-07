@@ -38,7 +38,7 @@ public interface RepairService {
 
     public List<Repair> getInProgressRepairs();
 
-    List<Repair> findRepairByUserId(Owner owner);
+    List<Repair> findRepairsByOwner(Owner owner);
 
     public List<Repair> getRepairByPropertyId(Property property);
 
