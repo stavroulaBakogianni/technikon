@@ -20,7 +20,7 @@ public class OwnerServiceIT {
     private EntityManagerFactory entityManagerFactory;
     private EntityManager entityManager;
     private OwnerRepository ownerRepository;
-    private OwnerService ownerService;
+    private OwnerServiceImpl OwnerServiceImpl;
 
     private final String vat = "100000000";
     private final String name = "TestName";
@@ -36,12 +36,12 @@ public class OwnerServiceIT {
         entityManagerFactory = JpaUtil.getEntityManagerFactory();
         entityManager = entityManagerFactory.createEntityManager();
         ownerRepository = new OwnerRepository(entityManager);
-        ownerService = new OwnerService(ownerRepository);
+        OwnerServiceImpl = new OwnerServiceImpl(ownerRepository);
 
         EntityTransaction transaction = entityManager.getTransaction();
         transaction.begin();
 
-        ownerService.createOwner(vat, name, surname, address, phoneNumber, email, username, password);
+        OwnerServiceImpl.createOwner(vat, name, surname, address, phoneNumber, email, username, password);
     }
 
     @AfterEach
@@ -73,7 +73,7 @@ public class OwnerServiceIT {
 
     @Test
     public void testSearchOwnerByVat() throws CustomException {
-        Optional<Owner> foundOwner = ownerService.searchOwnerByVat(vat);
+        Optional<Owner> foundOwner = OwnerServiceImpl.searchOwnerByVat(vat);
         assertTrue(foundOwner.isPresent());
         assertEquals(vat, foundOwner.get().getVat());
         assertEquals(name, foundOwner.get().getName());
@@ -81,7 +81,7 @@ public class OwnerServiceIT {
 
     @Test
     public void testSearchOwnerByEmail() throws CustomException {
-        Optional<Owner> foundOwner = ownerService.searchOwnerByEmail(email);
+        Optional<Owner> foundOwner = OwnerServiceImpl.searchOwnerByEmail(email);
         assertTrue(foundOwner.isPresent());
         assertEquals(email, foundOwner.get().getEmail());
         assertEquals(name, foundOwner.get().getName());
@@ -90,7 +90,7 @@ public class OwnerServiceIT {
     @Test
     public void testUpdateOwnerAddress() throws CustomException {
         String newAddress = "New Address";
-        ownerService.updateOwnerAddress(vat, newAddress);
+        OwnerServiceImpl.updateOwnerAddress(vat, newAddress);
         Owner owner = ownerRepository.findByVat(vat).orElse(null);
         assertNotNull(owner);
         assertEquals(newAddress, owner.getAddress());
@@ -99,7 +99,7 @@ public class OwnerServiceIT {
     @Test
     public void testUpdateOwnerEmail() throws CustomException {
         String newEmail = "new.email@gmail.com";
-        ownerService.updateOwnerEmail(vat, newEmail);
+        OwnerServiceImpl.updateOwnerEmail(vat, newEmail);
         Owner owner = ownerRepository.findByVat(vat).orElse(null);
         assertNotNull(owner);
         assertEquals(newEmail, owner.getEmail());
@@ -108,7 +108,7 @@ public class OwnerServiceIT {
     @Test
     public void testUpdateOwnerPassword() throws CustomException {
         String newPassword = "newpassword";
-        ownerService.updateOwnerPassword(vat, newPassword);
+        OwnerServiceImpl.updateOwnerPassword(vat, newPassword);
         Owner owner = ownerRepository.findByVat(vat).orElse(null);
         assertNotNull(owner);
         assertEquals(newPassword, owner.getPassword());
@@ -116,15 +116,15 @@ public class OwnerServiceIT {
 
     @Test
     public void testDeleteOwnerPermanently() throws CustomException {
-        boolean deleted = ownerService.deleteOwnerPermanently(vat);
+        boolean deleted = OwnerServiceImpl.deleteOwnerPermanently(vat);
         assertTrue(deleted);
-        Optional<Owner> foundOwner = ownerService.searchOwnerByVat(vat);
+        Optional<Owner> foundOwner = OwnerServiceImpl.searchOwnerByVat(vat);
         assertFalse(foundOwner.isPresent());
     }
 
     @Test
     public void testDeleteOwnerSafely() throws CustomException {
-        boolean deleted = ownerService.deleteOwnerSafely(vat);
+        boolean deleted = OwnerServiceImpl.deleteOwnerSafely(vat);
         assertTrue(deleted);
         Owner owner = ownerRepository.findByVat(vat).orElse(null);
         assertNotNull(owner);
@@ -134,65 +134,65 @@ public class OwnerServiceIT {
     @Test
     public void testVerifyOwner() throws CustomException {
         assertDoesNotThrow(() -> {
-            Optional<String> result = ownerService.verifyOwner(username, password);
+            Optional<String> result = OwnerServiceImpl.verifyOwner(username, password);
             assertTrue(result.isPresent());
             assertEquals(vat, result.get());
         });
 
-        assertThrows(CustomException.class, () -> ownerService.verifyOwner(username, "wrongpassword"));
-        assertThrows(CustomException.class, () -> ownerService.verifyOwner("wrongusername", password));
+        assertThrows(CustomException.class, () -> OwnerServiceImpl.verifyOwner(username, "wrongpassword"));
+        assertThrows(CustomException.class, () -> OwnerServiceImpl.verifyOwner("wrongusername", password));
     }
 
     @Test
     public void testValidateVat() {
-        assertThrows(CustomException.class, () -> ownerService.validateVat("123"));
-        assertDoesNotThrow(() -> ownerService.validateVat("123456789"));
+        assertThrows(CustomException.class, () -> OwnerServiceImpl.validateVat("123"));
+        assertDoesNotThrow(() -> OwnerServiceImpl.validateVat("123456789"));
     }
 
     @Test
     public void testValidateName() {
-        assertThrows(CustomException.class, () -> ownerService.validateName(""));
-        assertDoesNotThrow(() -> ownerService.validateName("Nikos"));
+        assertThrows(CustomException.class, () -> OwnerServiceImpl.validateName(""));
+        assertDoesNotThrow(() -> OwnerServiceImpl.validateName("Nikos"));
     }
 
     @Test
     public void testValidateSurname() {
-        assertThrows(CustomException.class, () -> ownerService.validateSurname(""));
-        assertDoesNotThrow(() -> ownerService.validateSurname("Aygoustakis"));
+        assertThrows(CustomException.class, () -> OwnerServiceImpl.validateSurname(""));
+        assertDoesNotThrow(() -> OwnerServiceImpl.validateSurname("Aygoustakis"));
     }
 
     @Test
     public void testValidatePassword() {
-        assertThrows(CustomException.class, () -> ownerService.validatePassword("123"));
-        assertDoesNotThrow(() -> ownerService.validatePassword("12345678"));
+        assertThrows(CustomException.class, () -> OwnerServiceImpl.validatePassword("123"));
+        assertDoesNotThrow(() -> OwnerServiceImpl.validatePassword("12345678"));
     }
 
     @Test
     public void testValidatePhone() {
-        assertThrows(CustomException.class, () -> ownerService.validatePhone("123e45"));
-        assertThrows(CustomException.class, () -> ownerService.validatePhone("123334456766656766"));
-        assertDoesNotThrow(() -> ownerService.validatePhone("69996886775"));
+        assertThrows(CustomException.class, () -> OwnerServiceImpl.validatePhone("123e45"));
+        assertThrows(CustomException.class, () -> OwnerServiceImpl.validatePhone("123334456766656766"));
+        assertDoesNotThrow(() -> OwnerServiceImpl.validatePhone("69996886775"));
     }
 
     @Test
     public void testValidateEmail() {
-        assertThrows(CustomException.class, () -> ownerService.validateEmail("email"));
-        assertDoesNotThrow(() -> ownerService.validateEmail("valid.email@example.com"));
+        assertThrows(CustomException.class, () -> OwnerServiceImpl.validateEmail("email"));
+        assertDoesNotThrow(() -> OwnerServiceImpl.validateEmail("valid.email@example.com"));
     }
 
     @Test
     public void testCheckVat() throws CustomException {
-        assertThrows(CustomException.class, () -> ownerService.checkVat(vat));
+        assertThrows(CustomException.class, () -> OwnerServiceImpl.checkVat(vat));
     }
 
     @Test
     public void testCheckEmail() throws CustomException {
-        assertThrows(CustomException.class, () -> ownerService.checkEmail(email));
+        assertThrows(CustomException.class, () -> OwnerServiceImpl.checkEmail(email));
     }
 
     @Test
     public void testCheckUsername() throws CustomException {
-        assertThrows(CustomException.class, () -> ownerService.checkVat(vat));
+        assertThrows(CustomException.class, () -> OwnerServiceImpl.checkVat(vat));
 
     }
 }
