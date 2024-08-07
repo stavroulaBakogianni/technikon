@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 /**
  * Service that manages owner functionalities.
  */
-public class OwnerService implements OwnerServiceInterface {
+public class OwnerServiceImpl implements OwnerService {
 
     private final OwnerRepository ownerRepository;
 
@@ -19,7 +19,7 @@ public class OwnerService implements OwnerServiceInterface {
      *
      * @param ownerRepository
      */
-    public OwnerService(OwnerRepository ownerRepository) {
+    public OwnerServiceImpl(OwnerRepository ownerRepository) {
         this.ownerRepository = ownerRepository;
     }
 
