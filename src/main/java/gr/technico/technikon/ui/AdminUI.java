@@ -3,23 +3,30 @@ package gr.technico.technikon.ui;
 import gr.technico.technikon.exceptions.CustomException;
 import gr.technico.technikon.model.Owner;
 import gr.technico.technikon.model.Property;
+import gr.technico.technikon.model.Repair;
 import gr.technico.technikon.services.OwnerServiceImpl;
 import gr.technico.technikon.services.PropertyService;
 import gr.technico.technikon.services.PropertyServiceImpl;
+import gr.technico.technikon.services.RepairServiceImpl;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
+import java.util.regex.MatchResult;
 
 public class AdminUI implements AdminSelection {
 
     private static final Scanner scanner = new Scanner(System.in);
     private final OwnerServiceImpl ownerServiceImpl;
     private final PropertyService propertyService;
+    private final RepairServiceImpl repairServiceImpl;
 
-    public AdminUI(OwnerServiceImpl ownerServiceImpl, PropertyServiceImpl propertyServiceImpl) {
+    public AdminUI(OwnerServiceImpl ownerServiceImpl, PropertyServiceImpl propertyServiceImpl, RepairServiceImpl repairServiceImpl) {
         this.ownerServiceImpl = ownerServiceImpl;
         this.propertyService = propertyServiceImpl;
+        this.repairServiceImpl = repairServiceImpl;
     }
 
     public void manageAdmin() {
@@ -41,6 +48,21 @@ public class AdminUI implements AdminSelection {
                     deleteProperty();
                     return;
                 case 5:
+                    getPending();
+                    break;
+                case 6:
+                    proposeCostDates();
+                    break;
+                case 7:
+                    updateStatus();
+                    break;
+                case 8:
+                    markComplete();
+                    break;
+                case 9:
+                    adminReport();
+                    break;
+                case 10:
                     return;
                 default:
                     System.out.println("Invalid option. Please try again.");
@@ -54,7 +76,12 @@ public class AdminUI implements AdminSelection {
         System.out.println("2. Delete Owner");
         System.out.println("3. Search Property");
         System.out.println("4. Delete Property");
-        System.out.println("5. Back to Main Menu");
+        System.out.println("5. Find Pending Repairs");
+        System.out.println("6. Propose cost and dates for a repair");
+        System.out.println("7. Update status and actual start date of a repair");
+        System.out.println("8. Mark complete");
+        System.out.println("9. Full Reports");
+        System.out.println("10. Back to Main Menu");
         System.out.print("Select an action by typing the corresponding number and pressing enter: ");
     }
 
@@ -250,6 +277,100 @@ public class AdminUI implements AdminSelection {
             }
         } catch (CustomException ex) {
             System.out.println(ex.getMessage());
+        }
+    }
+    
+    //Repair
+    public void getPending() {
+        List<Repair> adminPendingRepairs = repairServiceImpl.getPendingRepairs();
+        for (Repair r : adminPendingRepairs) {
+                System.out.println("\n" + r.getId() + " " + r.getDescription() + " " + r.getShortDescription() + " " + r.getRepairType());
+            }
+    }
+
+    public void proposeCostDates() {
+        try {
+            List<Repair> repairs = repairServiceImpl.getPendingRepairs();
+            for (Repair r : repairs) {
+                System.out.println("\n" + r.getId() + " " + r.getDescription() + " " + r.getShortDescription() + " " + r.getRepairType());
+            }
+            System.out.print("Enter the Repair Id for update ");
+            Long id = scanner.nextLong();
+            System.out.println("Enter proposed start date (dd/MM/yyyy HH:mm)");
+            LocalDateTime proposedStart = dateInput();
+            System.out.println("Enter proposed end date (dd/MM/yyyy HH:mm)");
+            LocalDateTime proposedEnd = dateInput();
+            System.out.print("Enter cost: ");
+            BigDecimal cost = scanner.nextBigDecimal();
+
+            repairServiceImpl.updCostDates(id, cost, proposedStart, proposedEnd);
+            System.out.println("\nProposed cost and proposed dates updated successfully.");
+        } catch (Exception e) {
+            System.out.println("An unexpected error occurred: " + e.getMessage());
+        }
+    }
+
+    public static LocalDateTime dateInput() throws NumberFormatException {
+        LocalDateTime date;
+        try {
+
+            Scanner scanner = new Scanner(System.in);
+            scanner.findInLine("(\\d\\d)\\/(\\d\\d)\\/(\\d\\d\\d\\d)\\ (\\d\\d):(\\d\\d)");
+            MatchResult mr = scanner.match();
+            int year = Integer.parseInt(mr.group(3));
+            int month = Integer.parseInt(mr.group(2));
+            int day = Integer.parseInt(mr.group(1));
+            int hour = Integer.parseInt(mr.group(4));
+            int minute = Integer.parseInt(mr.group(5));
+            date = LocalDateTime.of(year, month, day, hour, minute);
+            return date;
+
+        } catch (Exception e) {
+            System.out.println("An unexpected error occurred: " + e.getMessage());
+            return null;
+        }
+    }
+    
+    public void updateStatus(){
+        try {
+            List<Repair> acceptedRepairs = repairServiceImpl.getAcceptedRepairs();
+            for (Repair r : acceptedRepairs) {
+                System.out.println("\n" + r.getId() + " " + r.getRepairStatus() + " " + r.getRepairType());
+            }
+            System.out.print("Enter the Repair Id for update ");
+            Long id = scanner.nextLong();
+            repairServiceImpl.updateStatus(id);
+            System.out.println("\nRepair status and actual start date updated successfully.");
+
+        } catch (Exception e) {
+            System.out.println("An unexpected error occurred: " + e.getMessage());
+        }
+    }
+
+    public void markComplete() {
+        try {
+            List<Repair> adminInProgressRepairs = repairServiceImpl.getInProgressRepairs();
+            for (Repair r : adminInProgressRepairs) {
+                System.out.println("\n" + r.getId() + " " + r.getRepairStatus() + " " + r.getRepairType());
+            }
+            System.out.print("Enter the Repair Id for update ");
+            Long id = scanner.nextLong();
+            repairServiceImpl.updComplete(id);
+            System.out.println("\nRepair completed successfully.");
+
+        } catch (Exception e) {
+            System.out.println("An unexpected error occurred: " + e.getMessage());
+        }
+    }
+
+    public void adminReport() {
+        try {
+            List<Repair> adminRepairs = repairServiceImpl.getRepairs();
+            for (Repair r : adminRepairs) {
+                System.out.println("\n" + r.getId() + " " + r.getRepairStatus() + " " + r.getRepairType());
+            }
+        } catch (Exception e) {
+            System.out.println("An unexpected error occurred: " + e.getMessage());
         }
     }
 }

@@ -79,7 +79,14 @@ public class OwnerRepository implements Repository<Owner, Long> {
 
     @Override
     public Optional<Owner> findById(Long id) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        Owner owner;
+        try {
+            owner = entityManager.find(getEntityClass(), id);
+            return Optional.of(owner);
+        } catch (Exception e) {
+            System.out.println("Exception: " + e);
+            throw e;
+        }
     }
 
     @Override
@@ -90,5 +97,13 @@ public class OwnerRepository implements Repository<Owner, Long> {
     @Override
     public boolean deleteById(Long id) {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+    
+    private Class<Owner> getEntityClass() {
+        return Owner.class;
+    }
+
+    private String getEntityClassName() {
+        return Owner.class.getName();
     }
 }

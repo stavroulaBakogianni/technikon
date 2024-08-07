@@ -22,9 +22,11 @@ public interface RepairService {
 
     void updCostDates(Long id, BigDecimal proposedCost, LocalDateTime proposedStartDate, LocalDateTime proposedEndDateTime);
 
-    public void updAcceptance(Long id, int response) throws Exception;
+    void updAcceptance(Long id, int response) throws Exception;
 
-    public void updComplete(Long id);
+    void updComplete(Long id);
+
+    void updateStatus(Long id);
 
     Long saveRepair(Repair repair) throws CustomException;
 
@@ -32,7 +34,15 @@ public interface RepairService {
 
     public List<Repair> getPendingRepairs();
 
+    public List<Repair> getPendingRepairsByOwner(Owner owner);
+
+    public List<Repair> getInProgressRepairs();
+
     List<Repair> findRepairByUserId(Owner owner);
+
+    public List<Repair> getRepairByPropertyId(Property property);
+
+    public List<Repair> getAcceptedRepairs();
 
     List<Repair> findRepairsByDate(String date);
 
@@ -41,6 +51,8 @@ public interface RepairService {
     boolean deletePermantlyById(Long id);
 
     boolean deleteSafely(Long id);
+
+    void validateType(int repairType) throws CustomException;
 
     public void validateDesc(String description) throws CustomException;
 

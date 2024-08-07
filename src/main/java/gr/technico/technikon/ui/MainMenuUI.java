@@ -3,6 +3,7 @@ package gr.technico.technikon.ui;
 import gr.technico.technikon.exceptions.CustomException;
 import gr.technico.technikon.services.OwnerServiceImpl;
 import gr.technico.technikon.services.PropertyServiceImpl;
+import gr.technico.technikon.services.RepairServiceImpl;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
@@ -13,9 +14,9 @@ public class MainMenuUI implements MainMenuSelection {
     private final AdminUI adminUI;
 
     // Constructor accepting parameters
-    public MainMenuUI(OwnerServiceImpl ownerService, PropertyServiceImpl propertyServiceImpl) {
-        this.OwnerUI = new OwnerUI(ownerService, propertyServiceImpl);
-        this.adminUI = new AdminUI(ownerService, propertyServiceImpl);
+    public MainMenuUI(OwnerServiceImpl ownerServiceImpl, PropertyServiceImpl propertyServiceImpl, RepairServiceImpl repairServiceImpl) {
+        this.OwnerUI = new OwnerUI(ownerServiceImpl, propertyServiceImpl, repairServiceImpl);
+        this.adminUI = new AdminUI(ownerServiceImpl, propertyServiceImpl, repairServiceImpl);
     }
 
     public void run() throws CustomException {
