@@ -7,15 +7,35 @@ import gr.technico.technikon.repositories.OwnerRepository;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
+/**
+ * Service that manages owner functionalities.
+ */
 public class OwnerServiceImpl implements OwnerService {
 
     private final OwnerRepository ownerRepository;
 
+    /**
+     * Constructs a new OwnerService with the given OwnerRepository
+     *
+     * @param ownerRepository
+     */
     public OwnerServiceImpl(OwnerRepository ownerRepository) {
         this.ownerRepository = ownerRepository;
     }
 
-    // Create Owner
+    /**
+     * Creates a new owner with the given details
+     *
+     * @param vat
+     * @param name
+     * @param surname
+     * @param address
+     * @param phoneNumber
+     * @param email
+     * @param username
+     * @param password
+     * @throws CustomException if any validation fails
+     */
     @Override
     public void createOwner(String vat, String name, String surname, String address, String phoneNumber, String email, String username, String password)
             throws CustomException {
@@ -43,18 +63,37 @@ public class OwnerServiceImpl implements OwnerService {
         save(owner);
     }
 
-    // Search Owner
+    /**
+     * Searches Owner by its VAT
+     *
+     * @param vat
+     * @return an Optional containing the found Owner, or an empty Optional if
+     * no Owner was found
+     */
     @Override
     public Optional<Owner> searchOwnerByVat(String vat) {
         return ownerRepository.findByVat(vat);
     }
 
+    /**
+     * Searches Owner by its email
+     *
+     * @param email
+     * @return an Optional containing the found Owner, or an empty Optional if
+     * no Owner was found
+     */
     @Override
     public Optional<Owner> searchOwnerByEmail(String email) {
         return ownerRepository.findByEmail(email);
     }
 
-    // Update Owner details
+    /**
+     * Updates the address of an owner identified by VAT
+     *
+     * @param vat
+     * @param address
+     * @throws CustomException if the owner is not found or the update fails
+     */
     @Override
     public void updateOwnerAddress(String vat, String address) throws CustomException {
         Owner owner = getOwnerByVat(vat);
@@ -62,6 +101,14 @@ public class OwnerServiceImpl implements OwnerService {
         save(owner);
     }
 
+    /**
+     * Updates the email of an owner identified by VAT
+     *
+     * @param vat
+     * @param email
+     * @throws CustomException if the email is invalid, already exists, or the
+     * update fails
+     */
     @Override
     public void updateOwnerEmail(String vat, String email) throws CustomException {
         Owner owner = getOwnerByVat(vat);
@@ -73,6 +120,13 @@ public class OwnerServiceImpl implements OwnerService {
         save(owner);
     }
 
+    /**
+     * Updates the password of an owner identified by VAT
+     *
+     * @param vat
+     * @param password
+     * @throws CustomException if the password is invalid or the update fails
+     */
     @Override
     public void updateOwnerPassword(String vat, String password) throws CustomException {
         Owner owner = getOwnerByVat(vat);
@@ -86,12 +140,23 @@ public class OwnerServiceImpl implements OwnerService {
                 .orElseThrow(() -> new CustomException("Owner with the given VAT number not found."));
     }
 
-    // Delete Owner
+    /**
+     * Permanently deletes an owner by VAT
+     *
+     * @param vat
+     * @return true if the owner was deleted, false otherwise
+     */
     @Override
     public boolean deleteOwnerPermanently(String vat) {
         return ownerRepository.deletePermanentlyByVat(vat);
     }
 
+    /**
+     * Soft deletes an owner by VAT, marking the owner as deleted
+     *
+     * @param vat
+     * @return true if the owner was marked as deleted, false otherwise
+     */
     @Override
     public boolean deleteOwnerSafely(String vat) {
         try {
@@ -105,7 +170,15 @@ public class OwnerServiceImpl implements OwnerService {
         }
     }
 
-    // Verify Owner
+    /**
+     * Verifies the owner's credentials
+     *
+     * @param username
+     * @param password
+     * @return an Optional containing the VAT of the verified owner
+     * @throws CustomException if the username or password is null/blank or
+     * invalid
+     */
     @Override
     public Optional<String> verifyOwner(String username, String password) throws CustomException {
         if (username == null || username.isBlank()) {
@@ -120,7 +193,13 @@ public class OwnerServiceImpl implements OwnerService {
         return Optional.of(owner.getVat());
     }
 
-    // Validations
+    /**
+     * Validates the VAT.
+     *
+     * @param vat
+     * @throws CustomException if the VAT is null or not exactly 9 characters
+     *
+     */
     @Override
     public void validateVat(String vat) throws CustomException {
         if (vat == null || vat.length() != 9) {
@@ -128,6 +207,12 @@ public class OwnerServiceImpl implements OwnerService {
         }
     }
 
+    /**
+     * Validates the name
+     *
+     * @param name
+     * @throws CustomException if the name is null or blank
+     */
     @Override
     public void validateName(String name) throws CustomException {
         if (name == null || name.isBlank()) {
@@ -135,6 +220,12 @@ public class OwnerServiceImpl implements OwnerService {
         }
     }
 
+    /**
+     * Validates the surname
+     *
+     * @param surname
+     * @throws CustomException if the surname is null or blank
+     */
     @Override
     public void validateSurname(String surname) throws CustomException {
         if (surname == null || surname.isBlank()) {
@@ -142,6 +233,12 @@ public class OwnerServiceImpl implements OwnerService {
         }
     }
 
+    /**
+     * Validates the password
+     *
+     * @param password
+     * @throws CustomException if the password is less than 8 characters long
+     */
     @Override
     public void validatePassword(String password) throws CustomException {
         if (password.length() < 8) {
@@ -149,6 +246,13 @@ public class OwnerServiceImpl implements OwnerService {
         }
     }
 
+    /**
+     * Validates the phone number
+     *
+     * @param phone
+     * @throws CustomException if the phone number is more than 14 characters
+     * long or contains non-numeric characters
+     */
     @Override
     public void validatePhone(String phone) throws CustomException {
         if (phone.length() > 14) {
@@ -159,6 +263,12 @@ public class OwnerServiceImpl implements OwnerService {
         }
     }
 
+    /**
+     * Validates the email
+     *
+     * @param email
+     * @throws CustomException if the email is invalid
+     */
     @Override
     public void validateEmail(String email) throws CustomException {
         String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
@@ -168,13 +278,25 @@ public class OwnerServiceImpl implements OwnerService {
         }
     }
 
+    /**
+     * Checks if the VAT already exists
+     *
+     * @param vat
+     * @throws CustomException if the VAT already exists
+     */
     @Override
     public void checkVat(String vat) throws CustomException {
         if (ownerRepository.findByVat(vat).isPresent()) {
-            throw new CustomException("VAT already exists. If you have deleted your account contact the admin!");
+            throw new CustomException("VAT already exists. If you have deleted your account, contact the admin!");
         }
     }
 
+    /**
+     * Checks if the email already exists
+     *
+     * @param email
+     * @throws CustomException if the email already exists
+     */
     @Override
     public void checkEmail(String email) throws CustomException {
         if (ownerRepository.findByEmail(email).isPresent()) {
@@ -182,6 +304,12 @@ public class OwnerServiceImpl implements OwnerService {
         }
     }
 
+    /**
+     * Checks if the username already exists
+     *
+     * @param username
+     * @throws CustomException if the username already exists
+     */
     @Override
     public void checkUsername(String username) throws CustomException {
         if (ownerRepository.findByUsername(username).isPresent()) {
@@ -189,12 +317,29 @@ public class OwnerServiceImpl implements OwnerService {
         }
     }
 
-    // Functionalities
+    /**
+     * Saves the given Owner
+     *
+     * @param owner
+     * @throws CustomException if the save operation fails
+     */
     private void save(Owner owner) throws CustomException {
         try {
             ownerRepository.save(owner);
         } catch (Exception e) {
             throw new CustomException("Failed to save owner details: " + e.getMessage());
         }
+    }
+
+    /**
+     * Retrieves the Owner by VAT
+     *
+     * @param vat
+     * @return the Owner
+     * @throws CustomException if the Owner with the given VAT is not found
+     */
+    private Owner getOwnerByVat(String vat) throws CustomException {
+        return ownerRepository.findByVat(vat)
+                .orElseThrow(() -> new CustomException("Owner with the given VAT number not found."));
     }
 }
