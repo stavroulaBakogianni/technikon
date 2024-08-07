@@ -2,6 +2,7 @@ package gr.technico.technikon.repositories;
 
 import gr.technico.technikon.jpa.JpaUtil;
 import gr.technico.technikon.model.Owner;
+import gr.technico.technikon.model.Property;
 import gr.technico.technikon.model.Repair;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -82,7 +83,7 @@ public class RepairRepository implements Repository<Repair, Long> {
     public List<Repair> findRepairsByOwner(Owner owner) {
         javax.persistence.TypedQuery<Repair> query
                 = entityManager.createQuery("from " + getEntityClassName()
-                        + " where ownerId  like :owner ",
+                        + " where owner  like :owner ",
                         getEntityClass())
                         .setParameter("owner", owner);
         return query.getResultList();
@@ -96,7 +97,46 @@ public class RepairRepository implements Repository<Repair, Long> {
                         .setParameter("repair_status", "PENDING");
         return query.getResultList();
     }
-
+    
+    public List<Repair> findPendingRepairsByOwner(Owner owner){
+        TypedQuery<Repair> query
+                = entityManager.createQuery("from " + getEntityClassName()
+                        + " where repair_status  like :repair_status "
+                        + " and owner like :owner ",
+                        getEntityClass())
+                        .setParameter("owner", owner)
+                        .setParameter("repair_status", "PENDING");
+        return query.getResultList();
+    }
+    
+    public List<Repair> findRepairsByPropertyId(Property property) {
+       TypedQuery<Repair> query =
+               entityManager.createQuery("from " + getEntityClassName()
+                       + " where property  like :property "
+                       , getEntityClass())
+               .setParameter("property", property);
+        return query.getResultList();    
+    }
+    
+    public List<Repair> findInProgressRepairs() {
+       TypedQuery<Repair> query =
+               entityManager.createQuery("from " + getEntityClassName()
+                       + " where repair_status  like :repair_status "
+                       , getEntityClass())
+               .setParameter("repair_status", "INPROGRESS");
+        return query.getResultList();    
+    }
+    
+    public List<Repair> findAcceptedRepairs() {
+       TypedQuery<Repair> query =
+               entityManager.createQuery("from " + getEntityClassName()
+                       + " where acceptance_status  like :acceptance_status "
+                       , getEntityClass())
+               .setParameter("acceptance_status", Boolean.TRUE);
+        return query.getResultList();    
+    }
+    
+    
     //Method to search by dates
     public List<Repair> findRepairsByDates(LocalDateTime startDate, LocalDateTime endDate) {
         TypedQuery<Repair> query = entityManager.createQuery("from " + getEntityClassName() + " where submission_date  between " + startDate + " and " + endDate, getEntityClass());
@@ -110,5 +150,4 @@ public class RepairRepository implements Repository<Repair, Long> {
     private String getEntityClassName() {
         return Repair.class.getName();
     }
-
 }
