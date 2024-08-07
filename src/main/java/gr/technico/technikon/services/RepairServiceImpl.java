@@ -78,7 +78,7 @@ public class RepairServiceImpl implements RepairService {
     }
 
     @Override
-    public void updAcceptance(Long id, int response) {
+    public void updAcceptance(Long id, int response) throws Exception {
         Optional<Repair> repair = repairRepository.findById(id);
         if (repair.isEmpty()) {
             System.out.println("Repair not found");
@@ -125,7 +125,7 @@ public class RepairServiceImpl implements RepairService {
 
     @Override
     public List<Repair> findRepairByUserId(Owner owner) {
-        return repairRepository.findRepairsByUserId(owner);
+        return repairRepository.findRepairsByOwner(owner);
     }
 
     @Override
