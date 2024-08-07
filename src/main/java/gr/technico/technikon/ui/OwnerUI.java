@@ -599,72 +599,72 @@ public class OwnerUI implements OwnerSelection {
 
         if (loggedInOwnerVat == null) {
             System.out.println("You must be logged in to create a repair.");
-        } else {
-            while (!validInput) {
+            return;
+        }
+        try {
+            System.out.println("\nLet's create a new repair");
+            Owner owner = null;
+            do {
                 try {
-                    System.out.println("\nLet's create a new repair");
-                    Owner owner = null;
-                    do {
-                        try {
-                            ownerServiceImpl.validateVat(loggedInOwnerVat);
-                            owner = ownerServiceImpl.getOwnerByVat(loggedInOwnerVat);
-                            break;
-                        } catch (CustomException e) {
-                            System.out.println(e.getMessage());
-                        }
-                    } while (owner == null);
-                    List<Property> properties = propertyService.findByVAT(loggedInOwnerVat);
+                    ownerServiceImpl.validateVat(loggedInOwnerVat);
+                    owner = ownerServiceImpl.getOwnerByVat(loggedInOwnerVat);
+                    break;
+                } catch (CustomException e) {
+                    System.out.println(e.getMessage());
+                }
+            } while (owner == null);
+            List<Property> properties = propertyService.findByVAT(loggedInOwnerVat);
 
-                    System.out.println("List of properties:");
+            System.out.println("List of properties:");
 
-                    int propertiesCounter = 1;
-                    for (Property p : properties) {
+            int propertiesCounter = 1;
+            for (Property p : properties) {
 
-                        System.out.println(propertiesCounter + ". " + p.getE9() + " " + p.getPropertyAddress() + " " + p.getPropertyType());
-                        propertiesCounter++;
-                    }
-                    System.out.println("Please type the number of the property you want to create a repair for:");
+                System.out.println(propertiesCounter + ". " + p.getE9() + " " + p.getPropertyAddress() + " " + p.getPropertyType());
+                propertiesCounter++;
+            }
+            System.out.println("Please type the number of the property you want to create a repair for:");
 
-                    Property property = null;
-                    do {
-                        int action = getOwnerAction();
-                        try {
-                            property = properties.get(action - 1);
-                            break;
-                        } catch (Exception e) {
-                            System.out.println("Please type an existing number from the list above");
-                        }
+            Property property = null;
+            do {
+                int action = getOwnerAction();
+                try {
+                    property = properties.get(action - 1);
+                    break;
+                } catch (Exception e) {
+                    System.out.println("Please type an existing number from the list above");
+                }
 
-                    } while (property == null);
+            } while (property == null);
 
-                    String shortDescription;
-                    do {
-                        System.out.print("Enter a short description for the repair (up to 100 characters): ");
-                        shortDescription = scanner.nextLine().trim();
-                        try {
-                            repairServiceImpl.validateShortDesc(shortDescription);
-                            break;
-                        } catch (CustomException e) {
-                            System.out.println(e.getMessage());
-                        }
-                    } while (shortDescription == null || shortDescription.isBlank());
+            String shortDescription;
+            do {
+                System.out.print("Enter a short description for the repair (up to 100 characters): ");
+                shortDescription = scanner.nextLine().trim();
+                try {
+                    repairServiceImpl.validateShortDesc(shortDescription);
+                    break;
+                } catch (CustomException e) {
+                    System.out.println(e.getMessage());
+                }
+            } while (shortDescription == null || shortDescription.isBlank());
 
-                    String description;
-                    do {
-                        System.out.print("Enter a description for your repair (up to 400 characters): ");
-                        description = scanner.nextLine().trim();
-                        try {
-                            repairServiceImpl.validateDesc(description);
-                            break;
-                        } catch (CustomException e) {
-                            System.out.println(e.getMessage());
-                        }
-                    } while (description == null || description.isBlank());
+            String description;
+            do {
+                System.out.print("Enter a description for your repair (up to 400 characters): ");
+                description = scanner.nextLine().trim();
+                try {
+                    repairServiceImpl.validateDesc(description);
+                    break;
+                } catch (CustomException e) {
+                    System.out.println(e.getMessage());
+                }
+            } while (description == null || description.isBlank());
 
-                    int repairType;
-                    RepairType type = null;
-                    do {
-                        String SCAN_TYPE = """
+            int repairType;
+            RepairType type = null;
+            do {
+                String SCAN_TYPE = """
                                          Please select 
                                          Repair Type
                                          --------------------
@@ -676,28 +676,27 @@ public class OwnerUI implements OwnerSelection {
 
                                         Select an action by typing the corresponding number and pressing enter:                          
                                         """;
-                        System.out.print(SCAN_TYPE);
-                        repairType = scanner.nextInt();
-                        try {
-                            repairServiceImpl.validateType(repairType);
-                            type = repairServiceImpl.checkType(repairType);
+                System.out.print(SCAN_TYPE);
+                repairType = scanner.nextInt();
+                try {
+                    repairServiceImpl.validateType(repairType);
+                    type = repairServiceImpl.checkType(repairType);
 
-                            break;
-                        } catch (CustomException e) {
-                            System.out.println(e.getMessage());
-                        }
-                    } while (repairType < 1 || repairType > 5);
-
-                    repairServiceImpl.createRepair(type, shortDescription, description, owner, property);
-                    System.out.println("\nRepair created successfully.");
-                    validInput = true;
+                    break;
                 } catch (CustomException e) {
-                    System.out.println("Error creating repair: " + e.getMessage());
-                } catch (Exception e) {
-                    System.out.println("Unexpected error while creating repair: " + e);
+                    System.out.println(e.getMessage());
                 }
-            }
+            } while (repairType < 1 || repairType > 5);
+
+            repairServiceImpl.createRepair(type, shortDescription, description, owner, property);
+            System.out.println("\nRepair created successfully.");
+            validInput = true;
+        } catch (CustomException e) {
+            System.out.println("Error creating repair: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Unexpected error while creating repair: " + e);
         }
+
     }
 
     public void updateRepair() {
