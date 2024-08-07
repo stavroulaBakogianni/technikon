@@ -14,9 +14,9 @@ gr\technico\technikon\Technikon.class
 gr\technico\technikon\services\PropertyService.class
 gr\technico\technikon\services\OwnerService.class
 gr\technico\technikon\model\PropertyType.class
-gr\technico\technikon\services\OwnerServiceInterface.class
 gr\technico\technikon\model\RepairType.class
 gr\technico\technikon\ui\MainMenuSelection.class
 gr\technico\technikon\repositories\OwnerRepository.class
+gr\technico\technikon\services\OwnerServiceImpl.class
 gr\technico\technikon\services\PropertyServiceImpl.class
 gr\technico\technikon\model\Repair.class

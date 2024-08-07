@@ -6,9 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 public class PropertyRepository implements Repository<Property, Long> {
 
     private final EntityManager entityManager;

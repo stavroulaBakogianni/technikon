@@ -4,6 +4,7 @@ C:\Users\tourl\Documents\NetBeansProjects\technikon\src\main\java\gr\technico\te
 C:\Users\tourl\Documents\NetBeansProjects\technikon\src\main\java\gr\technico\technikon\model\PropertyType.java
 C:\Users\tourl\Documents\NetBeansProjects\technikon\src\main\java\gr\technico\technikon\services\OwnerService.java
 C:\Users\tourl\Documents\NetBeansProjects\technikon\src\main\java\gr\technico\technikon\ui\OwnerSelection.java
+C:\Users\tourl\Documents\NetBeansProjects\technikon\src\main\java\gr\technico\technikon\services\OwnerServiceImpl.java
 C:\Users\tourl\Documents\NetBeansProjects\technikon\src\main\java\gr\technico\technikon\ui\MainMenuUI.java
 C:\Users\tourl\Documents\NetBeansProjects\technikon\src\main\java\gr\technico\technikon\services\PropertyServiceImpl.java
 C:\Users\tourl\Documents\NetBeansProjects\technikon\src\main\java\gr\technico\technikon\ui\AdminUI.java
@@ -14,7 +15,6 @@ C:\Users\tourl\Documents\NetBeansProjects\technikon\src\main\java\gr\technico\te
 C:\Users\tourl\Documents\NetBeansProjects\technikon\src\main\java\gr\technico\technikon\ui\OwnerUI.java
 C:\Users\tourl\Documents\NetBeansProjects\technikon\src\main\java\gr\technico\technikon\model\RepairStatus.java
 C:\Users\tourl\Documents\NetBeansProjects\technikon\src\main\java\gr\technico\technikon\exceptions\CustomException.java
-C:\Users\tourl\Documents\NetBeansProjects\technikon\src\main\java\gr\technico\technikon\services\OwnerServiceInterface.java
 C:\Users\tourl\Documents\NetBeansProjects\technikon\src\main\java\gr\technico\technikon\jpa\JpaUtil.java
 C:\Users\tourl\Documents\NetBeansProjects\technikon\src\main\java\gr\technico\technikon\model\Repair.java
 C:\Users\tourl\Documents\NetBeansProjects\technikon\src\main\java\gr\technico\technikon\ui\AdminSelection.java

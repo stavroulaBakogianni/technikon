@@ -2,21 +2,24 @@ package gr.technico.technikon.ui;
 
 import gr.technico.technikon.exceptions.CustomException;
 import gr.technico.technikon.model.Owner;
-import gr.technico.technikon.services.OwnerService;
+import gr.technico.technikon.model.Property;
+import gr.technico.technikon.services.OwnerServiceImpl;
+import gr.technico.technikon.services.PropertyService;
 import gr.technico.technikon.services.PropertyServiceImpl;
 import java.util.InputMismatchException;
+import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 
 public class AdminUI implements AdminSelection {
 
     private static final Scanner scanner = new Scanner(System.in);
-    private final OwnerService ownerService;
-    private final PropertyServiceImpl propertyServiceImpl;
+    private final OwnerServiceImpl ownerServiceImpl;
+    private final PropertyService propertyService;
 
-    public AdminUI(OwnerService ownerService, PropertyServiceImpl propertyServiceImpl) {
-        this.ownerService = ownerService;
-        this.propertyServiceImpl = propertyServiceImpl;
+    public AdminUI(OwnerServiceImpl ownerServiceImpl, PropertyServiceImpl propertyServiceImpl) {
+        this.ownerServiceImpl = ownerServiceImpl;
+        this.propertyService = propertyServiceImpl;
     }
 
     public void manageAdmin() {
@@ -96,7 +99,7 @@ public class AdminUI implements AdminSelection {
         System.out.print("Enter VAT number: ");
         String vat = scanner.nextLine().trim();
 
-        Optional<Owner> owner = ownerService.searchOwnerByVat(vat);
+        Optional<Owner> owner = ownerServiceImpl.searchOwnerByVat(vat);
         if (owner.isPresent()) {
             if (owner.get().isDeleted()) {
                 System.out.println("\nThis owner is marked as deleted");
@@ -113,7 +116,7 @@ public class AdminUI implements AdminSelection {
         System.out.print("Enter Email: ");
         String email = scanner.nextLine().trim();
 
-        Optional<Owner> owner = ownerService.searchOwnerByEmail(email);
+        Optional<Owner> owner = ownerServiceImpl.searchOwnerByEmail(email);
         if (owner.isPresent()) {
             if (owner.get().isDeleted()) {
                 System.out.println("\nThis owner is marked as deleted");
@@ -132,7 +135,7 @@ public class AdminUI implements AdminSelection {
         String vatNumber = scanner.nextLine().trim();
 
         try {
-            Optional<Owner> optionalOwner = ownerService.searchOwnerByVat(vatNumber);
+            Optional<Owner> optionalOwner = ownerServiceImpl.searchOwnerByVat(vatNumber);
 
             if (optionalOwner.isPresent()) {
                 Owner ownerToDelete = optionalOwner.get();
@@ -147,7 +150,7 @@ public class AdminUI implements AdminSelection {
 
                 switch (userChoice) {
                     case 1:
-                        boolean deletionSuccessful = ownerService.deleteOwnerPermanently(vatNumber);
+                        boolean deletionSuccessful = ownerServiceImpl.deleteOwnerPermanently(vatNumber);
                         if (deletionSuccessful) {
                             System.out.println("\nOwner and all associated properties and repairs have been successfully deleted.");
                         } else {
@@ -198,9 +201,9 @@ public class AdminUI implements AdminSelection {
         String e9 = scanner.nextLine().trim();
 
         try {
-            System.out.println(propertyServiceImpl.findByE9(e9));
+            System.out.println(propertyService.findByE9(e9));
         } catch (CustomException ex) {
-            ex.printStackTrace();
+            System.out.println(ex.getMessage());
         }
     }
 
@@ -209,43 +212,44 @@ public class AdminUI implements AdminSelection {
         String vat = scanner.nextLine().trim();
 
         try {
-            System.out.println(propertyServiceImpl.findByVAT(vat));
+            List<Property> properties = propertyService.findByVAT(vat);
+            for (Property property : properties) {
+                System.out.println(property);
+            }
         } catch (CustomException ex) {
-            ex.printStackTrace();
+            System.out.println(ex.getMessage());
         }
     }
 
     @Override
     public void deleteProperty() {
-        System.out.print("Insert E9: ");
-        String e9 = scanner.nextLine().trim();
-        try {
-            propertyServiceImpl.validateE9(e9);
-        } catch (CustomException ex) {
-            ex.printStackTrace();
-        }
+        System.out.println("List of properties: ");
+        List<Property> properties = propertyService.findAllProperties();
+            for (Property property : properties) {
+                System.out.println(property);
+            }
+        System.out.println("Insert property id: ");
+        Long propertyId = scanner.nextLong();
 
         try {
-            System.out.println("You are about to delete the following property and its repairs: " + propertyServiceImpl.findByE9(e9));
-            System.out.println("Insert property id: ");
-            Long id = scanner.nextLong();
+            System.out.println("You are about to delete the following property and its repairs: " + propertyService.findByID(propertyId));
             System.out.println("Enter 1 to confirm deletion or 2 to cancel: ");
 
-                int userChoice = getAdminAction();
+            int userChoice = getAdminAction();
 
-                switch (userChoice) {
-                    case 1:
-                        propertyServiceImpl.permenantlyDeleteByID(id);
-                        break;
-                    case 2:
-                        System.out.println("Deletion operation has been cancelled.");
-                        break;
-                    default:
-                        System.out.println("Invalid input. Deletion operation has been cancelled.");
-                        break;
-                }        
+            switch (userChoice) {
+                case 1:
+                    propertyService.permenantlyDeleteByID(propertyId);
+                    break;
+                case 2:
+                    System.out.println("Deletion operation has been cancelled.");
+                    break;
+                default:
+                    System.out.println("Invalid input. Deletion operation has been cancelled.");
+                    break;
+            }
         } catch (CustomException ex) {
-            ex.printStackTrace();
+            System.out.println(ex.getMessage());
         }
     }
 }
