@@ -60,9 +60,21 @@ public class AdminUI implements AdminSelection {
                     markComplete();
                     break;
                 case 9:
-                    adminReport();
+                    deleteRepair();
                     break;
                 case 10:
+                    searchRepairsByDate();
+                    break;
+                case 11:
+                    searchRepairsByRangeOfDates();
+                    break;
+                case 12:
+                    adminReport();
+                    break;
+                case 13:
+                    searchRepairsByOwnerVat();
+                    break;
+                case 14:
                     return;
                 default:
                     System.out.println("Invalid option. Please try again.");
@@ -80,8 +92,12 @@ public class AdminUI implements AdminSelection {
         System.out.println("6. Propose cost and dates for a repair");
         System.out.println("7. Update status and actual start date of a repair");
         System.out.println("8. Mark complete");
-        System.out.println("9. Full Reports");
-        System.out.println("10. Back to Main Menu");
+        System.out.println("9. Delete repair");
+        System.out.println("10. Search repairs by date");
+        System.out.println("11. Search repairs by range of dates");
+        System.out.println("12. Full Reports");
+        System.out.println("13. Search all repairs by owner vat");
+        System.out.println("14. Back to Main Menu");
         System.out.print("Select an action by typing the corresponding number and pressing enter: ");
     }
 
@@ -252,9 +268,9 @@ public class AdminUI implements AdminSelection {
     public void deleteProperty() {
         System.out.println("List of properties: ");
         List<Property> properties = propertyService.findAllProperties();
-            for (Property property : properties) {
-                System.out.println(property);
-            }
+        for (Property property : properties) {
+            System.out.println(property);
+        }
         System.out.println("Insert property id: ");
         Long propertyId = scanner.nextLong();
 
@@ -279,13 +295,13 @@ public class AdminUI implements AdminSelection {
             System.out.println(ex.getMessage());
         }
     }
-    
+
     //Repair
     public void getPending() {
         List<Repair> adminPendingRepairs = repairServiceImpl.getPendingRepairs();
         for (Repair r : adminPendingRepairs) {
-                System.out.println("\n" + r.getId() + " " + r.getDescription() + " " + r.getShortDescription() + " " + r.getRepairType());
-            }
+            System.out.println("\n" + r.getId() + " " + r.getDescription() + " " + r.getShortDescription() + " " + r.getRepairType());
+        }
     }
 
     public void proposeCostDates() {
@@ -330,8 +346,8 @@ public class AdminUI implements AdminSelection {
             return null;
         }
     }
-    
-    public void updateStatus(){
+
+    public void updateStatus() {
         try {
             List<Repair> acceptedRepairs = repairServiceImpl.getAcceptedRepairs();
             for (Repair r : acceptedRepairs) {
@@ -367,10 +383,113 @@ public class AdminUI implements AdminSelection {
         try {
             List<Repair> adminRepairs = repairServiceImpl.getRepairs();
             for (Repair r : adminRepairs) {
-                System.out.println("\n" + r.getId() + " " + r.getRepairStatus() + " " + r.getRepairType());
+                System.out.println(r.toString());
             }
         } catch (Exception e) {
             System.out.println("An unexpected error occurred: " + e.getMessage());
         }
+    }
+
+    public void searchRepairsByDate() {
+
+        System.out.println("Please type the date you want to retrieve repairs for. Follow the 2024-08-20 format and press enter:");
+        String date = scanner.nextLine();
+
+        List<Repair> repairs = repairServiceImpl.findRepairsByDate(date, null);
+
+        System.out.println("List of repairs for: " + date);
+        for (Repair r : repairs) {
+            System.out.println(r.toString());
+        }
+
+    }
+
+    public void searchRepairsByRangeOfDates() {
+
+        System.out.println("Please type the start date you want to retrieve repairs for. Follow the 2024-08-20 format and press enter:");
+        String startDate = scanner.nextLine();
+
+        System.out.println("Please type the end date you want to retrieve repairs for. Follow the 2024-09-22 format and press enter:");
+        String endDate = scanner.nextLine();
+
+        List<Repair> repairs = repairServiceImpl.findRepairsByRangeOfDates(startDate, endDate, null);
+
+        System.out.println("List of repairs for range: " + startDate + " - " + endDate);
+        for (Repair r : repairs) {
+            System.out.println(r.toString());
+        }
+    }
+
+    public void searchRepairsByOwnerVat() {
+        System.out.println("Please type the owner's VAT you want to see repairs for and press enter:");
+        String ownerVat = scanner.nextLine();
+
+        Optional<Owner> owner = ownerServiceImpl.searchOwnerByVat(ownerVat);
+
+        if (owner.isEmpty()) {
+            System.out.println("Owner not found.");
+            return;
+        }
+
+        Owner foundOwner = owner.get();
+
+        List<Repair> repairs = repairServiceImpl.findRepairsByOwner(foundOwner);
+
+        System.out.println("List of repairs for owner with VAT: " + ownerVat);
+        for (Repair r : repairs) {
+            System.out.println(r.toString());
+        }
+    }
+
+    public void deleteRepair() {
+
+        System.out.println("Please type the owner's VAT you want to see the list of repairs for deleteion and press enter:");
+        String ownerVat = scanner.nextLine();
+
+        Optional<Owner> owner = ownerServiceImpl.searchOwnerByVat(ownerVat);
+
+        if (owner.isEmpty()) {
+            System.out.println("Owner not found.");
+            return;
+        }
+
+        Owner foundOwner = owner.get();
+
+        List<Repair> repairs = repairServiceImpl.findRepairsByOwner(foundOwner);
+
+        System.out.println("List of repairs for owner with VAT: " + ownerVat);
+        for (Repair r : repairs) {
+            System.out.println(r.getId() + " " + r.toString());
+        }
+
+        System.out.println("Please type the repair id you want to delete");
+        
+         Long repairId = scanner.nextLong();
+
+       
+            System.out.println("You are about to delete the following repair: " + repairServiceImpl.findRepairById(repairId));
+            System.out.println("Enter 1 to confirm deletion or 2 to cancel: ");
+
+            int userChoice = getAdminAction();
+
+            switch (userChoice) {
+                case 1:
+                    boolean success = repairServiceImpl.deletePermantlyById(repairId);
+                    
+                    if (success) {
+                        System.out.println("The repair has been successfully deleted.");
+                    }
+                    else {
+                        System.out.println("The repair has not been deleted.");
+                    }
+                    break;
+                case 2:
+                    System.out.println("Deletion operation has been cancelled.");
+                    break;
+                default:
+                    System.out.println("Invalid input. Deletion operation has been cancelled.");
+                    break;
+            }
+       
     }
 }
