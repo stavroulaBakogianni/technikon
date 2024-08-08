@@ -38,6 +38,16 @@ public class PropertyServiceImpl implements PropertyService {
             throw new CustomException("Not valid Vat");
         }
 
+        validateE9(e9);
+        validateConstructionYear(String.valueOf(year));
+        validatePropertyType(propertyType);
+
+        // Ensure unique E9
+        Optional<Property> existingProperty = propertyRepository.findPropertyByE9(e9);
+        if (existingProperty.isPresent()) {
+            throw new CustomException("Property with E9 " + e9 + " already exists.");
+        }
+
         Property property = new Property();
         property.setE9(e9);
         property.setPropertyAddress(address);
@@ -64,6 +74,11 @@ public class PropertyServiceImpl implements PropertyService {
      */
     @Override
     public Property updatePropertyE9(Property property, String e9) throws CustomException {
+        if (property.isDeleted()) {
+            throw new CustomException("Cannot update a deleted property.");
+        }
+
+        validateE9(e9);
         property.setE9(e9);
 
         try {
@@ -85,6 +100,9 @@ public class PropertyServiceImpl implements PropertyService {
     @Override
     public Property updatePropertyAddress(Property property, String address) throws CustomException {
         property.setPropertyAddress(address);
+        if (property.isDeleted()) {
+            throw new CustomException("Cannot update a deleted property.");
+        }
 
         try {
             Optional<Property> savedProperty = propertyRepository.save(property);
@@ -104,6 +122,11 @@ public class PropertyServiceImpl implements PropertyService {
      */
     @Override
     public Property updatePropertyConstructionYear(Property property, int year) throws CustomException {
+        if (property.isDeleted()) {
+            throw new CustomException("Cannot update a deleted property.");
+        }
+
+        validateConstructionYear(String.valueOf(year));
         property.setConstructionYear(year);
 
         try {
@@ -124,6 +147,10 @@ public class PropertyServiceImpl implements PropertyService {
      */
     @Override
     public Property updatePropertyType(Property property, PropertyType propertyType) throws CustomException {
+        if (property.isDeleted()) {
+            throw new CustomException("Cannot update a deleted property.");
+        }
+
         property.setPropertyType(propertyType);
 
         try {
@@ -310,12 +337,12 @@ public class PropertyServiceImpl implements PropertyService {
     @Override
     public void validateConstructionYear(String yearInput) throws CustomException {
         if (yearInput == null || yearInput.isBlank() || yearInput.length() != 4) {
-            throw new CustomException("Year cannot be null or blank. Also the year of construction must be foy digits");
+            throw new CustomException("Year cannot be null or blank. Also, the year of construction must be four digits.");
         }
         try {
             int year = Integer.parseInt(yearInput);
-            if (year <= 0) {
-                throw new CustomException("Year cannot be zero or negative.");
+            if (year < 1000 || year > 9999) {
+                throw new CustomException("Year must be a valid four-digit year.");
             }
         } catch (NumberFormatException e) {
             throw new CustomException("Year must be a valid integer.");
@@ -330,21 +357,9 @@ public class PropertyServiceImpl implements PropertyService {
      * @throws CustomException If the property type is null or blank.
      */
     @Override
-    public void validatePropertyType(String type) throws CustomException {
-        if (type == null || type.isBlank()) {
-            throw new CustomException("Property type cannot be null or blank.");
-        }
-
-        boolean isValid = false;
-        for (PropertyType propertyType : PropertyType.values()) {
-            if (propertyType.getCode().equalsIgnoreCase(type)) {
-                isValid = true;
-                break;
-            }
-        }
-
-        if (!isValid) {
-            throw new CustomException("Invalid property type: " + type);
+    public void validatePropertyType(PropertyType propertyType) throws CustomException {
+        if (propertyType == null) {
+            throw new CustomException("Property type cannot be null.");
         }
     }
 }

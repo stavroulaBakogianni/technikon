@@ -22,5 +22,5 @@ public interface PropertyService {
     boolean permenantlyDeleteByID(Long id) throws CustomException;
     void validateE9(String e9) throws CustomException;    
     void validateConstructionYear(String yearInput) throws CustomException;
-    void validatePropertyType(String type) throws CustomException;    
+    void validatePropertyType(PropertyType propertyType) throws CustomException;  
 }
