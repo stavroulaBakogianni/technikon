@@ -404,31 +404,54 @@ public class OwnerUI implements OwnerSelection {
     public void createProperty() {
         try {
             if (loggedInOwnerVat == null) {
-                System.out.println("You must be logged in to update your profile.");
+                System.out.println("You must be logged in to create a property.");
                 return;
             }
 
-            System.out.println("Please insert e9:");
+            System.out.println("Please insert e9 (20 characters):");
             String e9 = scanner.nextLine().trim();
             propertyService.validateE9(e9);
+            Property property = propertyService.findByE9ForCreate(e9);
+            if (property != null) {
+                throw new CustomException("Property with e9 " + e9 + " already exists");
+            }
+
             System.out.println("Please insert address:");
             String address = scanner.nextLine().trim();
-            System.out.println("Please insert year of construction");
+
+            System.out.println("Please insert year of construction:");
             String yearInput = scanner.nextLine();
             propertyService.validateConstructionYear(yearInput);
             int year = Integer.parseInt(yearInput);
-            System.out.println("Please insert the type of property");
-            String propertyTypeInput = scanner.nextLine();
-            propertyService.validatePropertyType(propertyTypeInput);
-            PropertyType propertyType = Arrays.stream(PropertyType.values())
-                    .filter(type -> type.getCode().equals(propertyTypeInput))
-                    .findFirst()
-                    .orElseThrow(() -> new CustomException("Invalid property type"));
+
+            System.out.println("Please select the Property Type:");
+            System.out.println("1. Detached house");
+            System.out.println("2. Maisonette");
+            System.out.println("3. Apartment building");
+            System.out.print("Select an option by entering the corresponding number: ");
+            int propertyTypeNumber = getOwnerAction();
+
+            PropertyType propertyType = getPropertyTypeFromNumber(propertyTypeNumber);
 
             propertyService.createProperty(e9, address, year, propertyType, loggedInOwnerVat);
             System.out.println("Property created successfully.");
         } catch (CustomException ex) {
             System.out.println(ex.getMessage());
+        } catch (IllegalArgumentException ex) {
+            System.out.println("Invalid property type number.");
+        }
+    }
+
+    private PropertyType getPropertyTypeFromNumber(int number) throws CustomException {
+        switch (number) {
+            case 1:
+                return PropertyType.DETACHEDHOUSE;
+            case 2:
+                return PropertyType.MAISONETTE;
+            case 3:
+                return PropertyType.APARTMENTBUILDING;
+            default:
+                throw new CustomException("Invalid property type number.");
         }
     }
 
@@ -477,108 +500,137 @@ public class OwnerUI implements OwnerSelection {
     }
 
     private void updatePropertyE9() throws CustomException {
-        List<Property> properties = propertyService.findByVAT(loggedInOwnerVat);
+        List<Property> properties = propertyService.findByVATOwner(loggedInOwnerVat);
 
         System.out.println("Properties associated with VAT " + loggedInOwnerVat + ":");
         for (Property property : properties) {
             System.out.println(property);
         }
 
-        System.out.println("Please insert the ID of the property you want to update:");
+        System.out.println("\nPlease insert the ID of the property you want to update:");
         Long propertyId = scanner.nextLong();
         scanner.nextLine();
 
-        System.out.println("Please insert the new E9:");
+        Property property = propertyService.findByID(propertyId);
+        if (property == null) {
+            throw new CustomException("Property with ID " + propertyId + " not found.");
+        }
+
+        System.out.println("\nPlease insert the new E9 (20 characters):");
         String newE9 = scanner.nextLine().trim();
         propertyService.validateE9(newE9);
 
-        propertyService.updatePropertyE9(propertyId, newE9);
+        propertyService.updatePropertyE9(property, newE9);
 
         System.out.println("Property updated successfully.");
     }
 
     private void updatePropertyAddress() throws CustomException {
-        List<Property> properties = propertyService.findByVAT(loggedInOwnerVat);
+        List<Property> properties = propertyService.findByVATOwner(loggedInOwnerVat);
 
         System.out.println("Properties associated with VAT " + loggedInOwnerVat + ":");
         for (Property property : properties) {
             System.out.println(property);
         }
 
-        System.out.println("Please insert the ID of the property you want to update:");
+        System.out.println("\nPlease insert the ID of the property you want to update:");
         Long propertyId = scanner.nextLong();
         scanner.nextLine();
 
-        System.out.println("Please insert the new Address:");
+        Property property = propertyService.findByID(propertyId);
+        if (property == null) {
+            throw new CustomException("Property with ID " + propertyId + " not found.");
+        }
+
+        System.out.println("\nPlease insert the new Address:");
         String newAddress = scanner.nextLine().trim();
 
-        propertyService.updatePropertyAddress(propertyId, newAddress);
+        propertyService.updatePropertyAddress(property, newAddress);
 
         System.out.println("Property updated successfully.");
     }
 
     public void updatePropertyConstructionYear() throws CustomException {
-        List<Property> properties = propertyService.findByVAT(loggedInOwnerVat);
 
-        System.out.println("Properties associated with VAT " + loggedInOwnerVat + ":");
+        List<Property> properties = propertyService.findByVATOwner(loggedInOwnerVat);
+
+        System.out.println("\nProperties associated with VAT " + loggedInOwnerVat + ":");
         for (Property property : properties) {
             System.out.println(property);
         }
 
-        System.out.println("Please insert the ID of the property you want to update:");
+        System.out.println("\nPlease insert the ID of the property you want to update:");
         Long propertyId = scanner.nextLong();
         scanner.nextLine();
 
-        System.out.println("Please insert the new Construction Year:");
-        int newYear = scanner.nextInt();
-        propertyService.validateConstructionYear(String.valueOf(newYear));
+        Property property = propertyService.findByID(propertyId);
+        if (property == null) {
+            throw new CustomException("Property with ID " + propertyId + " not found.");
+        }
 
-        propertyService.updatePropertyConstructionYear(propertyId, newYear);
+        String yearInput;
+        while (true) {
+            System.out.println("Please insert the new Construction Year (4 digits):");
+            yearInput = scanner.nextLine().trim();
+            try {
+                propertyService.validateConstructionYear(yearInput);
+                break;
+            } catch (CustomException e) {
+                System.out.println(e.getMessage());
+            }
+        }
 
+        int newYear = Integer.parseInt(yearInput);
+        propertyService.updatePropertyConstructionYear(property, newYear);
         System.out.println("Property updated successfully.");
     }
 
     public void updatePropertyType() throws CustomException {
-        List<Property> properties = propertyService.findByVAT(loggedInOwnerVat);
+        List<Property> properties = propertyService.findByVATOwner(loggedInOwnerVat);
 
-        System.out.println("Properties associated with VAT " + loggedInOwnerVat + ":");
+        System.out.println("\nProperties associated with VAT " + loggedInOwnerVat + ":");
         for (Property property : properties) {
             System.out.println(property);
         }
 
-        System.out.println("Please insert the ID of the property you want to update:");
+        System.out.println("\nPlease insert the ID of the property you want to update:");
         Long propertyId = scanner.nextLong();
         scanner.nextLine();
 
-        System.out.println("Please insert the new Property Type:");
-        String propertyTypeInput = scanner.nextLine().trim();
-        propertyService.validatePropertyType(propertyTypeInput);
-        PropertyType newPropertyType = Arrays.stream(PropertyType.values())
-                .filter(type -> type.getCode().equals(propertyTypeInput))
-                .findFirst()
-                .orElseThrow(() -> new CustomException("Invalid property type"));
+        Property property = propertyService.findByID(propertyId);
+        if (property == null) {
+            throw new CustomException("Property with ID " + propertyId + " not found.");
+        }
 
-        propertyService.updatePropertyType(propertyId, newPropertyType);
+        System.out.println("Please select the new Property Type:");
+        System.out.println("1. Detached house");
+        System.out.println("2. Maisonette");
+        System.out.println("3. Apartment building");
+        System.out.print("Select an option by entering the corresponding number: ");
+        int propertyTypeNumber = getOwnerAction();
 
+        PropertyType newPropertyType = getPropertyTypeFromNumber(propertyTypeNumber);
+
+        propertyService.updatePropertyType(property, newPropertyType);
         System.out.println("Property updated successfully.");
     }
 
     @Override
     public void deleteProperty() {
         try {
-            List<Property> properties = propertyService.findByVAT(loggedInOwnerVat);
+            List<Property> properties = propertyService.findByVATOwner(loggedInOwnerVat);
 
-            System.out.println("Properties associated with VAT " + loggedInOwnerVat + ":");
+            System.out.println("\nProperties associated with VAT " + loggedInOwnerVat + ":");
             for (Property property : properties) {
                 System.out.println(property);
             }
 
-            System.out.println("Please insert the ID of the property you want to update:");
+            System.out.println("\nPlease insert the ID of the property you want to delte:");
             Long propertyId = scanner.nextLong();
             scanner.nextLine();
 
             try {
-                System.out.println("You are about to delete the following property and its repairs:" + propertyService.findByID(propertyId));
+                System.out.println("\nYou are about to delete the following property and its repairs:" + propertyService.findByID(propertyId));
                 System.out.println("Enter 1 to confirm deletion or 2 to cancel: ");
 
                 int choice = getOwnerAction();
