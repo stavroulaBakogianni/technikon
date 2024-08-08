@@ -918,20 +918,29 @@ public class OwnerUI implements OwnerSelection {
                     for (Repair r : repairs) {
                         System.out.println(r.getId() + " " + r.getDescription() + " " + r.getShortDescription() + " " + r.getRepairType());
                     }
-                    System.out.print("Enter the Repair Id for update ");
-                    Long id = scanner.nextLong();
+                    Long id;
+                    Boolean found = false;
+                    do {
+                        System.out.print("Enter the Repair Id for update ");
+                        id = scanner.nextLong();
+                        for (Repair r : repairs) {
+                            if (id == r.getId()) {
+                                found = true;
+                                repairServiceImpl.deleteSafely(id);
+                                System.out.println("\nRepair deleted successfully.");
+                                break;
+                            }
+                        }
+                        if (!found) {
+                            System.out.println("Please type the corresponding number and pressing enter: ");
+                        }
+                    } while (!found);
 
-                    repairServiceImpl.deleteSafely(id);
-                    System.out.println("\nRepair deleted successfully.");
-
-                    break;
                 } catch (CustomException e) {
                     System.out.println(e.getMessage());
                 }
             } while (owner == null);
-
         }
-
     }
 
     public void getOwnerPropertiesStatuses() {
