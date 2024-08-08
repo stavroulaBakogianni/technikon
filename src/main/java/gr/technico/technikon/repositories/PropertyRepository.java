@@ -50,15 +50,11 @@ public class PropertyRepository implements Repository<Property, Long> {
     }
 
     /**
-     * Finds the Property entity with the specified ID.
+     * Finds and returns an optional property based on the given property ID.
      *
-     * This method attempts to find the Property entity with the given ID. If
-     * the entity is not found, an exception is thrown.
-     *
-     * @param id the ID of the Property entity to be found
-     * @return an Optional containing the found Property entity if the operation
-     * is successful
-     * @throws Exception if an exception occurs during the search operation
+     * @param id the ID of the property to search for.
+     * @return an Optional containing the found property, or an empty Optional
+     * if no property is found or an exception occurs.
      */
     @Override
     public Optional<Property> findById(Long id) {
@@ -68,15 +64,13 @@ public class PropertyRepository implements Repository<Property, Long> {
             return Optional.of(property);
         } catch (Exception e) {
             System.out.println("Exception: " + e);
-            throw e;
+            return Optional.empty();
         }
     }
 
     /**
      * Retrieves all Property entities from the database.
      *
-     * This method creates and executes a TypedQuery to retrieve all Property
-     * entities.
      *
      * @return a List containing all Property entities found in the database
      */
@@ -119,15 +113,11 @@ public class PropertyRepository implements Repository<Property, Long> {
     }
 
     /**
-     * Finds a Property entity by its E9 identifier.
+     * Finds and returns an optional property based on the given E9.
      *
-     * This method creates a TypedQuery to search for a Property entity with the
-     * specified E9 identifier. If the entity is found, it is returned wrapped
-     * in an Optional.
-     *
-     * @param e9 the E9 identifier of the Property entity to be found
-     * @return an Optional containing the found Property entity if the operation
-     * is successful
+     * @param e9 the E9 of the property to search for.
+     * @return an Optional containing the found property, or an empty Optional
+     * if no property is found.
      */
     public Optional<Property> findPropertyByE9(String e9) {
         TypedQuery<Property> query
@@ -135,7 +125,7 @@ public class PropertyRepository implements Repository<Property, Long> {
                         + " where e9 = :e9 ",
                         getEntityClass())
                         .setParameter("e9", e9);
-        return Optional.of(query.getSingleResult());
+        return query.getResultStream().findFirst();
     }
 
     /**
