@@ -18,6 +18,13 @@ public class RepairRepository implements Repository<Repair, Long> {
         this.entityManager = entityManager;
     }
 
+    /**
+     * Saves the provided Repair entity to the database.
+     *
+     * @param repair The repair entity to be saved. Must not be null.
+     * @return An Optional containing the saved Repair if the save was
+     * successful, or Optional.empty() if it was not.
+     */
     @Override
     public Optional<Repair> save(Repair repair) {
         try {
@@ -30,14 +37,25 @@ public class RepairRepository implements Repository<Repair, Long> {
             return Optional.empty();
         }
     }
-    //maybe we remove this method if we dont need it
 
+    /**
+     * Retrieves all Repair entities from the database.
+     *
+     * @return A List of all Repair entities.
+     */
     @Override
     public List<Repair> findAll() {
         TypedQuery<Repair> query = entityManager.createQuery("from " + getEntityClassName(), getEntityClass());
         return query.getResultList();
     }
 
+    /**
+     * Finds a Repair entity by its ID.
+     *
+     * @param id The ID of the repair to be found. Must not be null.
+     * @return An Optional containing the found Repair, or Optional.empty() if
+     * no repair was found.
+     */
     @Override
     public Optional<Repair> findById(Long id) {
         try {
@@ -51,6 +69,12 @@ public class RepairRepository implements Repository<Repair, Long> {
         return Optional.empty();
     }
 
+    /**
+     * Deletes a Repair entity by its ID.
+     *
+     * @param id The ID of the repair to be deleted. Must not be null.
+     * @return true if the repair was successfully deleted, false otherwise.
+     */
     @Override
     public boolean deleteById(Long id) {
         Repair repair = entityManager.find(getEntityClass(), id);
@@ -70,7 +94,14 @@ public class RepairRepository implements Repository<Repair, Long> {
         return false;
     }
 
-    //Method called by owner and set isDeleted column true 
+    /**
+     * Marks a Repair entity as deleted by setting its deleted flag to true and
+     * saving the updated entity to the database.
+     *
+     * @param repair The repair entity to be safely deleted. Must not be null.
+     * @return true if the repair was successfully marked as deleted, false
+     * otherwise.
+     */
     public boolean safeDelete(Repair repair) {
         repair.setDeleted(true);
         Optional<Repair> safelyDeletedRepair = save(repair);
@@ -80,6 +111,13 @@ public class RepairRepository implements Repository<Repair, Long> {
         return false;
     }
 
+    /**
+     * Finds all Repair entities associated with the given owner.
+     *
+     * @param owner The owner whose repairs are to be retrieved. Must not be
+     * null.
+     * @return A List of Repair entities associated with the specified owner.
+     */
     public List<Repair> findRepairsByOwner(Owner owner) {
         javax.persistence.TypedQuery<Repair> query
                 = entityManager.createQuery("from " + getEntityClassName()
@@ -89,6 +127,11 @@ public class RepairRepository implements Repository<Repair, Long> {
         return query.getResultList();
     }
 
+    /**
+     * Finds all Repair entities with a status of "PENDING".
+     *
+     * @return A List of pending Repair entities.
+     */
     public List<Repair> findPendingRepairs() {
         TypedQuery<Repair> query
                 = entityManager.createQuery("from " + getEntityClassName()
@@ -99,9 +142,14 @@ public class RepairRepository implements Repository<Repair, Long> {
     }
 
     /**
-     * Called from updateAcceptance()
-     * @param owner
-     * @return 
+     *
+     * Finds all Repair entities with a status of "PENDING" for a specific
+     * owner.
+     *
+     * @param owner The owner whose pending repairs are to be retrieved. Must
+     * not be null.
+     * @return A List of pending Repair entities associated with the specified
+     * owner.
      */
     public List<Repair> findPendingRepairsByOwner(Owner owner) {
         TypedQuery<Repair> query
@@ -115,6 +163,13 @@ public class RepairRepository implements Repository<Repair, Long> {
         return query.getResultList();
     }
 
+    /**
+     * Finds all Repair entities associated with a specific property.
+     *
+     * @param property The property whose repairs are to be retrieved. Must not
+     * be null.
+     * @return A List of Repair entities associated with the specified property.
+     */
     public List<Repair> findRepairsByPropertyId(Property property) {
         TypedQuery<Repair> query
                 = entityManager.createQuery("from " + getEntityClassName()
@@ -124,6 +179,11 @@ public class RepairRepository implements Repository<Repair, Long> {
         return query.getResultList();
     }
 
+    /**
+     * Finds all Repair entities with a status of "INPROGRESS".
+     *
+     * @return A List of in-progress Repair entities.
+     */
     public List<Repair> findInProgressRepairs() {
         TypedQuery<Repair> query
                 = entityManager.createQuery("from " + getEntityClassName()
@@ -133,6 +193,11 @@ public class RepairRepository implements Repository<Repair, Long> {
         return query.getResultList();
     }
 
+    /**
+     * Finds all Repair entities that have been accepted.
+     *
+     * @return A List of accepted Repair entities.
+     */
     public List<Repair> findAcceptedRepairs() {
         TypedQuery<Repair> query
                 = entityManager.createQuery("from " + getEntityClassName()
@@ -141,13 +206,21 @@ public class RepairRepository implements Repository<Repair, Long> {
         return query.getResultList();
     }
 
-    //Method to search by dates
+    /**
+     * Finds all Repair entities within a specific date range. Optionally
+     * filters by owner.
+     *
+     * @param startDate The start date of the range. Must not be null.
+     * @param endDate The end date of the range. Must not be null.
+     * @param owner The owner to filter the repairs by. Can be null if no
+     * filtering by owner is needed.
+     */
     public List<Repair> findRepairsByDates(LocalDateTime startDate, LocalDateTime endDate, Owner owner) {
         if (owner == null) {
             TypedQuery<Repair> query
                     = entityManager.createQuery("from " + getEntityClassName()
                             + " where submission_date between :startDate and :endDate",
-                             getEntityClass())
+                            getEntityClass())
                             .setParameter("startDate", startDate)
                             .setParameter("endDate", endDate);
 
@@ -166,10 +239,19 @@ public class RepairRepository implements Repository<Repair, Long> {
 
     }
 
+    /**
+     * Returns the Class object representing the Repair entity.
+     *
+     */
     private Class<Repair> getEntityClass() {
         return Repair.class;
     }
 
+    /**
+     * Returns the name of the Repair entity class.
+     *
+     * @return The name of the Repair entity class.
+     */
     private String getEntityClassName() {
         return Repair.class.getName();
     }
