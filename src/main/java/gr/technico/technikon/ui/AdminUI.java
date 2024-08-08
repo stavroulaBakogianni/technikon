@@ -6,6 +6,7 @@ import gr.technico.technikon.model.Property;
 import gr.technico.technikon.services.OwnerServiceImpl;
 import gr.technico.technikon.services.PropertyService;
 import gr.technico.technikon.services.PropertyServiceImpl;
+
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Optional;
@@ -201,7 +202,10 @@ public class AdminUI implements AdminSelection {
         String e9 = scanner.nextLine().trim();
 
         try {
-            System.out.println(propertyService.findByE9(e9));
+            Long e9Number = Long.parseLong(e9); 
+            System.out.println(propertyService.findByE9(e9Number.toString()));
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input. Please enter a valid numeric E9.");
         } catch (CustomException ex) {
             System.out.println(ex.getMessage());
         }
@@ -212,10 +216,17 @@ public class AdminUI implements AdminSelection {
         String vat = scanner.nextLine().trim();
 
         try {
-            List<Property> properties = propertyService.findByVAT(vat);
-            for (Property property : properties) {
-                System.out.println(property);
+            Long vatNumber = Long.parseLong(vat);
+            List<Property> properties = propertyService.findByVAT(vatNumber.toString());
+            if (properties.isEmpty()) {
+                System.out.println("No properties found for the given VAT.");
+            } else {
+                for (Property property : properties) {
+                    System.out.println(property);
+                }
             }
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input. Please enter a valid numeric VAT.");
         } catch (CustomException ex) {
             System.out.println(ex.getMessage());
         }
@@ -225,11 +236,21 @@ public class AdminUI implements AdminSelection {
     public void deleteProperty() {
         System.out.println("List of properties: ");
         List<Property> properties = propertyService.findAllProperties();
-            for (Property property : properties) {
-                System.out.println(property);
+        for (Property property : properties) {
+            System.out.println(property);
+        }
+
+        Long propertyId = null;
+        while (propertyId == null) {
+            System.out.print("Insert property id: ");
+            String input = scanner.nextLine().trim();
+
+            try {
+                propertyId = Long.parseLong(input);
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a valid numeric property ID.");
             }
-        System.out.println("Insert property id: ");
-        Long propertyId = scanner.nextLong();
+        }
 
         try {
             System.out.println("You are about to delete the following property and its repairs: " + propertyService.findByID(propertyId));
@@ -240,6 +261,7 @@ public class AdminUI implements AdminSelection {
             switch (userChoice) {
                 case 1:
                     propertyService.permenantlyDeleteByID(propertyId);
+                    System.out.println("Property and its repairs have been successfully deleted.");
                     break;
                 case 2:
                     System.out.println("Deletion operation has been cancelled.");

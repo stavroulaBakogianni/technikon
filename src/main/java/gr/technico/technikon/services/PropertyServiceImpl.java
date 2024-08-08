@@ -251,7 +251,7 @@ public class PropertyServiceImpl implements PropertyService {
     @Override
     public Property findByID(Long id) throws CustomException {
         Optional<Property> property = propertyRepository.findById(id);
-        if (property.isEmpty()) {
+        if (property.isEmpty() || property.get().isDeleted()) {
             throw new CustomException("Property with ID: " + id + " not found");
         }
         return property.get();
