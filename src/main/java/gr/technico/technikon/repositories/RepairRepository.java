@@ -10,6 +10,10 @@ import java.util.Optional;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 
+/**
+ * Repository for managing Repairs.
+ *
+ */
 public class RepairRepository implements Repository<Repair, Long> {
 
     private final EntityManager entityManager;
