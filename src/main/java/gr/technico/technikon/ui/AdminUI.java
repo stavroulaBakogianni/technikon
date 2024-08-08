@@ -29,7 +29,7 @@ public class AdminUI implements AdminSelection {
         this.repairServiceImpl = repairServiceImpl;
     }
 
-    public void manageAdmin() {
+    public void manageAdmin() throws CustomException {
         while (true) {
             showAdminMenu();
             int action = getAdminAction();
@@ -318,18 +318,26 @@ public class AdminUI implements AdminSelection {
     }
 
     //Repair
-    public void getPending() {
+    public void getPending() throws CustomException {
         List<Repair> adminPendingRepairs = repairServiceImpl.getPendingRepairs();
-        for (Repair r : adminPendingRepairs) {
-            System.out.println("\n" + r.getId() + " " + r.getDescription() + " " + r.getShortDescription() + " " + r.getRepairType());
+        if (adminPendingRepairs.isEmpty()) {
+            return;
+        } else {
+            for (Repair r : adminPendingRepairs) {
+                System.out.println(r);
+            }
         }
+
     }
 
     public void proposeCostDates() {
         try {
             List<Repair> repairs = repairServiceImpl.getPendingRepairs();
+            if (repairs.isEmpty()) {
+                return;
+            }
             for (Repair r : repairs) {
-                System.out.println("\n" + r.getId() + " " + r.getDescription() + " " + r.getShortDescription() + " " + r.getRepairType());
+                System.out.println(r);
             }
             System.out.print("Enter the Repair Id for update ");
             Long id = scanner.nextLong();
@@ -371,13 +379,27 @@ public class AdminUI implements AdminSelection {
     public void updateStatus() {
         try {
             List<Repair> acceptedRepairs = repairServiceImpl.getAcceptedRepairs();
-            for (Repair r : acceptedRepairs) {
-                System.out.println("\n" + r.getId() + " " + r.getRepairStatus() + " " + r.getRepairType());
+            if (acceptedRepairs.isEmpty()) {
+                return;
             }
-            System.out.print("Enter the Repair Id for update ");
-            Long id = scanner.nextLong();
-            repairServiceImpl.updateStatus(id);
-            System.out.println("\nRepair status and actual start date updated successfully.");
+            for (Repair r : acceptedRepairs) {
+                System.out.println(r);
+            }
+            Long id;
+            Boolean found = false;
+            do {
+                System.out.print("Enter the Repair Id for update ");
+                id = scanner.nextLong();
+                for (Repair r : acceptedRepairs) {
+                    found = true;
+                    repairServiceImpl.updateStatus(id);
+                    System.out.println("\nRepair status and actual start date updated successfully.");
+                }
+                if (!found) {
+                    System.out.println("Invalid input");
+                }
+
+            } while (!found);
 
         } catch (Exception e) {
             System.out.println("An unexpected error occurred: " + e.getMessage());
@@ -387,13 +409,27 @@ public class AdminUI implements AdminSelection {
     public void markComplete() {
         try {
             List<Repair> adminInProgressRepairs = repairServiceImpl.getInProgressRepairs();
-            for (Repair r : adminInProgressRepairs) {
-                System.out.println("\n" + r.getId() + " " + r.getRepairStatus() + " " + r.getRepairType());
+            if (adminInProgressRepairs.isEmpty()) {
+                return;
             }
-            System.out.print("Enter the Repair Id for update ");
-            Long id = scanner.nextLong();
-            repairServiceImpl.updComplete(id);
-            System.out.println("\nRepair completed successfully.");
+            for (Repair r : adminInProgressRepairs) {
+                System.out.println(r);
+            }
+            Long id;
+            Boolean found = false;
+            do {
+                System.out.print("Enter the Repair Id for update ");
+                id = scanner.nextLong();
+                for (Repair r : adminInProgressRepairs) {
+                    found = true;
+                    repairServiceImpl.updComplete(id);
+                    System.out.println("\nRepair completed successfully.");
+                }
+                if (!found) {
+                    System.out.println("Invalid input");
+                }
+
+            } while (!found);
 
         } catch (Exception e) {
             System.out.println("An unexpected error occurred: " + e.getMessage());
@@ -403,6 +439,9 @@ public class AdminUI implements AdminSelection {
     public void adminReport() {
         try {
             List<Repair> adminRepairs = repairServiceImpl.getRepairs();
+            if (adminRepairs.isEmpty()) {
+                return;
+            }
             for (Repair r : adminRepairs) {
                 System.out.println(r.toString());
             }
@@ -419,6 +458,7 @@ public class AdminUI implements AdminSelection {
         List<Repair> repairs = repairServiceImpl.findRepairsByDate(date, null);
 
         System.out.println("List of repairs for: " + date);
+
         for (Repair r : repairs) {
             System.out.println(r.toString());
         }
@@ -441,7 +481,7 @@ public class AdminUI implements AdminSelection {
         }
     }
 
-    public void searchRepairsByOwnerVat() {
+    public void searchRepairsByOwnerVat() throws CustomException {
         System.out.println("Please type the owner's VAT you want to see repairs for and press enter:");
         String ownerVat = scanner.nextLine();
 
@@ -455,14 +495,16 @@ public class AdminUI implements AdminSelection {
         Owner foundOwner = owner.get();
 
         List<Repair> repairs = repairServiceImpl.findRepairsByOwner(foundOwner);
-
+        if (repairs.isEmpty()) {
+            return;
+        }
         System.out.println("List of repairs for owner with VAT: " + ownerVat);
         for (Repair r : repairs) {
             System.out.println(r.toString());
         }
     }
 
-    public void deleteRepair() {
+    public void deleteRepair() throws CustomException {
 
         System.out.println("Please type the owner's VAT you want to see the list of repairs for deleteion and press enter:");
         String ownerVat = scanner.nextLine();
@@ -509,6 +551,5 @@ public class AdminUI implements AdminSelection {
                 System.out.println("Invalid input. Deletion operation has been cancelled.");
                 break;
         }
-
     }
 }

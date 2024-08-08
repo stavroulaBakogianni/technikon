@@ -98,11 +98,17 @@ public class RepairRepository implements Repository<Repair, Long> {
         return query.getResultList();
     }
 
+    /**
+     * Called from updateAcceptance()
+     * @param owner
+     * @return 
+     */
     public List<Repair> findPendingRepairsByOwner(Owner owner) {
         TypedQuery<Repair> query
                 = entityManager.createQuery("from " + getEntityClassName()
                         + " where repair_status  like :repair_status "
-                        + " and owner like :owner ",
+                        + " and owner like :owner "
+                        + " and proposed_cost != null",
                         getEntityClass())
                         .setParameter("owner", owner)
                         .setParameter("repair_status", "PENDING");

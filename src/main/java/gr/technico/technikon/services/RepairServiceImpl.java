@@ -16,6 +16,7 @@ import java.time.format.DateTimeParseException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class RepairServiceImpl implements RepairService {
 
@@ -194,8 +195,13 @@ public class RepairServiceImpl implements RepairService {
      * @return A list of all Repair instances.
      */
     @Override
-    public List<Repair> getRepairs() {
-        return repairRepository.findAll();
+    public List<Repair> getRepairs() throws CustomException{
+        List<Repair> repairs = repairRepository.findAll();
+        if (repairs.isEmpty()) {
+            throw new CustomException("Repairs not found");
+        } else {
+            return repairs;
+        }
     }
 
     /**
@@ -204,8 +210,13 @@ public class RepairServiceImpl implements RepairService {
      * @return
      */
     @Override
-    public List<Repair> getPendingRepairs() {
-        return repairRepository.findPendingRepairs();
+    public List<Repair> getPendingRepairs() throws CustomException {
+        List<Repair> repairs = repairRepository.findPendingRepairs();
+        if (repairs.isEmpty()) {
+            throw new CustomException("Repairs not found");
+        } else {
+            return repairs;
+        }
     }
 
     /**
@@ -218,7 +229,9 @@ public class RepairServiceImpl implements RepairService {
      */
     @Override
     public List<Repair> getPendingRepairsByOwner(Owner owner) throws CustomException {
-        List<Repair> repairs = repairRepository.findPendingRepairsByOwner(owner);
+        List<Repair> repairs = repairRepository.findPendingRepairsByOwner(owner).stream()
+                .filter(repair -> !repair.isDeleted())
+                .collect(Collectors.toList());
         if (repairs.isEmpty()) {
             throw new CustomException("Repairs not found");
         } else {
@@ -232,8 +245,14 @@ public class RepairServiceImpl implements RepairService {
      * @return A list of all in-progress Repair instances.
      */
     @Override
-    public List<Repair> getInProgressRepairs() {
-        return repairRepository.findInProgressRepairs();
+    public List<Repair> getInProgressRepairs() throws CustomException {
+        List<Repair> repairs = repairRepository.findInProgressRepairs();
+        if (repairs.isEmpty()) {
+            throw new CustomException("Repairs not found");
+        } else {
+            return repairs;
+        }
+        
     }
 
     /**
@@ -242,8 +261,13 @@ public class RepairServiceImpl implements RepairService {
      * @return A list of all accepted Repair instances.
      */
     @Override
-    public List<Repair> getAcceptedRepairs() {
-        return repairRepository.findAcceptedRepairs();
+    public List<Repair> getAcceptedRepairs() throws CustomException {
+        List<Repair> repairs = repairRepository.findAcceptedRepairs();
+        if (repairs.isEmpty()) {
+            throw new CustomException("Repairs not found");
+        } else {
+            return repairs;
+        }
     }
 
     /**
@@ -253,8 +277,15 @@ public class RepairServiceImpl implements RepairService {
      * @return A list of all Repair instances associated with the given owner.
      */
     @Override
-    public List<Repair> findRepairsByOwner(Owner owner) {
-        return repairRepository.findRepairsByOwner(owner);
+    public List<Repair> findRepairsByOwner(Owner owner) throws CustomException{
+        List<Repair> repairs = repairRepository.findRepairsByOwner(owner).stream()
+                .filter(property -> !property.isDeleted())
+                .collect(Collectors.toList());
+        if (repairs.isEmpty()) {
+            throw new CustomException("Repairs not found");
+        } else {
+            return repairs;
+        }
     }
 
     /**
@@ -365,8 +396,15 @@ public class RepairServiceImpl implements RepairService {
      * property.
      */
     @Override
-    public List<Repair> getRepairByPropertyId(Property property) {
-        return repairRepository.findRepairsByPropertyId(property);
+    public List<Repair> getRepairByPropertyId(Property property) throws CustomException{
+        List<Repair> repairs = repairRepository.findRepairsByPropertyId(property).stream()
+                .filter(repair -> !repair.isDeleted())
+                .collect(Collectors.toList());
+        if (repairs.isEmpty()) {
+            throw new CustomException("Repairs not found");
+        } else {
+            return repairs;
+        }
     }
 
     /**

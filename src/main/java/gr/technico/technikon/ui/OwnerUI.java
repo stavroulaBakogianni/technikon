@@ -676,13 +676,15 @@ public class OwnerUI implements OwnerSelection {
 
             System.out.println("List of properties:");
 
-            int propertiesCounter = 1;
+            //int propertiesCounter = 1;
             for (Property p : properties) {
-
-                System.out.println(propertiesCounter + ". " + p.getE9() + " " + p.getPropertyAddress() + " " + p.getPropertyType());
-                propertiesCounter++;
+                if (!p.isDeleted()) {
+                    System.out.println(p);
+                    //propertiesCounter++;
+                }
             }
-            System.out.println("Please type the number of the property you want to create a repair for:");
+            System.out.println("Please type the number of the property"
+                    + " you want to create a repair for:");
 
             Property property = null;
             do {
@@ -923,8 +925,11 @@ public class OwnerUI implements OwnerSelection {
                     ownerServiceImpl.validateVat(loggedInOwnerVat);
                     owner = ownerServiceImpl.getOwnerByVat(loggedInOwnerVat);
                     List<Repair> repairs = repairServiceImpl.getPendingRepairsByOwner(owner);
+//                    if (repairs.isEmpty()){
+//                        return;
+//                    }
                     for (Repair r : repairs) {
-                        System.out.println(r.getId() + " " + r.getDescription() + " " + r.getShortDescription() + " " + r.getRepairType());
+                        System.out.println(r);
                     }
                     Long id;
                     Boolean found = false;
@@ -967,8 +972,11 @@ public class OwnerUI implements OwnerSelection {
                     ownerServiceImpl.validateVat(loggedInOwnerVat);
                     owner = ownerServiceImpl.getOwnerByVat(loggedInOwnerVat);
                     List<Repair> repairs = repairServiceImpl.findRepairsByOwner(owner);
+                    if (repairs.isEmpty()) {
+                        return;
+                    }
                     for (Repair r : repairs) {
-                        System.out.println(r.getId() + " " + r.getDescription() + " " + r.getShortDescription() + " " + r.getRepairType());
+                        System.out.println(r);
                     }
                     Long id;
                     Boolean found = false;
@@ -1006,12 +1014,19 @@ public class OwnerUI implements OwnerSelection {
                     ownerServiceImpl.validateVat(loggedInOwnerVat);
                     owner = ownerServiceImpl.getOwnerByVat(loggedInOwnerVat);
                     List<Property> properties = propertyService.findByVAT(loggedInOwnerVat);
+                    if (properties.isEmpty()) {
+                        return;
+                    }
                     for (Property prop : properties) {
-                        System.out.println(prop.getId() + " " + prop.getE9() + " " + prop.getPropertyAddress() + " ");
+                        if (!prop.isDeleted()){
+                        System.out.println(prop);
                         List<Repair> repairsbyOwner = repairServiceImpl.getRepairByPropertyId(prop);
+//                        if (repairsbyOwner.isEmpty()) {
+//                            return;
+//                        }
                         for (Repair r : repairsbyOwner) {
                             System.out.println(r.toString());
-                        }
+                        }}
                     }
                 } catch (CustomException e) {
                     System.out.println(e.getMessage());

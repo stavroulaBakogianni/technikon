@@ -31,19 +31,19 @@ public interface RepairService {
 
     Long saveRepair(Repair repair) throws CustomException;
 
-    List<Repair> getRepairs();
+    List<Repair> getRepairs() throws CustomException;
 
-    public List<Repair> getPendingRepairs();
+    public List<Repair> getPendingRepairs() throws CustomException;
 
-    public List<Repair> getPendingRepairsByOwner(Owner owner)throws CustomException;
+    public List<Repair> getPendingRepairsByOwner(Owner owner) throws CustomException;
 
-    public List<Repair> getInProgressRepairs();
+    public List<Repair> getInProgressRepairs() throws CustomException;
 
-    List<Repair> findRepairsByOwner(Owner owner);
+    List<Repair> findRepairsByOwner(Owner owner) throws CustomException;
 
-    public List<Repair> getRepairByPropertyId(Property property);
+    public List<Repair> getRepairByPropertyId(Property property)throws CustomException;
 
-    public List<Repair> getAcceptedRepairs();
+    public List<Repair> getAcceptedRepairs() throws CustomException;
 
     List<Repair> findRepairsByDate(String date, Owner owner);
 
