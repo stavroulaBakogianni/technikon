@@ -1,0 +1,4 @@
+gr\technico\technikon\services\PropertyServiceΙΤ.class
+gr\technico\technikon\repositories\OwnerRepositoryIT.class
+gr\technico\technikon\services\OwnerServiceIT.class
+gr\technico\technikon\repositories\PropertyRepositoryIT.class
