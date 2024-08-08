@@ -263,7 +263,7 @@ public class RepairServiceImpl implements RepairService {
     public List<Repair> getInProgressRepairs() throws CustomException {
         List<Repair> repairs = repairRepository.findInProgressRepairs();
         if (repairs.isEmpty()) {
-            throw new CustomException("Repairs not found");
+            throw new CustomException("In Progress Repairs not found");
         } else {
             return repairs;
         }
@@ -279,7 +279,7 @@ public class RepairServiceImpl implements RepairService {
     public List<Repair> getAcceptedRepairs() throws CustomException {
         List<Repair> repairs = repairRepository.findAcceptedRepairs();
         if (repairs.isEmpty()) {
-            throw new CustomException("Repairs not found");
+            throw new CustomException("Accepted Repairs not found");
         } else {
             return repairs;
         }

@@ -319,13 +319,17 @@ public class AdminUI implements AdminSelection {
 
     //Repair
     public void getPending() throws CustomException {
-        List<Repair> adminPendingRepairs = repairServiceImpl.getPendingRepairs();
-        if (adminPendingRepairs.isEmpty()) {
-            return;
-        } else {
-            for (Repair r : adminPendingRepairs) {
-                System.out.println(r);
+        try {
+            List<Repair> adminPendingRepairs = repairServiceImpl.getPendingRepairs();
+            if (adminPendingRepairs.isEmpty()) {
+                return;
+            } else {
+                for (Repair r : adminPendingRepairs) {
+                    System.out.println(r);
+                }
             }
+        } catch (CustomException ex) {
+            System.out.println(ex.getMessage());
         }
 
     }
@@ -423,7 +427,8 @@ public class AdminUI implements AdminSelection {
             } while (!found);
 
         } catch (Exception e) {
-            System.out.println("An unexpected error occurred: " + e.getMessage());
+//                System.out.println("An unexpected error occurred: " + e.getMessage());
+            System.out.println(e.getMessage());
         }
     }
 
@@ -457,7 +462,8 @@ public class AdminUI implements AdminSelection {
                 }
             } while (!found);
         } catch (Exception e) {
-            System.out.println("An unexpected error occurred: " + e.getMessage());
+//            System.out.println("An unexpected error occurred: " + e.getMessage());
+            System.out.println(e.getMessage());
 
         }
     }
