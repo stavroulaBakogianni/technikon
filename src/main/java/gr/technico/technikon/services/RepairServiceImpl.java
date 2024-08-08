@@ -214,6 +214,7 @@ public class RepairServiceImpl implements RepairService {
      * @param owner
      * @return A list of all pending Repair instances associated with the given
      * owner.
+     * @thows CustomExcepion.
      */
     @Override
     public List<Repair> getPendingRepairsByOwner(Owner owner) throws CustomException {
