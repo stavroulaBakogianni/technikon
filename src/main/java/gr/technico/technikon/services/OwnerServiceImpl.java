@@ -135,10 +135,7 @@ public class OwnerServiceImpl implements OwnerService {
         save(owner);
     }
 
-    public Owner getOwnerByVat(String vat) throws CustomException {
-        return ownerRepository.findByVat(vat)
-                .orElseThrow(() -> new CustomException("Owner with the given VAT number not found."));
-    }
+   
 
     /**
      * Permanently deletes an owner by VAT
@@ -338,7 +335,7 @@ public class OwnerServiceImpl implements OwnerService {
      * @return the Owner
      * @throws CustomException if the Owner with the given VAT is not found
      */
-    private Owner getOwnerByVat(String vat) throws CustomException {
+    public Owner getOwnerByVat(String vat) throws CustomException {
         return ownerRepository.findByVat(vat)
                 .orElseThrow(() -> new CustomException("Owner with the given VAT number not found."));
     }
