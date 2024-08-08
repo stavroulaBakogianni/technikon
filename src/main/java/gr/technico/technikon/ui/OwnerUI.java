@@ -752,16 +752,27 @@ public class OwnerUI implements OwnerSelection {
                     ownerServiceImpl.validateVat(loggedInOwnerVat);
                     owner = ownerServiceImpl.getOwnerByVat(loggedInOwnerVat);
                     List<Repair> repairs = repairServiceImpl.findRepairsByOwner(owner);
+                    if (repairs.isEmpty()) {
+                        return null;
+                    }
                     for (Repair r : repairs) {
                         System.out.println(r.getId() + " " + r.getDescription() + " " + r.getShortDescription() + " " + r.getRepairType());
                     }
-                    System.out.print("Enter the Repair Id for update ");
-                    Long id = scanner.nextLong();
-                    for (Repair r : repairs) {
-                        if (id == r.getId()) {
-                            return id;
+                    Long id;
+                    Boolean found = false;
+                    do {
+                        System.out.print("Enter the Repair Id for update ");
+                        id = scanner.nextLong();
+                        for (Repair r : repairs) {
+                            if (id == r.getId()) {
+                                found = true;
+                                return id;
+                            }
                         }
-                    }
+                        if (!found) {
+                            System.out.println("Please type the corresponding number and pressing enter: ");
+                        }
+                    } while (!found);
                     return null;
                 } catch (CustomException e) {
                     System.out.println(e.getMessage());
@@ -773,6 +784,10 @@ public class OwnerUI implements OwnerSelection {
 
     public void updateShortDescription() {
         Long id = checkRepairs();
+        if (id == null) {
+            System.out.println("\nNo repairs found.");
+            return;
+        }
         String shortDescription;
         do {
             System.out.print("Enter a short description for your repair (up to 100 characters): ");
@@ -791,6 +806,10 @@ public class OwnerUI implements OwnerSelection {
 
     public void updateDescription() {
         Long id = checkRepairs();
+        if (id == null) {
+            System.out.println("\nNo repairs found.");
+            return;
+        }
         String description;
         do {
             System.out.print("Enter a description for your repair (up to 400 characters): ");
@@ -808,7 +827,10 @@ public class OwnerUI implements OwnerSelection {
 
     public void updateRepairType() {
         Long id = checkRepairs();
-
+        if (id == null) {
+            System.out.println("\nNo repairs found.");
+            return;
+        }
         int repairType;
         do {
             String SCAN_TYPE = """
@@ -852,19 +874,27 @@ public class OwnerUI implements OwnerSelection {
                     for (Repair r : repairs) {
                         System.out.println(r.getId() + " " + r.getDescription() + " " + r.getShortDescription() + " " + r.getRepairType());
                     }
-                    System.out.print("Type the repair Id you want to accept or decline and press enter: ");
-                    Long id = scanner.nextLong();
-                    for (Repair r : repairs) {
-                        if (id == r.getId()) {
-                            System.out.print("Do you want to accept or decline the repair? (1 for accept / 2 for decline) ");
-                            int response = scanner.nextInt();
-                            if (response == 1 || response == 2) {
-                                repairServiceImpl.updAcceptance(id, response);
-                                System.out.println("\nAcceptance updated successfully.");
+                    Long id;
+                    Boolean found = false;
+                    do {
+                        System.out.print("Type the repair Id you want to accept or decline and press enter: ");
+                        id = scanner.nextLong();
+                        for (Repair r : repairs) {
+                            if (id == r.getId()) {
+                                found = true;
+                                System.out.print("Do you want to accept or decline the repair? (1 for accept / 2 for decline) ");
+                                int response = scanner.nextInt();
+                                if (response == 1 || response == 2) {
+                                    repairServiceImpl.updAcceptance(id, response);
+                                    System.out.println("\nAcceptance updated successfully.");
+                                }
+                                break;
                             }
-                            break;
                         }
-                    }
+                        if (!found) {
+                            System.out.println("Please type the corresponding number and pressing enter: ");
+                        }
+                    } while (!found);
 
                 } catch (CustomException e) {
                     System.out.println(e.getMessage());
@@ -935,14 +965,14 @@ public class OwnerUI implements OwnerSelection {
 
         } else {
             Optional<Owner> owner = ownerServiceImpl.searchOwnerByVat(loggedInOwnerVat);
-            
+
             if (owner.isEmpty()) {
                 System.out.println("Owner not found.");
                 return;
             }
-            
+
             Owner foundOwner = owner.get();
-            
+
             System.out.println("Please type the date you want to retrieve repairs for. Follow the 2024-08-20 format and press enter:");
             String date = scanner.nextLine();
 
@@ -961,14 +991,14 @@ public class OwnerUI implements OwnerSelection {
 
         } else {
             Optional<Owner> owner = ownerServiceImpl.searchOwnerByVat(loggedInOwnerVat);
-            
+
             if (owner.isEmpty()) {
                 System.out.println("Owner not found.");
                 return;
             }
-            
+
             Owner foundOwner = owner.get();
-            
+
             System.out.println("Please type the start date you want to retrieve repairs for. Follow the 2024-08-20 format and press enter:");
             String startDate = scanner.nextLine();
 

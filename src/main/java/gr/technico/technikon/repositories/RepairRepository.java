@@ -130,9 +130,8 @@ public class RepairRepository implements Repository<Repair, Long> {
     public List<Repair> findAcceptedRepairs() {
         TypedQuery<Repair> query
                 = entityManager.createQuery("from " + getEntityClassName()
-                        + " where acceptance_status  like :acceptance_status ",
-                        getEntityClass())
-                        .setParameter("acceptance_status", Boolean.TRUE);
+                        + " where acceptance_status  = 1 ",
+                        getEntityClass());
         return query.getResultList();
     }
 
