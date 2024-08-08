@@ -32,7 +32,7 @@ public class Technikon {
         PropertyServiceImpl propertyService = new PropertyServiceImpl(propertyRepository, ownerService);
 
         RepairRepository repairRepository = new RepairRepository(JpaUtil.getEntityManager());
-        RepairServiceImpl repairService = new RepairServiceImpl(repairRepository);
+        RepairServiceImpl repairService = new RepairServiceImpl(repairRepository, propertyRepository, ownerService);
 
         MainMenuUI mainMenuUI = new MainMenuUI(ownerService, propertyService, repairService);
 
