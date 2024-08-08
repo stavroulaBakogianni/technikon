@@ -25,6 +25,18 @@ public class RepairServiceImpl implements RepairService {
         this.repairRepository = repairRepository;
     }
 
+    /**
+     * Initializes a new Repair with the provided details, sets its submission
+     * date to the current time, and assigns its status as PENDING.
+     *
+     * @param repairType
+     * @param shortDescription
+     * @param description
+     * @param owner
+     * @param property
+     * @return The created Repair instance, which has been saved to the
+     * repository.
+     */
     @Override
     public Repair createRepair(RepairType repairType, String shortDescription,
             String description, Owner owner, Property property) {
@@ -40,6 +52,12 @@ public class RepairServiceImpl implements RepairService {
         return repair;
     }
 
+    /**
+     * Updates the type of the repair identified by the given ID.
+     *
+     * @param id
+     * @param repairType
+     */
     @Override
     public void updateRepairType(Long id, RepairType repairType) {
         Optional<Repair> repair = repairRepository.findById(id);
@@ -50,6 +68,12 @@ public class RepairServiceImpl implements RepairService {
         repairRepository.save(repairFound);
     }
 
+    /**
+     * Updates the short description of the repair identified by the given ID.
+     *
+     * @param id
+     * @param shortDescription
+     */
     @Override
     public void updshortDesc(Long id, String shortDescription) {
         Optional<Repair> repair = repairRepository.findById(id);
@@ -60,6 +84,13 @@ public class RepairServiceImpl implements RepairService {
         repairRepository.save(repairFound);
     }
 
+    /**
+     * Updates the detailed description of the repair identified by the given
+     * ID.
+     *
+     * @param id
+     * @param description
+     */
     @Override
     public void updDesc(Long id, String description) {
         Optional<Repair> repair = repairRepository.findById(id);
@@ -70,6 +101,15 @@ public class RepairServiceImpl implements RepairService {
         repairRepository.save(repairFound);
     }
 
+    /**
+     * Updates the proposed cost, start date, and end date of the repair
+     * identified by the given ID.
+     *
+     * @param id
+     * @param proposedCost
+     * @param proposedStartDate
+     * @param proposedEndDateTime
+     */
     @Override
     public void updCostDates(Long id, BigDecimal proposedCost, LocalDateTime proposedStartDate, LocalDateTime proposedEndDateTime) {
         Optional<Repair> repair = repairRepository.findById(id);
@@ -82,6 +122,12 @@ public class RepairServiceImpl implements RepairService {
         repairRepository.save(repairFound);
     }
 
+    /**
+     * Updates the acceptance status of the repair identified by the given ID.
+     *
+     * @param id
+     * @param response
+     */
     @Override
     public void updAcceptance(Long id, int response) {
         Optional<Repair> repair = repairRepository.findById(id);
@@ -97,6 +143,12 @@ public class RepairServiceImpl implements RepairService {
         repairRepository.save(repairFound);
     }
 
+    /**
+     * Updates the status of the repair identified by the given ID to INPROGRESS
+     * and sets the actual start date to the current time.
+     *
+     * @param id
+     */
     @Override
     public void updateStatus(Long id) {
         Optional<Repair> repair = repairRepository.findById(id);
@@ -108,6 +160,12 @@ public class RepairServiceImpl implements RepairService {
         repairRepository.save(repairFound);
     }
 
+    /**
+     * Marks the repair identified by the given ID as complete by setting its
+     * status to COMPLETE and its actual end date to the current time.
+     *
+     * @param id
+     */
     @Override
     public void updComplete(Long id) {
         Optional<Repair> repair = repairRepository.findById(id);
@@ -117,24 +175,50 @@ public class RepairServiceImpl implements RepairService {
         repairRepository.save(repairFound);
     }
 
+    /**
+     * Saves the given Repair to the repository.
+     *
+     * @param repair
+     * @return
+     * @throws CustomException
+     */
     @Override
     public Long saveRepair(Repair repair) throws CustomException {
         repairRepository.save(repair);
         return repair.getId();
     }
 
+    /**
+     * Retrieves all repairs from the repository.
+     *
+     * @return A list of all Repair instances.
+     */
     @Override
     public List<Repair> getRepairs() {
         return repairRepository.findAll();
     }
 
+    /**
+     * Retrieves all repairs with a status of PENDING from the repository.
+     *
+     * @return
+     */
     @Override
     public List<Repair> getPendingRepairs() {
         return repairRepository.findPendingRepairs();
     }
 
-    public List<Repair> getPendingRepairsByOwner(Owner owner)throws CustomException{
-        List<Repair> repairs =  repairRepository.findPendingRepairsByOwner(owner);
+    /**
+     * Retrieves all pending repairs for a given owner.
+     *
+     * @param owner
+     * @return A list of all pending Repair instances associated with the given
+     * owner.
+     * @thows CustomExcepion.
+     */
+    @Override
+    public List<Repair> getPendingRepairsByOwner(Owner owner) throws CustomException {
+        List<Repair> repairs = repairRepository.findPendingRepairsByOwner(owner);
         if (repairs.isEmpty()) {
             throw new CustomException("Repairs not found");
         } else {
@@ -142,21 +226,47 @@ public class RepairServiceImpl implements RepairService {
         }
     }
 
+    /**
+     * Retrieves all repairs with a status of INPROGRESS from the repository.
+     *
+     * @return A list of all in-progress Repair instances.
+     */
     @Override
     public List<Repair> getInProgressRepairs() {
         return repairRepository.findInProgressRepairs();
     }
 
+    /**
+     * Retrieves all repairs that have been accepted.
+     *
+     * @return A list of all accepted Repair instances.
+     */
     @Override
     public List<Repair> getAcceptedRepairs() {
         return repairRepository.findAcceptedRepairs();
     }
 
+    /**
+     * Retrieves all repairs associated with a given owner.
+     *
+     * @param owner
+     * @return A list of all Repair instances associated with the given owner.
+     */
     @Override
     public List<Repair> findRepairsByOwner(Owner owner) {
         return repairRepository.findRepairsByOwner(owner);
     }
 
+    /**
+     * Retrieves all repairs for a given owner on a specific date.
+     *
+     * @param date
+     * @param owner
+     *
+     * @return A list of all {@link Repair} instances associated with the given
+     * owner on the specified date. Returns an empty list if the date format is
+     * invalid.
+     */
     @Override
     public List<Repair> findRepairsByDate(String date, Owner owner) {
         LocalDate localDate;
@@ -172,6 +282,18 @@ public class RepairServiceImpl implements RepairService {
         return repairRepository.findRepairsByDates(localDateTimeStart, localDateTimeEnd, owner);
     }
 
+    /**
+     * Retrieves all repairs for a given owner within a specified range of
+     * dates.
+     *
+     * @param startDate
+     * @param endDate
+     * @param owner
+     *
+     * @return A list of all Repair instances associated with the given owner
+     * within the specified date range. Returns an empty list if any of the date
+     * formats are invalid
+     */
     @Override
     public List<Repair> findRepairsByRangeOfDates(String startDate, String endDate, Owner owner) {
         LocalDate startLocalDate;
@@ -190,17 +312,39 @@ public class RepairServiceImpl implements RepairService {
         return repairRepository.findRepairsByDates(localDateTimeStart, localDateTimeEnd, owner);
     }
 
+    /**
+     * Retrieves a repair by its ID.
+     *
+     * @param id
+     *
+     * @return An Optional containing the found Repair, or an empty Optional if
+     * no repair is found.
+     */
     @Override
     public Optional<Repair> findRepairById(Long id) {
 
         return repairRepository.findById(id);
     }
 
+    /**
+     * Permanently deletes a repair by its ID.
+     *
+     * @param id
+     *
+     * @return true if the repair was successfully deleted, false otherwise.
+     */
     @Override
     public boolean deletePermantlyById(Long id) {
         return repairRepository.deleteById(id);
     }
 
+    /**
+     * Safely deletes a repair by its ID, checking if it exists first.
+     *
+     * @param id
+     *
+     * @return true if the repair was successfully deleted, false otherwise.
+     */
     @Override
     public boolean deleteSafely(Long id) {
         Optional<Repair> repair = repairRepository.findById(id);
@@ -212,11 +356,26 @@ public class RepairServiceImpl implements RepairService {
         return repairRepository.safeDelete(repairFound);
     }
 
+    /**
+     * Retrieves all repairs associated with a specific property.
+     *
+     * @param property
+     *
+     * @return A list of all Repair instances associated with the specified
+     * property.
+     */
+    @Override
     public List<Repair> getRepairByPropertyId(Property property) {
         return repairRepository.findRepairsByPropertyId(property);
     }
 
-    // Validations
+    /**
+     * Validates the description of a repair. The description must not be null,
+     * blank, or exceed 400 characters.
+     *
+     * @param description
+     * @throws CustomException
+     */
     @Override
     public void validateDesc(String description) throws CustomException {
         if (description == null || description.length() > 400 || description.isBlank()) {
@@ -224,6 +383,13 @@ public class RepairServiceImpl implements RepairService {
         }
     }
 
+    /**
+     * Validates the short description of a repair. The short description must
+     * not be null, blank, or exceed 100 characters.
+     *
+     * @param shortDescription
+     * @throws CustomException
+     */
     @Override
     public void validateShortDesc(String shortDescription) throws CustomException {
         if (shortDescription == null || shortDescription.length() > 100 || shortDescription.isBlank()) {
@@ -231,12 +397,29 @@ public class RepairServiceImpl implements RepairService {
         }
     }
 
+    /**
+     * Validates the repair type based on an integer value. The value must be
+     * between 1 and 5.
+     *
+     * @param repairType
+     * @throws CustomException
+     */
+    @Override
     public void validateType(int repairType) throws CustomException {
         if (repairType < 1 || repairType > 5) {
             throw new CustomException("Invalid input. Please enter a number between 1-5.");
         }
     }
 
+    /**
+     * Determines the RepairType based on an integer value.
+     *
+     * @param repairType
+     *
+     * @return The corresponding RepairType.
+     * @throws CustomException
+     */
+    @Override
     public RepairType checkType(int repairType) throws CustomException {
         switch (repairType) {
             case 1:
