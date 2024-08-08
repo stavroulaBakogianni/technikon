@@ -36,11 +36,12 @@ public class Property implements Serializable {
     @Column(name = "property_type", nullable = false)
     private PropertyType propertyType;
 
+    @NotNull
+    private boolean isDeleted = false;
+
     @ManyToOne
     @JoinColumn(name = "owner_vat", referencedColumnName = "vat", nullable = false)
     private Owner owner;
-    
-    private boolean isDeleted;
 
     @OneToMany(mappedBy = "property", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Repair> repairs;
