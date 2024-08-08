@@ -6,6 +6,7 @@ import gr.technico.technikon.model.Property;
 import gr.technico.technikon.model.Repair;
 import gr.technico.technikon.model.RepairStatus;
 import gr.technico.technikon.model.RepairType;
+import gr.technico.technikon.repositories.PropertyRepository;
 import gr.technico.technikon.repositories.RepairRepository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -21,9 +22,13 @@ import java.util.stream.Collectors;
 public class RepairServiceImpl implements RepairService {
 
     private final RepairRepository repairRepository;
+    private final OwnerService ownerServiceInterface;
+    private final PropertyRepository propertyRepository;
 
-    public RepairServiceImpl(RepairRepository repairRepository) {
+    public RepairServiceImpl(RepairRepository repairRepository, PropertyRepository propertyRepository, OwnerServiceImpl ownerService) {
         this.repairRepository = repairRepository;
+                this.propertyRepository = propertyRepository;
+        this.ownerServiceInterface = ownerService;
     }
 
     /**
@@ -40,7 +45,17 @@ public class RepairServiceImpl implements RepairService {
      */
     @Override
     public Repair createRepair(RepairType repairType, String shortDescription,
-            String description, Owner owner, Property property) {
+            String description, Owner owner, Property property) throws CustomException{
+        
+        if (owner == null) {
+            throw new CustomException("Owner id not inserted.");
+        }
+        if (property == null) {
+            throw new CustomException("Property id not inserted.");
+        }
+        validateRepairType(repairType);
+        validateShortDesc(shortDescription);
+        validateDesc(description);
         Repair repair = new Repair();
         repair.setRepairType(repairType);
         repair.setShortDescription(shortDescription);
@@ -213,7 +228,7 @@ public class RepairServiceImpl implements RepairService {
     public List<Repair> getPendingRepairs() throws CustomException {
         List<Repair> repairs = repairRepository.findPendingRepairs();
         if (repairs.isEmpty()) {
-            throw new CustomException("Repairs not found");
+            throw new CustomException("Repairs not found.");
         } else {
             return repairs;
         }
@@ -473,6 +488,18 @@ public class RepairServiceImpl implements RepairService {
             default:
                 throw new CustomException("Invalid input.");
         }
+    }
+     public void validateRepairType(RepairType repairType) throws CustomException {
+        
+         if (repairType != RepairType.valueOf("PAINTING") 
+                 && repairType != RepairType.valueOf("INSULATION") 
+                 && repairType != RepairType.valueOf("FRAMES") 
+                 && repairType != RepairType.valueOf("PLUMBING") 
+                 && repairType != RepairType.valueOf("ELECTRICALWORK") ){
+            throw new CustomException("Invalid input.");
+        }
+            
+            
     }
 
 }

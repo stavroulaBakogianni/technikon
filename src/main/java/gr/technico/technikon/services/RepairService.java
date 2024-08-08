@@ -13,7 +13,7 @@ import java.util.Optional;
 public interface RepairService {
 
     Repair createRepair(RepairType repairType, String shortDescription,
-            String description, Owner owner, Property property);
+            String description, Owner owner, Property property)throws CustomException;
 
     void updateRepairType(Long id, RepairType repairType);
 
