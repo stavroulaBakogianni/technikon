@@ -31,7 +31,7 @@ public class OwnerUI implements OwnerSelection {
     // Keep track of the logged in owner
     private String loggedInOwnerVat;
 
-    public void manageOwner() {
+    public void manageOwner() throws CustomException {
         while (true) {
             if (loggedInOwnerVat == null) {
                 // Owner is not logged in
@@ -79,21 +79,24 @@ public class OwnerUI implements OwnerSelection {
                         updateRepair();
                         break;
                     case 8:
-                        updateAcceptance();
-                        break;
-                    case 9:
                         deleteRepair();
                         break;
-                    case 10:
-                        getOwnerPropertiesStatuses();
-                        break;
-                    case 11:
+                    case 9:
                         searchRepairsByDate();
                         break;
-                    case 12:
+                    case 10:
                         searchRepairsByRangeOfDates();
                         break;
+                    case 11:
+                        searchRepairsByOwnerID();
+                        break;
+                    case 12:
+                        updateAcceptance();
+                        break;
                     case 13:
+                        getOwnerPropertiesStatuses();
+                        break;
+                    case 14:
                         loggedInOwnerVat = null;
                         System.out.println("You have been logged out.");
                         break;
@@ -121,12 +124,13 @@ public class OwnerUI implements OwnerSelection {
         System.out.println("5. Delete Property");
         System.out.println("6. Create Repair");
         System.out.println("7. Update Repair");
-        System.out.println("8. Accept/Decline Repair");
-        System.out.println("9. Delete Repair");
-        System.out.println("10. Full Reports of Properties and Statuses of Repairs");
-        System.out.println("11. Search repairs by date");
-        System.out.println("12. Search repairs by range of dates");
-        System.out.println("13. Logout");
+        System.out.println("8. Delete Repair");
+        System.out.println("9. Search repairs by date");
+        System.out.println("10. Search repairs by range of dates");
+        System.out.println("11. Search repairs by OwnerID");
+        System.out.println("12. Accept/Decline Repair");
+        System.out.println("13. Full Reports of Properties and Statuses of Repairs");
+        System.out.println("14. Logout");
         System.out.print("Select an action by typing the corresponding number and pressing enter: ");
     }
 
@@ -1018,15 +1022,16 @@ public class OwnerUI implements OwnerSelection {
                         return;
                     }
                     for (Property prop : properties) {
-                        if (!prop.isDeleted()){
-                        System.out.println(prop);
-                        List<Repair> repairsbyOwner = repairServiceImpl.getRepairByPropertyId(prop);
+                        if (!prop.isDeleted()) {
+                            System.out.println(prop);
+                            List<Repair> repairsbyOwner = repairServiceImpl.getRepairByPropertyId(prop);
 //                        if (repairsbyOwner.isEmpty()) {
 //                            return;
 //                        }
-                        for (Repair r : repairsbyOwner) {
-                            System.out.println(r.toString());
-                        }}
+                            for (Repair r : repairsbyOwner) {
+                                System.out.println(r.toString());
+                            }
+                        }
                     }
                 } catch (CustomException e) {
                     System.out.println(e.getMessage());
@@ -1053,6 +1058,9 @@ public class OwnerUI implements OwnerSelection {
             String date = scanner.nextLine();
 
             List<Repair> repairs = repairServiceImpl.findRepairsByDate(date, foundOwner);
+            if (repairs.isEmpty()) {
+                return;
+            }
 
             System.out.println("List of repairs for: " + date);
             for (Repair r : repairs) {
@@ -1082,11 +1090,35 @@ public class OwnerUI implements OwnerSelection {
             String endDate = scanner.nextLine();
 
             List<Repair> repairs = repairServiceImpl.findRepairsByRangeOfDates(startDate, endDate, foundOwner);
+            if (repairs.isEmpty()) {
+                return;
+            }
 
             System.out.println("List of repairs for range: " + startDate + " - " + endDate);
             for (Repair r : repairs) {
                 System.out.println(r.toString());
             }
         }
+    }
+
+    public void searchRepairsByOwnerID() throws CustomException {
+        if (loggedInOwnerVat == null) {
+            System.out.println("You must be logged in to search for repairs.");
+
+        } else {
+            ownerServiceImpl.validateVat(loggedInOwnerVat);
+            Owner owner = ownerServiceImpl.getOwnerByVat(loggedInOwnerVat);
+            //Long ownerId = owner.getId();
+            List<Repair> repairs = repairServiceImpl.findRepairsByOwner(owner);
+            if (repairs.isEmpty()) {
+                System.out.println("Owner not found.");
+                return;
+            }
+            System.out.println("List of repairs by owner ID: ");
+            for (Repair r : repairs) {
+                System.out.println(r.toString());
+            }
+        }
+
     }
 }
