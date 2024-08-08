@@ -770,7 +770,7 @@ public class OwnerUI implements OwnerSelection {
                             }
                         }
                         if (!found) {
-                            System.out.println("Please type1 the corresponding number and pressing enter: ");
+                            System.out.println("Please type the corresponding number and pressing enter: ");
                         }
                     } while (!found);
                     return null;
@@ -874,19 +874,27 @@ public class OwnerUI implements OwnerSelection {
                     for (Repair r : repairs) {
                         System.out.println(r.getId() + " " + r.getDescription() + " " + r.getShortDescription() + " " + r.getRepairType());
                     }
-                    System.out.print("Type the repair Id you want to accept or decline and press enter: ");
-                    Long id = scanner.nextLong();
-                    for (Repair r : repairs) {
-                        if (id == r.getId()) {
-                            System.out.print("Do you want to accept or decline the repair? (1 for accept / 2 for decline) ");
-                            int response = scanner.nextInt();
-                            if (response == 1 || response == 2) {
-                                repairServiceImpl.updAcceptance(id, response);
-                                System.out.println("\nAcceptance updated successfully.");
+                    Long id;
+                    Boolean found = false;
+                    do {
+                        System.out.print("Type the repair Id you want to accept or decline and press enter: ");
+                        id = scanner.nextLong();
+                        for (Repair r : repairs) {
+                            if (id == r.getId()) {
+                                found = true;
+                                System.out.print("Do you want to accept or decline the repair? (1 for accept / 2 for decline) ");
+                                int response = scanner.nextInt();
+                                if (response == 1 || response == 2) {
+                                    repairServiceImpl.updAcceptance(id, response);
+                                    System.out.println("\nAcceptance updated successfully.");
+                                }
+                                break;
                             }
-                            break;
                         }
-                    }
+                        if (!found) {
+                            System.out.println("Please type the corresponding number and pressing enter: ");
+                        }
+                    } while (!found);
 
                 } catch (CustomException e) {
                     System.out.println(e.getMessage());

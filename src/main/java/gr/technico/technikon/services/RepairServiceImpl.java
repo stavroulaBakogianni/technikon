@@ -133,8 +133,13 @@ public class RepairServiceImpl implements RepairService {
         return repairRepository.findPendingRepairs();
     }
 
-    public List<Repair> getPendingRepairsByOwner(Owner owner) {
-        return repairRepository.findPendingRepairsByOwner(owner);
+    public List<Repair> getPendingRepairsByOwner(Owner owner)throws CustomException{
+        List<Repair> repairs =  repairRepository.findPendingRepairsByOwner(owner);
+        if (repairs.isEmpty()) {
+            throw new CustomException("Repairs not found");
+        } else {
+            return repairs;
+        }
     }
 
     @Override

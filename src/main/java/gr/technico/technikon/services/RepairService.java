@@ -35,7 +35,7 @@ public interface RepairService {
 
     public List<Repair> getPendingRepairs();
 
-    public List<Repair> getPendingRepairsByOwner(Owner owner);
+    public List<Repair> getPendingRepairsByOwner(Owner owner)throws CustomException;
 
     public List<Repair> getInProgressRepairs();
 
