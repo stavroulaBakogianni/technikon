@@ -136,6 +136,7 @@ public class OwnerRepository implements Repository<Owner, Long> {
             owner = entityManager.find(getEntityClass(), id);
             return Optional.of(owner);
         } catch (Exception e) {
+
             throw e;
         }
     }
@@ -152,5 +153,9 @@ public class OwnerRepository implements Repository<Owner, Long> {
 
     private Class<Owner> getEntityClass() {
         return Owner.class;
+    }
+
+    private String getEntityClassName() {
+        return Owner.class.getName();
     }
 }

@@ -63,10 +63,39 @@ public class Repair implements Serializable {
     @FutureOrPresent
     @Column(name = "actual_end_date")
     private LocalDateTime actualEndDate;
-
+    
+    @NotNull
+    private boolean isDeleted = false;
+    
     @ManyToOne
     private Owner owner;
 
     @ManyToOne
     private Property property;
+    
+//    @Override
+//    public String toString() {
+//       
+//        return "Repair {"
+//                + "\n    owner VAT = " + owner.getVat()
+//                + "\n    type of repair = " + repairType
+//                + "\n    property E9 = " + property.getE9()
+//                + "\n    short description = " + shortDescription
+//                + "\n    full description = " + description
+//                + "\n    submission date = " + submissionDate
+//                + "\n    cost = " + proposedCost
+//                + "\n    proposed start date = " + proposedStartDate
+//                + "\n    proposed end date = " + proposedEndDate
+//                + "\n    repair status = " + repairStatus
+//                + "\n    acceptance status = " + acceptanceStatus
+//                + "\n    actual start date = " + actualStartDate
+//                + "\n    actual end date = " + actualEndDate
+//                + "\n}";
+//    }
+
+    @Override
+    public String toString() {
+        return "Repair{" + "id=" + id + ", repairType=" + repairType + ", shortDescription=" + shortDescription + ", submissionDate=" + submissionDate + ", description=" + description + ", proposedStartDate=" + proposedStartDate + ", proposedEndDate=" + proposedEndDate + ", proposedCost=" + proposedCost + ", acceptanceStatus=" + acceptanceStatus + ", repairStatus=" + repairStatus + ", actualStartDate=" + actualStartDate + ", actualEndDate=" + actualEndDate + ", isDeleted=" + isDeleted + '}' + "\n";
+    }
+    
 }
